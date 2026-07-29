@@ -6,7 +6,7 @@
 - **Scope**: greenfield-local-demo
 - **Start Date**: 2026-07-29T02:28:48Z
 - **State Version**: 7
-- **Active Agent**: aidlc-architect-agent
+- **Active Agent**: aidlc-developer-agent
 - **Worktree Path**:
 - **Bolt Refs**:
 - **Practices Affirmed Timestamp**:
@@ -25,12 +25,13 @@
 
 ## Execution Plan Summary
 - **Total Stages**: 11
-- **Completed**: 8
-- **In Progress**: functional-design
+- **Completed**: 9
+- **In Progress**: code-generation
 
 ## Runtime State
 - **Revision Count**: 2
 
+- **Skeleton Stance**: scope-dependent
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
 
@@ -69,11 +70,11 @@
 
 ### CONSTRUCTION PHASE
 Per unit: [TBD]
-- [-] functional-design — EXECUTE
+- [x] functional-design — EXECUTE
 - [ ] nfr-requirements — SKIP
 - [ ] nfr-design — SKIP
 - [ ] infrastructure-design — SKIP
-- [ ] code-generation — EXECUTE
+- [-] code-generation — EXECUTE
 - [ ] build-and-test — EXECUTE
 - [ ] ci-pipeline — SKIP
 
@@ -88,12 +89,12 @@ Per unit: [TBD]
 
 ## Current Status
 - **Lifecycle Phase**: CONSTRUCTION
-- **Current Stage**: functional-design
-- **Next Stage**: code-generation
+- **Current Stage**: code-generation
+- **Next Stage**: build-and-test
 - **Status**: Running
-- **Last Updated**: 2026-07-29T08:04:52Z
+- **Last Updated**: 2026-07-29T08:49:06Z
 
 ## Session Resume Point
-- **Last Completed Stage**: units-generation
-- **Next Action**: Execute Functional Design
+- **Last Completed Stage**: functional-design
+- **Next Action**: Execute Code Generation
 - **Pending Artifacts**: none

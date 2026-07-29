@@ -5604,3 +5604,1028 @@
 **Agent**: aidlc-architect-agent
 
 ---
+
+## Artifact Created
+**Timestamp**: 2026-07-29T08:05:50Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/verification/inception-construction-verification.md
+**Context**: verification > inception-construction-verification.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:05:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5f4a37e8
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/verification/inception-construction-verification.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:05:50Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5f4a37e8
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/verification/inception-construction-verification.md
+**Duration ms**: 80
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:05:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: ef7d8bdb
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/verification/inception-construction-verification.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-29T08:05:50Z
+**Event**: SENSOR_FAILED
+**Fire id**: ef7d8bdb
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/verification/inception-construction-verification.md
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/functional-design/upstream-coverage-ef7d8bdb.md
+**Findings count**: 4
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-29T08:07:42Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/domain-entities.md
+**Context**: construction > auth-friends > functional-design > domain-entities.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:07:42Z
+**Event**: SENSOR_FIRED
+**Fire id**: ec584fde
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/domain-entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:07:42Z
+**Event**: SENSOR_PASSED
+**Fire id**: ec584fde
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/domain-entities.md
+**Duration ms**: 76
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:07:42Z
+**Event**: SENSOR_FIRED
+**Fire id**: d7849f26
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/domain-entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:07:42Z
+**Event**: SENSOR_PASSED
+**Fire id**: d7849f26
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/domain-entities.md
+**Duration ms**: 78
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-29T08:08:40Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/business-rules.md
+**Context**: construction > auth-friends > functional-design > business-rules.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:08:40Z
+**Event**: SENSOR_FIRED
+**Fire id**: 354d7de0
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/business-rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:08:41Z
+**Event**: SENSOR_PASSED
+**Fire id**: 354d7de0
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/business-rules.md
+**Duration ms**: 81
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:08:41Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9ca09539
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/business-rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:08:41Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9ca09539
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/business-rules.md
+**Duration ms**: 79
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-29T08:09:58Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/business-logic-model.md
+**Context**: construction > auth-friends > functional-design > business-logic-model.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:09:59Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7372298e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/business-logic-model.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:09:59Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7372298e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/business-logic-model.md
+**Duration ms**: 75
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:09:59Z
+**Event**: SENSOR_FIRED
+**Fire id**: b8d85fb8
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/business-logic-model.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:09:59Z
+**Event**: SENSOR_PASSED
+**Fire id**: b8d85fb8
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/functional-design/business-logic-model.md
+**Duration ms**: 77
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-29T08:11:07Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/domain-entities.md
+**Context**: construction > judgment-core > functional-design > domain-entities.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:11:07Z
+**Event**: SENSOR_FIRED
+**Fire id**: a4af817a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/domain-entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:11:07Z
+**Event**: SENSOR_PASSED
+**Fire id**: a4af817a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/domain-entities.md
+**Duration ms**: 78
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:11:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: d2b72d06
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/domain-entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:11:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: d2b72d06
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/domain-entities.md
+**Duration ms**: 81
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-29T08:12:20Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/business-rules.md
+**Context**: construction > judgment-core > functional-design > business-rules.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:12:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 557d857e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/business-rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:12:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 557d857e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/business-rules.md
+**Duration ms**: 92
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:12:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: c97fc566
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/business-rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:12:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: c97fc566
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/business-rules.md
+**Duration ms**: 83
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-29T08:13:47Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/business-logic-model.md
+**Context**: construction > judgment-core > functional-design > business-logic-model.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:13:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4b3df3f2
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/business-logic-model.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:13:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4b3df3f2
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/business-logic-model.md
+**Duration ms**: 77
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:13:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 06e76f7e
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/business-logic-model.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:13:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: 06e76f7e
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/functional-design/business-logic-model.md
+**Duration ms**: 79
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-29T08:14:51Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/domain-entities.md
+**Context**: construction > rooms-realtime > functional-design > domain-entities.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:14:51Z
+**Event**: SENSOR_FIRED
+**Fire id**: c24817de
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/domain-entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:14:51Z
+**Event**: SENSOR_PASSED
+**Fire id**: c24817de
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/domain-entities.md
+**Duration ms**: 81
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:14:51Z
+**Event**: SENSOR_FIRED
+**Fire id**: 399163b5
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/domain-entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:14:51Z
+**Event**: SENSOR_PASSED
+**Fire id**: 399163b5
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/domain-entities.md
+**Duration ms**: 78
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-29T08:15:43Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/business-rules.md
+**Context**: construction > rooms-realtime > functional-design > business-rules.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:15:43Z
+**Event**: SENSOR_FIRED
+**Fire id**: dcea1a49
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/business-rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:15:44Z
+**Event**: SENSOR_PASSED
+**Fire id**: dcea1a49
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/business-rules.md
+**Duration ms**: 80
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:15:44Z
+**Event**: SENSOR_FIRED
+**Fire id**: b37fdb15
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/business-rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:15:44Z
+**Event**: SENSOR_PASSED
+**Fire id**: b37fdb15
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/business-rules.md
+**Duration ms**: 79
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-29T08:17:01Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/business-logic-model.md
+**Context**: construction > rooms-realtime > functional-design > business-logic-model.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:17:01Z
+**Event**: SENSOR_FIRED
+**Fire id**: 87463c86
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/business-logic-model.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:17:01Z
+**Event**: SENSOR_PASSED
+**Fire id**: 87463c86
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/business-logic-model.md
+**Duration ms**: 84
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:17:01Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5ec0460a
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/business-logic-model.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:17:01Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5ec0460a
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/functional-design/business-logic-model.md
+**Duration ms**: 81
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-29T08:17:59Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/domain-entities.md
+**Context**: construction > messaging > functional-design > domain-entities.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:17:59Z
+**Event**: SENSOR_FIRED
+**Fire id**: a9ccfb5b
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/domain-entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:17:59Z
+**Event**: SENSOR_PASSED
+**Fire id**: a9ccfb5b
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/domain-entities.md
+**Duration ms**: 79
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:17:59Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7d692ae4
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/domain-entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:17:59Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7d692ae4
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/domain-entities.md
+**Duration ms**: 83
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-29T08:19:05Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-rules.md
+**Context**: construction > messaging > functional-design > business-rules.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:19:05Z
+**Event**: SENSOR_FIRED
+**Fire id**: 58d8b8f6
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:19:06Z
+**Event**: SENSOR_PASSED
+**Fire id**: 58d8b8f6
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-rules.md
+**Duration ms**: 82
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:19:06Z
+**Event**: SENSOR_FIRED
+**Fire id**: daa24836
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:19:06Z
+**Event**: SENSOR_PASSED
+**Fire id**: daa24836
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-rules.md
+**Duration ms**: 79
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-29T08:20:35Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+**Context**: construction > messaging > functional-design > business-logic-model.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:20:35Z
+**Event**: SENSOR_FIRED
+**Fire id**: 622e3689
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:20:35Z
+**Event**: SENSOR_PASSED
+**Fire id**: 622e3689
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+**Duration ms**: 84
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:20:35Z
+**Event**: SENSOR_FIRED
+**Fire id**: d1a9f73b
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:20:35Z
+**Event**: SENSOR_PASSED
+**Fire id**: d1a9f73b
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+**Duration ms**: 80
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-29T08:20:48Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: auth-friends
+**Iteration**: 1
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-29T08:20:48Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: judgment-core
+**Iteration**: 1
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-29T08:20:48Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: rooms-realtime
+**Iteration**: 1
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-29T08:20:48Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: messaging
+**Iteration**: 1
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-29T08:32:26Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+**Context**: construction > messaging > functional-design > business-logic-model.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:32:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3ca159ab
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:32:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3ca159ab
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+**Duration ms**: 76
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:32:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 42f0419e
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:32:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: 42f0419e
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+**Duration ms**: 80
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-29T08:32:47Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a4b223be6f1e157d2
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Verdict: NOT-READY**\n\nI reviewed all twelve Functional Design artifacts across the four units (`auth-friends`, `judgment-core`, `rooms-realtime`, `me
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-29T08:33:47Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: auth-friends
+**Iteration**: 1
+**Verdict**: NOT-READY
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-29T08:33:47Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: judgment-core
+**Iteration**: 1
+**Verdict**: NOT-READY
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-29T08:33:48Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: rooms-realtime
+**Iteration**: 1
+**Verdict**: NOT-READY
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-29T08:33:48Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: messaging
+**Iteration**: 1
+**Verdict**: NOT-READY
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-29T08:34:45Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: auth-friends
+**Iteration**: 2
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-29T08:34:45Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: judgment-core
+**Iteration**: 2
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-29T08:34:45Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: rooms-realtime
+**Iteration**: 2
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-29T08:34:45Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: messaging
+**Iteration**: 2
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-29T08:38:26Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+**Context**: construction > messaging > functional-design > business-logic-model.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:38:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 77282a9f
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:38:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: 77282a9f
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+**Duration ms**: 77
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-29T08:38:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: d24177c6
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-29T08:38:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: d24177c6
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/functional-design/business-logic-model.md
+**Duration ms**: 84
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-29T08:38:40Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a4b223be6f1e157d2
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Verdict: READY**\n\nI re-read the changed sections (`judgment-core/business-rules.md` BR-6.9, `judgment-core/business-logic-model.md` W2, `messaging/bu
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-29T08:39:11Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: auth-friends
+**Iteration**: 2
+**Verdict**: READY
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-29T08:39:11Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: judgment-core
+**Iteration**: 2
+**Verdict**: READY
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-29T08:39:11Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: rooms-realtime
+**Iteration**: 2
+**Verdict**: READY
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-29T08:39:11Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: messaging
+**Iteration**: 2
+**Verdict**: READY
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-29T08:46:59Z
+**Event**: HUMAN_TURN
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-07-29T08:47:22Z
+**Event**: RULE_LEARNED
+**Stage**: functional-design
+**Candidate-ID**: c3
+**Destination**: C:\IDE\workplace\jihwan\mini_project\aidlc\spaces\default\memory\project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-07-29T08:47:22Z
+**Event**: RULE_LEARNED
+**Stage**: functional-design
+**Candidate-ID**: c4
+**Destination**: C:\IDE\workplace\jihwan\mini_project\aidlc\spaces\default\memory\project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Question Answered
+**Timestamp**: 2026-07-29T08:47:22Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Learnings kept: c3 (기존 메커니즘 재사용), c4 (프롬프트에 판단하지 않을 것 명시) | Anything to add: Nothing to add
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-07-29T08:47:23Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: functional-design
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-29T08:48:39Z
+**Event**: HUMAN_TURN
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-07-29T08:49:06Z
+**Event**: GATE_APPROVED
+**Stage**: functional-design
+**User Input**: Approve
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-07-29T08:49:06Z
+**Event**: STAGE_COMPLETED
+**Stage**: functional-design
+**Details**: Stage Functional Design approved by gate
+
+---
+
+## Stage Start
+**Timestamp**: 2026-07-29T08:49:06Z
+**Event**: STAGE_STARTED
+**Stage**: code-generation
+**Agent**: aidlc-developer-agent
+
+---

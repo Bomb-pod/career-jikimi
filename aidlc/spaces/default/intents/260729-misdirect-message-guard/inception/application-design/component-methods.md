@@ -275,7 +275,8 @@ async def unreport_misdirect(user_id: int, message_id: int) -> None
 ```ts
 type SendOutcome =
   | { kind: 'sent';    message: Message }
-  | { kind: 'blocked'; logId: number; score: number }
+  | { kind: 'blocked'; reason: 'inappropriate'; logId: number; score: number }
+  | { kind: 'blocked'; reason: 'judge_failed';  logId: number }
 
 async function sendMessage(
   roomId: number, text: string,
@@ -284,6 +285,8 @@ async function sendMessage(
 ```
 
 409를 **예외로 던지지 않는다.** 정상 분기다. 네트워크 오류·5xx만 throw한다.
+
+`reason`이 판별자다 — `inappropriate`는 부적절 판정 확인 팝업, `judge_failed`는 검증 실패 확인 팝업을 띄운다. 두 경우 모두 사용자가 강행하면 같은 `logId`를 `forceLogId`로 실어 재요청한다.
 
 ```ts
 async function judgmentAction(logId: number, action: 'sent' | 'cancelled'): Promise<void>
