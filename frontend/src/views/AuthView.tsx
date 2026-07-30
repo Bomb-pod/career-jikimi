@@ -29,7 +29,13 @@ import { useChatStore } from '../store/chatStore'
 
 type Mode = 'login' | 'signup'
 
-export default function AuthView() {
+/**
+ * `onSignedIn` — 로그인·회원가입이 성공한 직후 호출한다.
+ *
+ * 이 컴포넌트가 직접 화면을 옮기지 않는 이유 — 어느 화면으로 갈지는 App 셸의
+ * 관심사다. 뷰가 그것을 알면 셸의 구조가 뷰 안으로 새어 들어온다.
+ */
+export default function AuthView({ onSignedIn }: { onSignedIn?: () => void }) {
   const setAuth = useChatStore((state) => state.setAuth)
   const token = useChatStore((state) => state.auth.token)
 
@@ -91,6 +97,7 @@ export default function AuthView() {
       }
       // 회원가입도 토큰을 함께 받는다 — 자동 로그인이므로 로그인과 같은 경로로 저장한다.
       setAuth(result.data.token, result.data.user)
+      onSignedIn?.()
     } catch (caught) {
       // 네트워크·5xx만 여기로 온다 (apiClient의 규약). 사용자가 고칠 수 없는 실패다.
       setError(caught instanceof Error ? caught.message : '요청을 처리할 수 없습니다')
@@ -101,7 +108,7 @@ export default function AuthView() {
 
   if (token !== null) {
     return (
-      <section className="panel" aria-label="로그인 상태">
+      <section className="auth-screen" aria-label="로그인 상태">
         <p>로그인되어 있습니다.</p>
         <button
           type="button"
@@ -116,8 +123,18 @@ export default function AuthView() {
   }
 
   return (
-    <section className="panel">
-      <form className="form" onSubmit={handleSubmit} noValidate>
+    <section className="auth-screen">
+      {/* 브랜드 자리 — 로그인 화면이 폼만 있으면 어느 앱인지 알 수 없다.
+          머리글자 마크를 쓰는 이유는 로고 이미지가 없기 때문이다. */}
+      <div className="auth-brand">
+        <div className="auth-mark" aria-hidden="true">
+          C
+        </div>
+        <h2>career-jikimi</h2>
+        <p>채팅방을 착각해 잘못 보내는 메시지를 전송 전에 경고합니다</p>
+      </div>
+
+      <form className="card" onSubmit={handleSubmit} noValidate>
         {/* 오류는 폼 상단의 aria-live 영역 하나에만 나온다.
             영역을 항상 렌더해두는 이유 — 나중에 삽입되는 요소의 내용은 일부 스크린리더가
             읽지 않는다. 비어 있는 채로 미리 있어야 변경이 announce된다. */}
@@ -126,7 +143,9 @@ export default function AuthView() {
         </div>
 
         <div className="field">
-          <label htmlFor={usernameId}>아이디</label>
+          <label htmlFor={usernameId}>
+            <span>아이디</span>
+          </label>
           <input
             id={usernameId}
             name="username"
@@ -140,7 +159,9 @@ export default function AuthView() {
         </div>
 
         <div className="field">
-          <label htmlFor={passwordId}>비밀번호</label>
+          <label htmlFor={passwordId}>
+            <span>비밀번호</span>
+          </label>
           <input
             id={passwordId}
             name="password"
@@ -160,7 +181,9 @@ export default function AuthView() {
 
         {isSignup && (
           <div className="field">
-            <label htmlFor={confirmId}>비밀번호 확인</label>
+            <label htmlFor={confirmId}>
+              <span>비밀번호 확인</span>
+            </label>
             <input
               id={confirmId}
               name="passwordConfirm"
@@ -200,7 +223,7 @@ export default function AuthView() {
         {isSignup ? '이미 계정이 있으신가요?' : '계정이 없으신가요?'}{' '}
         <button
           type="button"
-          className="link"
+          className="text-button"
           data-testid="auth-switch-mode"
           onClick={() => switchMode(isSignup ? 'login' : 'signup')}
         >

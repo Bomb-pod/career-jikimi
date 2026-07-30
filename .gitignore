@@ -91,3 +91,11 @@ smoke_out/
 # 노트북 실행 결과(출력 셀)는 커밋하지 않는다 — 학습 로그가 diff를 덮고 용량도 커진다.
 # 코드 셀만 담긴 상태로 커밋할 것.
 training/_nb_verify*.ipynb
+# 센서가 남기는 스크래치 — **경로를 루트에 고정하지 않는다.**
+#
+# 위 글롭들은 `aidlc/`로 시작해 저장소 루트의 그 디렉터리에만 걸린다. 타입체크
+# 센서가 `frontend/`를 cwd로 돌면 `frontend/aidlc/spaces/.../.aidlc-sensors/`가
+# 생기는데 그것은 안 걸려 실제로 커밋되었다 — U1의 code-summary가 예고한 재발이다.
+# 선행 `**/`가 어느 깊이에서든 잡는다.
+**/.aidlc-sensors/
+**/*.tsbuildinfo

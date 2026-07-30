@@ -21,6 +21,8 @@ const api = vi.hoisted(() => ({
   // U5가 `enterRoom()`의 기본 히스토리 로더를 이 호출로 바꿨다. 명시적 로더를 넘기지
   // 않는 테스트가 실제 fetch로 나가지 않도록 여기서도 대역을 둔다.
   listMessages: vi.fn(() => Promise.resolve({ ok: true as const, data: { messages: [] } })),
+  // `hydrateSession()`이 부른다 — 새로고침 후 "내가 누구인지" 복구.
+  me: vi.fn(),
 }))
 
 vi.mock('../lib/apiClient', () => api)
@@ -338,5 +340,73 @@ describe('배지와 토스트', () => {
     expect(state.unread).toEqual({})
     expect(state.messages).toEqual([])
     expect(state.currentRoomId).toBeNull()
+  })
+})
+
+describe('hydrateSession — 새로고침 후 세션 복구', () => {
+  it('토큰이 없으면 아무 일도 하지 않고 false를 준다', async () => {
+    // 부르면 보나마나 401이고, 그 401이 로그를 오염시킨다.
+    useChatStore.setState({ auth: { token: null, user: null } })
+
+    const alive = await useChatStore.getState().hydrateSession()
+
+    expect(alive).toBe(false)
+    expect(api.me).not.toHaveBeenCalled()
+  })
+
+  it('성공하면 `auth.user`를 채우고 토큰은 그대로 둔다', async () => {
+    useChatStore.setState({ auth: { token: 'jwt-token', user: null } })
+    api.me.mockResolvedValue({ ok: true as const, data: { id: 7, username: 'bob' } })
+
+    const alive = await useChatStore.getState().hydrateSession()
+
+    expect(alive).toBe(true)
+    expect(useChatStore.getState().auth).toEqual({
+      token: 'jwt-token',
+      user: { id: 7, username: 'bob' },
+    })
+  })
+
+  it('401이면 토큰을 지운다', async () => {
+    // 낡은 토큰을 들고 있으면 이후 모든 요청이 401이 되고 사용자는 로그인했다고 믿는다.
+    useChatStore.setState({ auth: { token: 'stale', user: null } })
+    api.me.mockResolvedValue({
+      ok: false as const,
+      error: { code: 'INVALID_TOKEN', message: '유효하지 않은 토큰입니다', status: 401 },
+    })
+
+    const alive = await useChatStore.getState().hydrateSession()
+
+    expect(alive).toBe(false)
+    expect(useChatStore.getState().auth.token).toBeNull()
+  })
+
+  it('네트워크 오류에는 토큰을 지키고 true를 준다', async () => {
+    // 서버가 잠깐 죽은 것과 토큰이 죽은 것은 다르다. 전자에서 로그아웃시키면
+    // 서버가 돌아와도 다시 로그인해야 한다.
+    useChatStore.setState({ auth: { token: 'jwt-token', user: null } })
+    api.me.mockResolvedValue({
+      ok: false as const,
+      error: { code: 'NETWORK', message: '연결할 수 없습니다', status: 0 },
+    })
+
+    const alive = await useChatStore.getState().hydrateSession()
+
+    expect(alive).toBe(true)
+    expect(useChatStore.getState().auth.token).toBe('jwt-token')
+    expect(useChatStore.getState().auth.user).toBeNull()
+  })
+
+  it('5xx에도 토큰을 지키지 않고 로그아웃시키지 않는다', async () => {
+    useChatStore.setState({ auth: { token: 'jwt-token', user: null } })
+    api.me.mockResolvedValue({
+      ok: false as const,
+      error: { code: 'SERVER', message: '서버 오류', status: 503 },
+    })
+
+    const alive = await useChatStore.getState().hydrateSession()
+
+    expect(alive).toBe(true)
+    expect(useChatStore.getState().auth.token).toBe('jwt-token')
   })
 })

@@ -280,3 +280,68 @@ async def test_non_bearer_authorization_header_is_unauthorized(api_client: Any) 
 
     assert response.status_code == 401
     assert response.json()["error"]["code"] == "INVALID_TOKEN"
+
+
+# --------------------------------------------------------------------------
+# GET /auth/me — 새로고침 후 "내가 누구인지" 복구
+# --------------------------------------------------------------------------
+# `component-methods.md`에 없던 표면이다. U4·U5의 code-summary가 둘 다 "화면이
+# 현재 사용자를 보여주려면 필요하다"로 남겨둔 항목이며, 프론트엔드를 마무리하면서
+# 그 필요가 실제로 발생했다.
+
+
+async def test_me_returns_the_token_owner(api_client: Any) -> None:
+    """유효한 토큰으로 부르면 그 토큰이 가리키는 사용자를 준다."""
+    created = await signup_via_api(api_client, "me_owner")
+
+    response = await api_client.get("/auth/me", headers=bearer(created["token"]))
+
+    assert response.status_code == 200
+    assert response.json() == created["user"]
+
+
+async def test_me_does_not_leak_the_password_hash(api_client: Any) -> None:
+    """응답에 `password_hash`가 없다 — FR-1.1.
+
+    `UserOut`이 세 필드만 선언해 구조적으로 막혀 있으나, 새 엔드포인트가 그 모델을
+    실제로 쓰는지는 별도로 고정해야 한다.
+    """
+    created = await signup_via_api(api_client, "me_nohash")
+
+    response = await api_client.get("/auth/me", headers=bearer(created["token"]))
+
+    assert response.status_code == 200
+    assert set(response.json()) == {"id", "username", "display_name"}
+    assert "password_hash" not in response.text
+
+
+async def test_me_without_a_token_is_unauthorized(api_client: Any) -> None:
+    """토큰이 없으면 401이다 — BR-1.5.
+
+    프론트엔드가 이 401을 **토큰을 지우라는 신호**로 쓴다. 403이면 "로그인은 됐는데
+    권한이 없다"로 읽혀 낡은 토큰이 계속 남는다.
+    """
+    response = await api_client.get("/auth/me")
+
+    assert response.status_code == 401
+
+
+async def test_me_with_a_garbage_token_is_unauthorized(api_client: Any) -> None:
+    """위조 토큰도 401이다 — 만료·서명 오류와 같은 경로."""
+    response = await api_client.get("/auth/me", headers=bearer("not-a-real-token"))
+
+    assert response.status_code == 401
+    assert response.json()["error"]["code"] == "INVALID_TOKEN"
+
+
+async def test_me_does_not_issue_a_new_token(api_client: Any) -> None:
+    """응답에 토큰이 없다.
+
+    갱신하면 사실상 무기한 세션이 되어 FR-1.2가 리프레시 토큰을 범위 밖으로 둔
+    결정이 뒤집힌다. `AuthResponse`가 아니라 `UserOut`을 반환하는 이유다.
+    """
+    created = await signup_via_api(api_client, "me_notoken")
+
+    response = await api_client.get("/auth/me", headers=bearer(created["token"]))
+
+    assert "token" not in response.json()

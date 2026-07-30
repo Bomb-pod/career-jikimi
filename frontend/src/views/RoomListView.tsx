@@ -2,7 +2,9 @@ import { useEffect, useId, useState, type FormEvent } from 'react'
 
 import * as api from '../lib/apiClient'
 import { ROOM_NAME_MAX_LENGTH } from '../lib/constants'
+import { avatarColor, avatarInitial } from '../lib/avatar'
 import { roomDisplayName } from '../lib/roomName'
+import { formatListTime } from '../lib/time'
 import { useChatStore } from '../store/chatStore'
 
 /**
@@ -24,7 +26,14 @@ import { useChatStore } from '../store/chatStore'
  * 소관이므로, 입장한 방의 설정을 이 화면의 "현재 방" 영역에서 바꾼다. `data-testid`가
  * `room-ai-toggle`(방 id 없음)인 것도 화면에 하나만 있다는 뜻이다.
  */
-export default function RoomListView() {
+/**
+ * `onOpenRoom` — 방에 입장한 직후 호출한다. App 셸이 대화 화면으로 옮긴다.
+ *
+ * **입장과 화면 전환을 나눈 이유** — 입장은 스토어의 일(포인터 이동 + 히스토리
+ * 조회, BR-3.5)이고 어느 화면을 그릴지는 셸의 일이다. `ToastHost`도 같은 모양의
+ * 콜백을 받는다.
+ */
+export default function RoomListView({ onOpenRoom }: { onOpenRoom?: (roomId: number) => void }) {
   const token = useChatStore((state) => state.auth.token)
   const myUserId = useChatStore((state) => state.auth.user?.id ?? null)
   const friends = useChatStore((state) => state.friends)
@@ -213,47 +222,87 @@ export default function RoomListView() {
           </button>
         </form>
       ) : (
-        <button
-          type="button"
-          className="primary"
-          data-testid="room-create-open"
-          onClick={() => setCreating(true)}
-        >
-          새 채팅방
-        </button>
+        // 작은 액션 줄에 둔다 — 메신저는 "새 채팅"을 전폭 버튼이 아니라 작게
+        // 두고 목록을 주인공으로 남긴다.
+        <div className="list-actions">
+          <button
+            type="button"
+            className="primary"
+            data-testid="room-create-open"
+            onClick={() => setCreating(true)}
+          >
+            + 새 채팅방
+          </button>
+        </div>
       )}
 
       {/* ---------------- 목록 ---------------- */}
-      <h3>내 채팅방</h3>
       {rooms.length === 0 ? (
-        <p className="muted" data-testid="rooms-empty">
-          채팅방이 없습니다. 친구를 초대해 만들어보세요.
+        <p className="empty-state" data-testid="rooms-empty">
+          채팅방이 없습니다.
+          <br />
+          친구를 초대해 만들어보세요.
         </p>
       ) : (
-        <ul className="room-list" data-testid="room-list">
+        <ul className="list" data-testid="room-list">
           {rooms.map((room) => {
             const count = unread[room.id] ?? 0
             const label = roomDisplayName(room, myUserId)
+            // 참여자 수를 부제로 둔다 — 마지막 메시지 미리보기는 서버가 주지
+            // 않는다(`RoomSummary`에 없다). 자리를 비우면 행이 무너져 보인다.
+            const others = room.members.filter((member) => member.user_id !== myUserId)
             return (
               <li key={room.id} data-testid={`room-list-item-${room.id}`}>
                 <button
                   type="button"
-                  className="room-item"
+                  className="row"
                   aria-current={room.id === currentRoomId ? 'true' : undefined}
-                  onClick={() => void enterRoom(room.id)}
+                  onClick={() => {
+                    // 화면 전환을 기다리지 않는다 — 히스토리가 늦게 와도 대화 화면은
+                    // 바로 열려야 한다. 그 화면이 자기 로딩 상태를 그린다.
+                    void enterRoom(room.id)
+                    onOpenRoom?.(room.id)
+                  }}
                 >
-                  <span className="room-name">{label}</span>
-                  {/* **0이면 아예 렌더링하지 않는다.** 숫자만 두지 않고 aria-label을
-                      붙이는 이유 — 스크린리더가 "3"만 읽으면 무엇의 3인지 알 수 없다. */}
-                  {count > 0 && (
-                    <span
-                      className="badge"
-                      data-testid={`room-unread-badge-${room.id}`}
-                      aria-label={`안 읽은 메시지 ${count}개`}
-                    >
-                      {count}
+                  <span
+                    className="avatar"
+                    style={{ background: avatarColor(label) }}
+                    aria-hidden="true"
+                  >
+                    {avatarInitial(label)}
+                  </span>
+
+                  <span className="row-body">
+                    <span className="row-title">{label}</span>
+                    {/* 부제는 **이름이 있는 방에만** 참여자를 나열한다. 이름이 없는
+                        방은 제목이 이미 참여자 목록이라(`roomDisplayName`) 그대로 두면
+                        같은 이름이 두 줄에 겹친다.
+
+                        **별칭만 보인다** (FR-2.4) — 서버가 호출자 기준으로 해석해
+                        보낸 `display_name`이며 상대가 스스로 정한 이름이 아니다. */}
+                    <span className="row-sub">
+                      {others.length === 0
+                        ? '나만 있는 방'
+                        : room.name === null
+                          ? `${others.length + 1}명`
+                          : others.map((member) => member.display_name).join(', ')}
                     </span>
-                  )}
+                  </span>
+
+                  <span className="row-side">
+                    <span className="row-time">{formatListTime(room.created_at)}</span>
+                    {/* **0이면 아예 렌더링하지 않는다.** 숫자만 두지 않고 aria-label을
+                        붙이는 이유 — 스크린리더가 "3"만 읽으면 무엇의 3인지 알 수 없다. */}
+                    {count > 0 && (
+                      <span
+                        className="badge-unread"
+                        data-testid={`room-unread-badge-${room.id}`}
+                        aria-label={`안 읽은 메시지 ${count}개`}
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </span>
                 </button>
               </li>
             )
@@ -263,11 +312,13 @@ export default function RoomListView() {
 
       {/* ---------------- 현재 방 ---------------- */}
       {current !== null && (
-        <div className="current-room" data-testid="room-current">
-          <h3>{roomDisplayName(current, myUserId)}</h3>
+        <div className="card" data-testid="room-current" style={{ margin: '0.875rem' }}>
+          <p className="section-title" style={{ marginTop: 0 }}>
+            {roomDisplayName(current, myUserId)}
+          </p>
           {/* 진짜 체크박스 + 보이는 라벨. div로 만들면 키보드로 조작할 수 없고
               스크린리더가 상태를 읽지 못한다. */}
-          <label>
+          <label className="toggle-row">
             <input
               type="checkbox"
               data-testid="room-ai-toggle"

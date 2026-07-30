@@ -7,7 +7,9 @@ import {
   MESSAGE_MAX_LENGTH,
   TOAST_TIMEOUT_MS,
 } from '../lib/constants'
+import { avatarColor, avatarInitial } from '../lib/avatar'
 import { roomDisplayName } from '../lib/roomName'
+import { formatClock, formatDateDivider, isSameDay } from '../lib/time'
 import { useChatStore } from '../store/chatStore'
 import DegradedDialog from './DegradedDialog'
 import JudgeConfirmDialog from './JudgeConfirmDialog'
@@ -68,6 +70,7 @@ export default function ChatView() {
   const [roomError, setRoomError] = useState<string | null>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const inputId = useId()
+  const toggleId = useId()
   const privacyDetailId = useId()
 
   const send = useSendMessage()
@@ -83,11 +86,11 @@ export default function ChatView() {
 
   if (currentRoomId === null || room === null) {
     return (
-      <section className="panel">
-        <p className="muted" data-testid="chat-no-room">
+      <div className="chat-screen">
+        <p className="empty-state" data-testid="chat-no-room">
           채팅방 목록에서 방을 선택하면 대화가 열립니다.
         </p>
-      </section>
+      </div>
     )
   }
 
@@ -156,20 +159,21 @@ export default function ChatView() {
   }
 
   return (
-    <section className="panel">
-      {/* ---------------- 헤더 ---------------- */}
-      <div className="chat-header">
-        <h3 data-testid="chat-room-name">{roomDisplayName(room, myUserId)}</h3>
+    <div className="chat-screen">
+      {/* ---------------- 설정 영역 ---------------- */}
+      <div className="chat-settings">
+        <strong data-testid="chat-room-name">{roomDisplayName(room, myUserId)}</strong>
 
-        <label>
+        <div className="toggle-row">
           <input
+            id={toggleId}
             type="checkbox"
             data-testid="chat-ai-toggle"
             checked={room.ai_check_enabled}
             onChange={(event) => void handleAiCheck(event.target.checked)}
           />
-          이 방에서 AI 검증 사용
-        </label>
+          <label htmlFor={toggleId}>이 방에서 AI 검증 사용</label>
+        </div>
 
         {/* **NFR-5 — 토글이 꺼져 있어도 보인다.** 켜기 전에 무슨 일이 일어나는지
             알아야 결정할 수 있다. `details`가 아니라 버튼인 이유는 열림 상태를
@@ -210,49 +214,113 @@ export default function ChatView() {
 
       {/* ---------------- 목록 ---------------- */}
       {messages.length === 0 && roomPending.length === 0 ? (
-        <p className="muted" data-testid="chat-empty">
+        <p className="empty-state" data-testid="chat-empty">
           첫 메시지를 보내보세요.
         </p>
       ) : (
         <ul className="chat-list" data-testid="chat-list">
-          {messages.map((message) => (
-            <li key={message.id} data-testid={`chat-message-${message.id}`}>
-              <span className="chat-sender">{nameOf(message)}</span>
-              <span className="chat-body">{message.body}</span>
+          {messages.map((message, index) => {
+            const mine = message.sender_id === myUserId
+            const previous = index === 0 ? null : (messages[index - 1] ?? null)
+            // 날짜가 바뀌면 구분선을 넣는다 — 스크롤백에서 "언제 일인지"를
+            // 말풍선마다 반복하지 않고 한 줄로 알린다.
+            const newDay = previous === null || !isSameDay(previous.created_at, message.created_at)
+            // 같은 사람이 같은 분에 연달아 보내면 아바타·이름·시각을 접는다.
+            // 메신저의 관용구이며, 반복되는 이름이 대화의 흐름을 끊는다.
+            const grouped =
+              previous !== null &&
+              !newDay &&
+              previous.sender_id === message.sender_id &&
+              formatClock(previous.created_at) === formatClock(message.created_at)
 
-              {/* **세 상태에만 붙는다** (BR-8.6). 색이 아니라 문구로 알린다. */}
-              {isUnverified(message.verification_status) && (
-                <span
-                  className="badge badge-warn"
-                  data-testid={`chat-unverified-badge-${message.id}`}
-                  title="AI 검증을 받지 못한 메시지입니다"
-                >
-                  검증 안 됨
-                </span>
-              )}
+            return (
+              <li key={message.id} data-testid={`chat-message-${message.id}`}>
+                {newDay && (
+                  <div className="date-divider">
+                    <span>{formatDateDivider(message.created_at)}</span>
+                  </div>
+                )}
 
-              {/* **내 메시지에만** 신고 버튼이 있다 (BR-11.1). 남의 메시지를
-                  오발송으로 신고할 수 없다 — 이것은 자기 신고다. */}
-              {message.sender_id === myUserId && (
-                <button
-                  type="button"
-                  className="link"
-                  data-testid={`chat-report-${message.id}`}
-                  aria-pressed={message.misdirect_reported_at !== null}
-                  onClick={() => void handleReport(message)}
+                <div
+                  className={`msg ${mine ? 'msg-mine' : 'msg-other'}${grouped ? ' msg-grouped' : ''}`}
                 >
-                  {message.misdirect_reported_at === null ? '잘못 보냈어요' : '신고 취소'}
-                </button>
-              )}
-            </li>
-          ))}
+                  {/* 아바타는 상대에게만. 내 말풍선은 오른쪽 정렬 자체가 화자를 알린다. */}
+                  {!mine &&
+                    (grouped ? (
+                      <span className="avatar avatar-sm" style={{ background: 'transparent' }} />
+                    ) : (
+                      <span
+                        className="avatar avatar-sm"
+                        style={{ background: avatarColor(nameOf(message)) }}
+                        aria-hidden="true"
+                      >
+                        {avatarInitial(nameOf(message))}
+                      </span>
+                    ))}
+
+                  <div className="msg-stack">
+                    {/* **별칭만 보인다** (FR-2.4) — `nameOf`가 방 참여자 목록에서
+                        호출자 기준으로 해석된 표시명을 준다. */}
+                    {!mine && !grouped && <span className="msg-sender">{nameOf(message)}</span>}
+
+                    <div className="msg-line">
+                      <div className="bubble">{message.body}</div>
+                      <span className="msg-time">{formatClock(message.created_at)}</span>
+                    </div>
+
+                    {/* 배지와 신고를 말풍선 아래 줄로 뺀다 — 말풍선 안에 넣으면
+                        본문과 섞여 어디까지가 사용자가 쓴 말인지 흐려진다. */}
+                    {(isUnverified(message.verification_status) || mine) && (
+                      <div className="msg-meta">
+                        {/* **세 상태에만 붙는다** (BR-8.6). 색이 아니라 아이콘과
+                            문구로 알린다 — 색 의존 금지. */}
+                        {isUnverified(message.verification_status) && (
+                          <span
+                            className="badge-warn"
+                            data-testid={`chat-unverified-badge-${message.id}`}
+                            title="AI 검증을 받지 못한 메시지입니다"
+                          >
+                            검증 안 됨
+                          </span>
+                        )}
+
+                        {/* **내 메시지에만** 신고 버튼이 있다 (BR-11.1). 남의 메시지를
+                            오발송으로 신고할 수 없다 — 이것은 자기 신고다. */}
+                        {mine && (
+                          <button
+                            type="button"
+                            className="link"
+                            data-testid={`chat-report-${message.id}`}
+                            aria-pressed={message.misdirect_reported_at !== null}
+                            onClick={() => void handleReport(message)}
+                          >
+                            {message.misdirect_reported_at === null ? '잘못 보냈어요' : '신고 취소'}
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </li>
+            )
+          })}
 
           {/* 낙관적 렌더링 (FR-4.3) — 201이 오면 위 목록의 실제 메시지로 교체된다.
               그 외에는 사라지고 입력창의 텍스트가 남는다. */}
           {roomPending.map((item) => (
-            <li key={item.tempId} className="chat-pending" data-testid={`chat-pending-${item.tempId}`}>
-              <span className="chat-body">{item.body}</span>
-              <span className="muted">보내는 중…</span>
+            <li
+              key={item.tempId}
+              className="chat-pending"
+              data-testid={`chat-pending-${item.tempId}`}
+            >
+              <div className="msg msg-mine">
+                <div className="msg-stack">
+                  <div className="msg-line">
+                    <div className="bubble">{item.body}</div>
+                    <span className="msg-time">보내는 중…</span>
+                  </div>
+                </div>
+              </div>
             </li>
           ))}
         </ul>
@@ -260,7 +328,7 @@ export default function ChatView() {
 
       {/* **콜드스타트 안내** (FR-6.4) — 판정이 왜 안 도는지 알려준다. */}
       {coldStart && room.ai_check_enabled && (
-        <p className="field-hint" data-testid="chat-cold-start">
+        <p className="chat-hint" data-testid="chat-cold-start">
           이 방의 메시지가 {AI_CONTEXT_N}개 미만이라 아직 AI 검증이 동작하지 않습니다. 대화가
           쌓이면 자동으로 시작됩니다.
         </p>
@@ -283,7 +351,7 @@ export default function ChatView() {
         />
         <button
           type="button"
-          className="primary"
+          className="send-button"
           data-testid="chat-send-button"
           // **FR-6.5·NFR-2** — 판정 대기 중에는 누를 수 없고 "확인 중..."이 보인다.
           // 1~3초 무반응은 앱이 멈춘 것으로 읽힌다.
@@ -323,6 +391,6 @@ export default function ChatView() {
           returnFocusTo={inputRef}
         />
       )}
-    </section>
+    </div>
   )
 }

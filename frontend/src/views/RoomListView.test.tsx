@@ -135,9 +135,11 @@ describe('RoomListView 목록', () => {
     signedIn()
     render(<RoomListView />)
 
-    expect(await screen.findByTestId('rooms-empty')).toHaveTextContent(
-      '채팅방이 없습니다. 친구를 초대해 만들어보세요.',
-    )
+    // 두 문장을 각각 확인한다 — 재디자인이 `<br>`로 줄을 나눠 정확 일치가 깨졌다.
+    // 문구 자체는 그대로이며, 여기서 지키는 것은 "무엇을 해야 하는지 알려주는가"다.
+    const empty = await screen.findByTestId('rooms-empty')
+    expect(empty).toHaveTextContent('채팅방이 없습니다')
+    expect(empty).toHaveTextContent('친구를 초대해 만들어보세요')
     expect(screen.queryByTestId('room-list')).not.toBeInTheDocument()
   })
 
@@ -330,5 +332,55 @@ describe('RoomListView 배너와 토글', () => {
     })
     // 서버의 읽음 위치도 함께 전진시킨다 — 그러지 않으면 목록을 다시 부를 때 되살아난다.
     expect(api.markRead).toHaveBeenCalledWith(9, 2)
+  })
+})
+
+describe('방 진입과 화면 전환', () => {
+  it('방을 누르면 `onOpenRoom`을 그 방 id로 부른다', async () => {
+    // **이것이 없으면 방을 눌러도 목록에 머문다.** 사용자가 "대화" 탭을 따로 눌러야
+    // 하고, 방을 여는 것이 이 앱의 주 동작이다.
+    const user = userEvent.setup()
+    const onOpenRoom = vi.fn()
+    signedIn([room({ id: 12 })])
+    render(<RoomListView onOpenRoom={onOpenRoom} />)
+
+    await user.click(within(await screen.findByTestId('room-list-item-12')).getByRole('button'))
+
+    expect(onOpenRoom).toHaveBeenCalledWith(12)
+  })
+
+  it('입장 처리가 실패해도 화면은 열린다', async () => {
+    // 히스토리 조회는 U5 소관이고 실패할 수 있다. 그때 화면이 안 열리면 사용자는
+    // 목록에 갇힌 채 아무 설명도 못 받는다 — 대화 화면이 자기 오류 상태를 그리는
+    // 편이 낫다. 구현에서 `void enterRoom()`과 `onOpenRoom()`이 나란히 있는 이유다.
+    const user = userEvent.setup()
+    const onOpenRoom = vi.fn()
+    const enterRoom = vi.fn(() => Promise.reject(new Error('히스토리 조회 실패')))
+    // 스토어의 액션을 바꿔치우므로 **반드시 되돌린다.** `beforeEach`는 데이터 키만
+    // 초기화하고 액션은 손대지 않아, 남겨두면 뒤 테스트가 이 목을 쓴다.
+    const realEnterRoom = useChatStore.getState().enterRoom
+    signedIn([room({ id: 13 })])
+    useChatStore.setState({ enterRoom })
+    try {
+      render(<RoomListView onOpenRoom={onOpenRoom} />)
+
+      await user.click(within(await screen.findByTestId('room-list-item-13')).getByRole('button'))
+
+      expect(enterRoom).toHaveBeenCalledWith(13)
+      expect(onOpenRoom).toHaveBeenCalledWith(13)
+    } finally {
+      useChatStore.setState({ enterRoom: realEnterRoom })
+    }
+  })
+
+  it('콜백을 주지 않아도 입장 자체는 동작한다', async () => {
+    // 옵셔널 프로퍼티다 — 없을 때 터지면 이 뷰를 다른 자리에 재사용할 수 없다.
+    const user = userEvent.setup()
+    signedIn([room({ id: 14 })])
+    render(<RoomListView />)
+
+    await user.click(within(await screen.findByTestId('room-list-item-14')).getByRole('button'))
+
+    await waitFor(() => expect(useChatStore.getState().currentRoomId).toBe(14))
   })
 })

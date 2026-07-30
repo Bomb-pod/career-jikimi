@@ -1,104 +1,113 @@
-/* 셸 최소 스타일. 화면별 스타일은 U3~U5가 자기 뷰와 함께 가져온다. */
+/*
+ * career-jikimi — 한국 메신저 관용구를 따르는 디자인 시스템.
+ *
+ * **무엇을 벤치마킹했나** — 레이아웃과 인터랙션이다. 내 말풍선은 오른쪽·강조색,
+ * 상대는 왼쪽·흰색에 아바타와 이름, 목록은 아바타+이름+시각+안 읽은 배지, 입력은
+ * 하단 고정. 한국 사용자가 메신저에서 기대하는 형태이며, 새로 배울 것이 없는 화면이
+ * 데모에서 가장 빠르게 읽힌다.
+ *
+ * **브랜드는 가져오지 않았다** — 로고도, 특정 서비스의 브랜드 색 값도 쓰지 않는다.
+ * 이 앱은 자기 이름으로 서고, 노란 말풍선은 특정 회사의 것이 아니라 이 장르의
+ * 관용구로서 쓴다.
+ *
+ * ## 접근성이 디자인보다 먼저다
+ *
+ * `components.md`가 못박은 것들이 이 파일의 제약이다 — 텍스트 대비 4.5:1, 버튼 3:1,
+ * **색만으로 상태를 알리지 않기**. 그래서:
+ *
+ * - "검증 안 됨"은 색이 아니라 **문구와 아이콘 모양**으로 알린다
+ * - 안 읽은 배지는 색 원이 아니라 **숫자**를 담고 `aria-label`이 따라붙는다
+ * - 내/상대 말풍선은 색만이 아니라 **좌우 위치와 꼬리 방향**으로 갈린다
+ * - 포커스는 어디서나 2px 실선 윤곽으로 보인다 — 키보드 사용자가 길을 잃지 않는다
+ *
+ * ## 왜 폭을 제한하나
+ *
+ * 메신저는 세로로 긴 화면을 전제한다. 데스크톱에서 전폭으로 늘리면 말풍선이
+ * 화면을 가로질러 읽는 눈이 크게 움직인다. `--frame-width`로 묶고 가운데 세운다.
+ */
 
+/* ==========================================================================
+   토큰
+   ========================================================================== */
 :root {
-  --bg: #12141a;
-  --panel: #1b1f28;
-  --text: #e8eaf0;
-  --muted: #9aa3b2;
-  --accent: #5b8def;
-  --border: #2a3040;
+  /* 강조색 — 내 말풍선과 주 버튼. 검은 글자와 대비가 매우 높다. */
+  --brand: #f9e000;
+  --brand-strong: #e6cf00;
+  --brand-ink: #1c1c1e;
 
-  color-scheme: dark light;
-  font-family:
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    'Malgun Gothic',
-    sans-serif;
-  line-height: 1.6;
+  /* 대화 배경 — 이 장르의 관용색인 차분한 청회색. 흰 말풍선이 떠 보이게 한다. */
+  --chat-bg: #b3c6d6;
+
+  --surface: #ffffff;
+  --surface-sunken: #f5f6f8;
+  --surface-raised: #ffffff;
+
+  --ink: #1c1c1e;
+  --ink-soft: #4a4a4f;
+  /* 청회색 배경 위에서 4.5:1을 넘기는 회색. 더 밝게 하면 시각이 안 읽힌다. */
+  --ink-on-chat: #3f4d59;
+  --muted: #6b6b70;
+
+  --border: #e3e5e9;
+  --border-strong: #c9ccd2;
+
+  --danger: #c8322b;
+  --danger-bg: #fdecea;
+  --warn-ink: #7a4a00;
+  --warn-bg: #fff3d6;
+  --warn-border: #e0b65a;
+
+  --focus: #0b6bcb;
+
+  --frame-width: 440px;
+  --radius: 12px;
+  --radius-bubble: 16px;
+  --tap: 44px; /* 최소 터치 목표 */
+
+  --shadow-card: 0 1px 3px rgb(0 0 0 / 8%), 0 6px 20px rgb(0 0 0 / 6%);
+  --shadow-bubble: 0 1px 1px rgb(0 0 0 / 6%);
+
+  color-scheme: light;
 }
 
+/* ==========================================================================
+   기본
+   ========================================================================== */
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
+  height: 100%;
 }
 
-.app-shell {
-  max-width: 60rem;
-  margin: 0 auto;
-  padding: 1.5rem 1rem 3rem;
+body {
+  background: #dfe3e8;
+  color: var(--ink);
+  font-family:
+    'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', system-ui, -apple-system,
+    'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
-.app-title {
-  margin: 0;
-  font-size: 1.5rem;
+#root {
+  height: 100%;
 }
 
-.app-tagline {
-  margin: 0.25rem 0 1rem;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.app-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 0.75rem;
-}
-
-.app-nav-item {
-  padding: 0.45rem 0.9rem;
-  border: 1px solid var(--border);
-  border-radius: 0.4rem;
-  background: var(--panel);
-  color: var(--text);
+button {
   font: inherit;
-  cursor: pointer;
+  color: inherit;
 }
 
-.app-nav-item:hover {
-  border-color: var(--accent);
-}
-
-/* 현재 화면을 색만으로 구분하지 않는다 — 굵기와 왼쪽 표시를 함께 쓴다
-   (components.md § UI 컴포넌트 명세의 "색 의존 금지"와 같은 원칙). */
-.app-nav-item[aria-current='page'] {
-  border-color: var(--accent);
-  border-left-width: 4px;
-  font-weight: 700;
-}
-
-/* 키보드 포커스를 지우지 않는다. 확인 팝업의 포커스 이동이 보여야 한다. */
-.app-nav-item:focus-visible {
-  outline: 2px solid var(--accent);
+:focus-visible {
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
-.app-main {
-  margin-top: 1.5rem;
-}
-
-.app-placeholder {
-  padding: 1rem;
-  border: 1px dashed var(--border);
-  border-radius: 0.5rem;
-  color: var(--muted);
-}
-
-/* ------------------------------------------------------------------------
-   U3 auth-friends — 폼과 목록
-   ------------------------------------------------------------------------ */
-
-/* 시각적으로 숨기되 스크린리더에는 남긴다. `display: none`을 쓰면 읽히지 않아
-   aria-live 알림이 사라진다. */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -106,130 +115,891 @@ body {
   margin: -1px;
   padding: 0;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
 }
 
-.panel {
-  max-width: 28rem;
-  padding: 1rem;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  background: var(--panel);
+.muted {
+  color: var(--muted);
 }
 
-.form {
+/* ==========================================================================
+   셸 — 세로로 긴 프레임, 상단 바 + 본문 + 하단 탭
+   ========================================================================== */
+.app-shell {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  width: 100%;
+  max-width: var(--frame-width);
+  height: 100dvh;
+  margin: 0 auto;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
 }
 
-.form-inline {
+.app-topbar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: center;
   gap: 0.5rem;
+  min-height: 52px;
+  padding: 0 0.5rem 0 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  flex: 1 1 12rem;
-}
-
-/* 라벨은 항상 보인다 — placeholder만으로 대신하지 않는다
-   (`business-logic-model.md` § 접근성). placeholder는 입력을 시작하면 사라져
-   무엇을 적는 칸이었는지 알 수 없게 된다. */
-.field label {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-.field input {
-  padding: 0.5rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 0.35rem;
-  background: var(--bg);
-  color: var(--text);
-  font: inherit;
-}
-
-.field input:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-
-.field-hint {
+.app-topbar-title {
+  flex: 1;
+  min-width: 0;
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-topbar-sub {
+  margin: 0;
   color: var(--muted);
+  font-size: 0.75rem;
 }
 
-/* 오류 영역은 비어 있어도 자리를 지킨다 — 나중에 삽입되는 요소보다 미리 있는
-   영역의 내용 변경이 스크린리더에 더 확실히 전달된다. 화면도 덜 흔들린다. */
-.form-error {
-  min-height: 1.4rem;
-  color: #ff9a9a;
-  font-size: 0.9rem;
-}
-
-.form-error:empty {
-  min-height: 0;
-}
-
-button.primary,
-button.secondary {
+.icon-button {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.9rem;
-  border-radius: 0.35rem;
-  border: 1px solid var(--border);
-  font: inherit;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
   cursor: pointer;
 }
 
-button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #0b1020;
+.icon-button:hover {
+  background: var(--surface-sunken);
+}
+
+.icon-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 하단 탭 — 메신저의 1차 내비게이션 */
+.app-tabbar {
+  display: flex;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.app-nav-item {
+  position: relative; /* ::before 인디케이터의 위치 기준 */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  min-height: 56px;
+  padding: 0.5rem 0.25rem;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  cursor: pointer;
+}
+
+.app-nav-item svg {
+  width: 24px;
+  height: 24px;
+}
+
+.app-nav-item:hover {
+  color: var(--ink-soft);
+}
+
+/* 현재 탭은 **색만으로 알리지 않는다** — 굵기와 상단 인디케이터가 함께 바뀐다. */
+.app-nav-item[aria-current='page'] {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.app-nav-item[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 22px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--ink);
+  transform: translateX(-50%);
+}
+
+/* ==========================================================================
+   목록 (방·친구 공용)
+   ========================================================================== */
+.scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 68px;
+  padding: 0.625rem 0.875rem;
+  border: 0;
+  border-bottom: 1px solid var(--surface-sunken);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row:hover {
+  background: var(--surface-sunken);
+}
+
+.row[aria-current='true'] {
+  background: #eef3f8;
+}
+
+.avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 15px; /* 이 장르의 둥근 사각형 */
+  color: #fff;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  user-select: none;
+}
+
+.avatar-sm {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+}
+
+.row-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.row-title {
+  display: block;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-button.secondary {
-  background: var(--panel);
-  color: var(--text);
+.row-sub {
+  display: block;
+  margin-top: 0.125rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* 비활성 상태를 색만으로 구분하지 않는다 — 투명도와 커서를 함께 바꾼다. */
-button:disabled {
+.row-side {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3125rem;
+}
+
+.row-time {
+  color: var(--muted);
+  font-size: 0.6875rem;
+}
+
+/* 안 읽은 배지 — **숫자를 담는다.** 색 원만 두면 몇 개인지 알 수 없다. */
+.badge-unread {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.empty-state {
+  padding: 3rem 1.5rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* 목록 상단의 작은 액션 줄. 메신저는 "새 채팅"을 큰 버튼이 아니라
+   작은 아이콘·버튼으로 둔다 — 목록이 주인공이어야 한다. */
+.list-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem 0.875rem;
+  border-bottom: 1px solid var(--surface-sunken);
+}
+
+.list-actions .primary,
+.list-actions .secondary {
+  width: auto;
+  min-height: 36px;
+  padding: 0 0.875rem;
+  font-size: 0.8125rem;
+}
+
+/* ==========================================================================
+   대화 — 말풍선
+   ========================================================================== */
+.chat-screen {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: var(--chat-bg);
+}
+
+.chat-list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0.75rem 0.625rem 1rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.date-divider {
+  display: flex;
+  justify-content: center;
+  margin: 0.75rem 0;
+}
+
+.date-divider span {
+  padding: 0.1875rem 0.75rem;
+  border-radius: 999px;
+  /* 흰 글자와 4.5:1을 넘기려면 이 정도로 어두워야 한다. 12%로는 안 읽힌다. */
+  background: rgb(0 0 0 / 38%);
+  color: #fff;
+  font-size: 0.6875rem;
+}
+
+/* 한 행 = 아바타 + (이름 + 말풍선 + 시각). 내 것은 방향이 뒤집힌다. */
+.msg {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.msg-mine {
+  flex-direction: row-reverse;
+}
+
+.msg-stack {
+  display: flex;
+  flex-direction: column;
+  max-width: 78%;
+  min-width: 0;
+}
+
+.msg-mine .msg-stack {
+  align-items: flex-end;
+}
+
+.msg-sender {
+  margin: 0 0.25rem 0.1875rem;
+  color: var(--ink-on-chat);
+  font-size: 0.75rem;
+}
+
+.msg-line {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.3125rem;
+}
+
+.msg-mine .msg-line {
+  flex-direction: row-reverse;
+}
+
+.bubble {
+  position: relative;
+  padding: 0.5rem 0.6875rem;
+  border-radius: var(--radius-bubble);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-bubble);
+  /* 붙여넣은 긴 단어나 URL이 말풍선을 화면 밖으로 밀지 않게 한다. */
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+/* 꼬리 — **위치·방향이 화자를 알리는 두 번째 신호다** (색만 의존 금지). */
+.bubble::before {
+  content: '';
+  position: absolute;
+  top: 9px;
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+}
+
+.msg-other .bubble {
+  border-top-left-radius: 4px;
+}
+
+.msg-other .bubble::before {
+  left: -9px;
+  border-right-color: var(--surface);
+}
+
+.msg-mine .bubble {
+  background: var(--brand);
+  border-top-right-radius: 4px;
+}
+
+.msg-mine .bubble::before {
+  right: -9px;
+  border-left-color: var(--brand);
+}
+
+/* 묶음의 두 번째 이후 말풍선에는 꼬리가 없다 — 메신저는 한 사람이 연달아
+   말할 때 꼬리를 한 번만 그린다. 매번 그리면 말풍선이 톱니처럼 보인다. */
+.msg-grouped .bubble::before {
+  content: none;
+}
+
+/* 꼬리가 없으면 그 각도 있는 모서리도 둥글게 돌려놓는다. */
+.msg-grouped.msg-other .bubble {
+  border-top-left-radius: var(--radius-bubble);
+}
+
+.msg-grouped.msg-mine .bubble {
+  border-top-right-radius: var(--radius-bubble);
+}
+
+.msg-time {
+  flex: none;
+  color: var(--ink-on-chat);
+  font-size: 0.6875rem;
+  white-space: nowrap;
+}
+
+.msg-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0.1875rem 0.25rem 0;
+}
+
+.chat-pending .bubble {
+  background: var(--brand);
   opacity: 0.55;
-  cursor: not-allowed;
 }
 
-button.link {
+/* 검증 안 됨 — **색이 아니라 아이콘 + 문구**로 알린다 (BR-8.6, 색 의존 금지). */
+.badge-warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1875rem;
+  padding: 0.0625rem 0.4375rem;
+  border: 1px solid var(--warn-border);
+  border-radius: 999px;
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-warn::before {
+  content: '!';
+  display: grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--warn-ink);
+  color: var(--warn-bg);
+  font-size: 0.5625rem;
+  font-weight: 700;
+}
+
+.link {
   padding: 0;
   border: 0;
   background: none;
-  color: var(--accent);
-  font: inherit;
+  color: var(--ink-on-chat);
+  font-size: 0.6875rem;
   text-decoration: underline;
   cursor: pointer;
 }
 
-button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+.link[aria-pressed='true'] {
+  color: var(--danger);
+  font-weight: 700;
 }
 
+/* ==========================================================================
+   입력바
+   ========================================================================== */
+/* 대화 배경 위의 안내문 — `--muted`는 청회색 위에서 대비가 부족하다. */
+.chat-hint {
+  margin: 0;
+  padding: 0.5rem 0.875rem;
+  color: var(--ink-on-chat);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.chat-composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  border-top: 1px solid var(--border-strong);
+  background: var(--surface);
+}
+
+.chat-composer textarea {
+  flex: 1;
+  min-height: 40px;
+  max-height: 120px;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  border-radius: 18px;
+  background: var(--surface-sunken);
+  color: inherit;
+  font: inherit;
+  resize: none;
+}
+
+.chat-composer textarea:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+.send-button {
+  flex: none;
+  min-width: 62px;
+  height: 40px;
+  padding: 0 0.875rem;
+  border: 0;
+  border-radius: 18px;
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.send-button:hover:not(:disabled) {
+  background: var(--brand-strong);
+}
+
+.send-button:disabled {
+  background: var(--surface-sunken);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.secondary {
+  flex: none;
+  height: 40px;
+  padding: 0 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 18px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   패널·폼 (로그인·친구·방 만들기)
+   ========================================================================== */
+.panel {
+  padding: 1rem 0.875rem;
+}
+
+.panel-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.card {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.auth-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  padding: 1.5rem 1.25rem;
+  background: var(--surface-sunken);
+}
+
+.auth-brand {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.auth-mark {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 0.75rem;
+  border-radius: 22px;
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.auth-brand h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.auth-brand p {
+  margin: 0.375rem 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.field {
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.field > span {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+input[type='text'],
+input[type='password'],
+input[type='search'] {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+}
+
+.field-hint {
+  margin: 0.375rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.primary {
+  width: 100%;
+  min-height: var(--tap);
+  border: 0;
+  border-radius: 10px;
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--brand-strong);
+}
+
+.primary:disabled {
+  background: var(--surface-sunken);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.inline-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.inline-actions .primary,
+.inline-actions .secondary {
+  width: auto;
+  flex: none;
+}
+
+.text-button {
+  padding: 0.5rem;
+  border: 0;
+  background: none;
+  color: var(--focus);
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* 오류는 **자리를 늘 차지한다** — aria-live 영역이 나타났다 사라지면 화면이 튄다. */
+.form-error {
+  min-height: 1.25rem;
+  color: var(--danger);
+  font-size: 0.8125rem;
+}
+
+.form-error:not(:empty) {
+  padding: 0.375rem 0.5rem;
+  border-radius: 8px;
+  background: var(--danger-bg);
+}
+
+/* ==========================================================================
+   배너·토스트
+   ========================================================================== */
+.banner {
+  margin: 0;
+  padding: 0.5rem 0.875rem;
+  background: #eef3f8;
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+.banner-muted {
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+}
+
+.banner-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.toast-host {
+  position: fixed;
+  left: 50%;
+  bottom: 5rem;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(calc(var(--frame-width) - 2rem), calc(100vw - 2rem));
+  transform: translateX(-50%);
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: 0;
+  border-radius: var(--radius);
+  background: rgb(28 28 30 / 94%);
+  color: #fff;
+  text-align: left;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+}
+
+.toast-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.toast-text {
+  display: block;
+  color: #d6d6d8;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   확인 팝업 — components.md의 접근성 표가 이 절의 명세다
+   ========================================================================== */
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgb(0 0 0 / 45%);
+}
+
+.dialog {
+  width: min(320px, 100%);
+  padding: 1.25rem 1.125rem 0.875rem;
+  border-radius: 14px;
+  background: var(--surface);
+  text-align: center;
+  box-shadow: var(--shadow-card);
+}
+
+.dialog h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.dialog p {
+  margin: 0 0 1rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 0.5rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+}
+
+.dialog-actions button {
+  flex: 1;
+  min-height: var(--tap);
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* 기본 포커스가 "취소"다 — Enter를 반사적으로 누르는 사용자가 강행 전송하지
+   않게 한다. 시각적으로도 그쪽이 채워져 있어 손이 먼저 그리로 간다. */
+.dialog-cancel {
+  background: var(--surface-sunken);
+  color: var(--ink);
+}
+
+.dialog-confirm {
+  color: var(--danger);
+}
+
+.dialog-actions button:hover {
+  background: var(--surface-sunken);
+}
+
+/* ==========================================================================
+   방 만들기 — 친구 다중 선택
+   ========================================================================== */
+.picker {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  list-style: none;
+}
+
+.picker li + li {
+  border-top: 1px solid var(--surface-sunken);
+}
+
+.picker label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 52px;
+  padding: 0.375rem 0.75rem;
+  cursor: pointer;
+}
+
+.picker input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--focus);
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--tap);
+}
+
+.toggle-row input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--focus);
+}
+
+.section-title {
+  margin: 1.25rem 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   대화 헤더의 설정 영역 (AI 토글 + 프라이버시 고지)
+   ========================================================================== */
+.chat-settings {
+  padding: 0.5rem 0.875rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 0.8125rem;
+}
+
+.chat-settings .link {
+  color: var(--focus);
+  font-size: 0.75rem;
+}
+
+/* 제출 중 스피너 — `aria-hidden`이므로 의미는 옆의 aria-live 문구가 전한다. */
 .spinner {
-  width: 0.8em;
-  height: 0.8em;
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  margin-right: 0.375rem;
   border: 2px solid currentColor;
-  border-right-color: transparent;
+  border-top-color: transparent;
   border-radius: 50%;
+  vertical-align: -2px;
   animation: spin 0.7s linear infinite;
 }
 
@@ -239,325 +1009,40 @@ button:focus-visible {
   }
 }
 
-/* 움직임을 줄이도록 설정한 사용자에게는 회전시키지 않는다. */
+/* 움직임을 줄이도록 설정한 사용자에게는 회전시키지 않는다 — 어지럼을 유발한다. */
 @media (prefers-reduced-motion: reduce) {
   .spinner {
     animation: none;
+    border-top-color: currentColor;
+    opacity: 0.5;
   }
 }
 
 .form-switch {
   margin: 1rem 0 0;
-  font-size: 0.9rem;
   color: var(--muted);
-}
-
-.muted {
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.result-card {
-  margin: 0.75rem 0;
-  padding: 0.75rem;
-  border: 1px solid var(--accent);
-  border-radius: 0.4rem;
-}
-
-.result-name {
-  margin: 0 0 0.5rem;
-  font-weight: 600;
-}
-
-.friend-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.friend-list li {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 0.35rem;
-}
-
-.friend-alias {
-  flex: 1 1 auto;
-}
-
-/* ------------------------------------------------------------------------
-   U4 rooms-realtime — 방 목록, 배지, 배너, 토스트
-   ------------------------------------------------------------------------ */
-
-/* 배너는 상단에 고정해 화면을 옮겨도 보이게 한다 (BR-5.5). 밀려난 탭은 남의
-   메시지를 받지 못하므로 그 사실이 계속 보여야 한다. */
-.banner {
-  margin: 0 0 0.75rem;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid var(--accent);
-  border-left-width: 4px;
-  border-radius: 0.35rem;
-  background: rgba(91, 141, 239, 0.12);
-  font-size: 0.9rem;
-}
-
-.banner-muted {
-  border-color: var(--border);
-  background: none;
-  color: var(--muted);
-}
-
-.friend-picker,
-.room-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.friend-picker label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
-.room-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.6rem 0.7rem;
-  border: 1px solid var(--border);
-  border-radius: 0.35rem;
-  background: var(--panel);
-  color: var(--text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.room-item:hover {
-  border-color: var(--accent);
-}
-
-/* 현재 방을 색만으로 구분하지 않는다 — 왼쪽 굵은 테두리를 함께 쓴다. */
-.room-item[aria-current='true'] {
-  border-color: var(--accent);
-  border-left-width: 4px;
-  font-weight: 600;
-}
-
-.room-name {
-  flex: 1 1 auto;
-}
-
-/* 배지는 0이면 렌더링되지 않는다 — 여기서 숨기지 않는다. CSS로 숨기면 DOM에는
-   남아 스크린리더가 읽을 수 있다. */
-.badge {
-  min-width: 1.5rem;
-  padding: 0.05rem 0.4rem;
-  border-radius: 999px;
-  background: var(--accent);
-  color: #0b1020;
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 0.8125rem;
   text-align: center;
 }
 
-.current-room {
-  margin-top: 1rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border);
-}
-
-.current-room label {
+.form-inline {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 0.5rem;
-  cursor: pointer;
+  padding: 0.625rem 0.875rem;
 }
 
-/* 토스트는 화면 오른쪽 아래에 쌓인다. 최대 3개는 스토어가 보장한다. */
-.toast-host {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-width: min(22rem, calc(100vw - 2rem));
-  z-index: 10;
+.form-inline .field {
+  flex: 1;
+  margin-bottom: 0;
 }
 
-.toast {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid var(--accent);
-  border-radius: 0.4rem;
-  background: var(--panel);
-  color: var(--text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
+@media (max-width: 480px) {
+  :root {
+    --frame-width: 100%;
+  }
 
-.toast-room {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.toast-body {
-  /* 긴 메시지가 화면을 덮지 않게 한 줄로 자른다. 전문은 방에 들어가면 보인다. */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ------------------------------------------------------------------------
-   U5 messaging — 대화 화면과 확인 팝업
-   ------------------------------------------------------------------------ */
-
-.chat-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  padding-bottom: 0.6rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.chat-header h3 {
-  margin: 0;
-}
-
-.chat-header label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-}
-
-.chat-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  /* 긴 대화도 화면을 밀어내지 않는다. 커서 페이지네이션이 위쪽을 채운다. */
-  max-height: 22rem;
-  overflow-y: auto;
-  margin: 0.75rem 0;
-  padding: 0;
-  list-style: none;
-}
-
-.chat-list li {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.4rem;
-  padding: 0.35rem 0.5rem;
-  border: 1px solid var(--border);
-  border-radius: 0.35rem;
-}
-
-.chat-sender {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.chat-body {
-  flex: 1 1 auto;
-  /* 줄바꿈과 연속 공백을 입력한 그대로 보여준다. */
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-/* 전송 중인 임시 메시지 (FR-4.3). 점선으로 "아직 확정되지 않았다"를 나타내되,
-   옆의 "보내는 중…" 문구가 같은 사실을 글로도 전한다 — 색·테두리에만 기대지 않는다. */
-.chat-pending {
-  border-style: dashed !important;
-  opacity: 0.75;
-}
-
-/* "검증 안 됨" 배지 (BR-8.6). 숫자 배지(.badge)와 색을 달리하되, 문구 자체가
-   의미를 담고 있어 색을 못 봐도 읽힌다. */
-.badge-warn {
-  background: var(--warn, #f0b429);
-  color: #2a1d00;
-  font-weight: 600;
-}
-
-.chat-composer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 0.5rem;
-}
-
-.chat-composer textarea {
-  flex: 1 1 12rem;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 0.35rem;
-  background: var(--panel);
-  color: var(--text);
-  font: inherit;
-  resize: vertical;
-}
-
-.chat-composer textarea:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-
-/* 확인 팝업 두 종. **배경에 클릭 핸들러가 없다** — 실수로 흘려보내면 안 되는
-   결정이다 (`ConfirmDialog` 참조). 여기서는 겹침과 위치만 다룬다. */
-.dialog-backdrop {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.55);
-  z-index: 20;
-}
-
-.dialog {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  max-width: 24rem;
-  padding: 1rem;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  background: var(--panel);
-  color: var(--text);
-}
-
-.dialog-title {
-  margin: 0;
-  font-weight: 600;
-}
-
-.dialog-subtitle {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
+  .app-shell {
+    box-shadow: none;
+  }
 }
