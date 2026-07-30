@@ -10,3 +10,18 @@ Dockerfile text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
 .env.example text eol=lf
+
+# 노트북 출력 셀을 커밋에서 제거한다 (nbstripout git filter).
+#
+# 학습 로그가 셀 출력에 박히면 diff를 덮고 용량도 커진다. 작업 트리의 출력은
+# 그대로 두고 커밋되는 내용만 비운다.
+#
+# 새로 clone한 곳에서는 filter를 한 번 등록해야 한다 (안 하면 출력이 그대로 커밋된다):
+#   venv\Scripts\python.exe -m nbstripout --install
+# 위 명령이 .gitattributes를 cp949로 읽다 한글에서 깨지면, --install 없이
+# git config filter.nbstripout.clean "<venv>/Scripts/python.exe -m nbstripout"
+# git config filter.nbstripout.smudge cat
+# git config filter.nbstripout.required true
+# 세 줄을 직접 넣으면 된다 (이 항목은 이미 커밋되어 있다).
+*.ipynb filter=nbstripout
+*.ipynb diff=ipynb

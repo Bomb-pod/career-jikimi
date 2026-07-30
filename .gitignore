@@ -78,3 +78,16 @@ aidlc/diagnostics/
 
 # machine-local hook health markers (space-level)
 aidlc/spaces/*/intents/.aidlc-hooks-health/
+
+# ---------------------------------------------------------------------------
+# 파인튜닝 산출물 — 재생성 가능하고 GitHub에 올릴 수 없다
+# ---------------------------------------------------------------------------
+# final_model/model.safetensors 가 약 570MB로 GitHub의 파일당 100MB 제한을 넘는다.
+# 배포본은 HuggingFace에 있다: agii0114/career-jikimi-context-guard (private).
+# 재생성: python training\train_ax_encoder.py --csv dataset\... --out train_out
+train_out/
+train_out_nb/
+smoke_out/
+# 노트북 실행 결과(출력 셀)는 커밋하지 않는다 — 학습 로그가 diff를 덮고 용량도 커진다.
+# 코드 셀만 담긴 상태로 커밋할 것.
+training/_nb_verify*.ipynb

@@ -110,6 +110,45 @@ def metrics_at(y, p, thr):
                 flag_rate=round(float(pred.mean()), 4))
 
 
+def fresh_model(model_name, device, num_labels=2):
+    """분류 헤드를 새로 붙인 모델 1개. 노트북과 스크립트가 같은 정의를 쓴다."""
+    m = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=num_labels)
+    # fp32 고정 — A.X-Encoder의 config는 dtype=bfloat16을 선언하고 transformers 5.x는
+    # 체크포인트 dtype을 그대로 따른다(4.x는 무조건 fp32로 올렸다). bf16 파라미터는 bf16
+    # 그래디언트를 만들고 GradScaler.unscale_에는 bf16 CUDA 커널이 없어 학습이 죽는다.
+    # 이 스크립트의 전제는 'fp32 가중치 + autocast 혼합정밀도'이므로 로드 dtype과 무관하게 못박는다.
+    return m.float().to(device)
+
+
+def choose_threshold(y, p, target_precision, lo=0.30, hi=0.991, step=0.005):
+    """목표 precision을 만족하는 가장 낮은 threshold. 못 만족하면 0.5."""
+    for t in np.arange(lo, hi, step):
+        if metrics_at(y, p, t)['precision'] >= target_precision:
+            return round(float(t), 3)
+    return 0.5
+
+
+def slice_metrics(df, y, p, thr, cols=('source', 'source_type', 'difficulty'), min_n=10):
+    """분석용 컬럼이 있을 때만 슬라이스 지표를 낸다 (simple CSV에는 없다).
+
+    `n_pos`를 함께 낸다 — 이 데이터셋은 source_type이 라벨과 얽혀 있어
+    `matched`/`matched_v25`/`smalltalk_casual`처럼 부적절 행이 0건인 슬라이스가 있다.
+    그 경우 precision/recall은 정의되지 않고 zero_division=0 때문에 0.0으로 나오는데,
+    성능이 0인 것과 구별되지 않는다. 표를 읽거나 만들 때 반드시 n_pos를 먼저 볼 것.
+    """
+    out = {}
+    for col in cols:
+        if col in df.columns:
+            for val, g in df.groupby(df[col].fillna('-')):
+                if len(g) >= min_n:
+                    i = g.index
+                    out[f'{col}={val}'] = dict(
+                        n=len(g), n_pos=int(y[i].sum()),
+                        **{k: v for k, v in metrics_at(y[i], p[i], thr).items()
+                           if k != 'threshold'})
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--csv', default='dataset/training_dataset_v3_1000.csv')
@@ -148,10 +187,6 @@ def main():
                           shuffle=shuffle, num_workers=0,
                           collate_fn=lambda b: collate(b, tok))
 
-    def fresh_model():
-        m = AutoModelForSequenceClassification.from_pretrained(args.model, num_labels=2)
-        return m.to(device)
-
     report = {'model': args.model, 'rows': len(df), 'folds': args.folds,
               'epochs': args.epochs, 'lr': args.lr, 'max_len': args.max_len}
 
@@ -161,7 +196,7 @@ def main():
         skf = StratifiedGroupKFold(args.folds, shuffle=True, random_state=args.seed)
         for k, (tr, va) in enumerate(skf.split(df, y_all, groups=df.pair_id)):
             print(f'--- fold {k + 1}/{args.folds} (train {len(tr)} / val {len(va)})')
-            model = fresh_model()
+            model = fresh_model(args.model, device)
             train_one(model, make_loader(df.iloc[tr], True), make_loader(df.iloc[va], False),
                       device, args.epochs, args.lr, use_amp)
             oof[va], _ = predict(model, make_loader(df.iloc[va], False), device, use_amp)
@@ -178,34 +213,19 @@ def main():
         report['oof_auc'] = round(roc_auc_score(y_all, oof), 4)
         report['sweep'] = [metrics_at(y_all, oof, t) for t in np.arange(0.3, 0.96, 0.05)]
         # precision 우선: 목표 precision을 만족하는 가장 낮은 threshold
-        chosen = 0.5
-        for t in np.arange(0.30, 0.991, 0.005):
-            m = metrics_at(y_all, oof, t)
-            if m['precision'] >= args.target_precision:
-                chosen = round(float(t), 3)
-                break
+        chosen = choose_threshold(y_all, oof, args.target_precision)
         report['chosen_threshold'] = chosen
         report['at_chosen'] = metrics_at(y_all, oof, chosen)
         report['at_0.5'] = metrics_at(y_all, oof, 0.5)
 
         # 슬라이스 분석 (컬럼이 있을 때만)
-        slices = {}
-        for col in ('source', 'source_type', 'difficulty'):
-            if col in df.columns:
-                for val, g in df.groupby(df[col].fillna('-')):
-                    if len(g) >= 10:
-                        i = g.index
-                        slices[f'{col}={val}'] = dict(
-                            n=len(g), **{kk: vv for kk, vv in
-                                         metrics_at(y_all[i], oof[i], chosen).items()
-                                         if kk != 'threshold'})
-        report['slices'] = slices
+        report['slices'] = slice_metrics(df, y_all, oof, chosen)
         print(json.dumps({k: report[k] for k in ('oof_auc', 'chosen_threshold', 'at_chosen', 'at_0.5')},
                          ensure_ascii=False, indent=1))
 
     # ---------------- 최종 모델: 전체 데이터로 학습 → 저장 ----------------
     print('--- final model (전체 데이터 학습)')
-    model = fresh_model()
+    model = fresh_model(args.model, device)
     train_one(model, make_loader(df, True), None, device, args.epochs, args.lr, use_amp)
     out_dir = f'{args.out}/final_model'
     model.save_pretrained(out_dir); tok.save_pretrained(out_dir)
