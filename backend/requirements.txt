@@ -1,0 +1,60 @@
+# Runtime dependencies, version-pinned.
+#
+# ASCII-ONLY, deliberately. pip reads requirements files with the locale
+# encoding on Windows; on a Korean host (cp949) any non-ASCII byte here
+# raises UnicodeDecodeError before resolution starts. Same failure class as
+# alembic.ini. Korean rationale for these pins lives in
+# ../aidlc/.../construction/foundation/code-generation/code-generation-plan.md
+# (UTF-8, read by tools that decode explicitly). Keep this file ASCII.
+#
+# Why pin: on a one-person six-day schedule, upstream version drift is the
+# cheapest cause of "it worked yesterday" to eliminate. A lockfile from
+# poetry/uv would not earn its setup cost here.
+#
+# Dev/test tooling lives in requirements-dev.txt and never enters the
+# runtime image.
+
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+
+# ORM + migrations (ADR-006: never create_all())
+SQLAlchemy==2.0.36
+alembic==1.14.0
+
+# MariaDB async driver. The pairing services.md "app <-> db" fixed.
+#
+# 0.2.11 is the latest release. PYSEC-2026-286 affects it and has no fix
+# version published; pinning older does not help. Tracked in
+# build-and-test/security-test-instructions.md.
+asyncmy==0.2.11
+
+# Typed settings object (components.md, core/config)
+pydantic==2.10.4
+pydantic-settings==2.7.0
+
+# Password hashing, U3 auth (FR-1.1, BR-1.3).
+#
+# argon2id, not bcrypt: BR-1.2 sets no upper bound on password length, and
+# bcrypt silently truncates anything past 72 bytes - 24 Korean characters at
+# 3 bytes each. A user with a 25-character Korean password would in fact be
+# authenticated by its first 24, without ever being told. argon2 has no such
+# limit, so the rule and the implementation agree.
+# Confirmed by the human at code-generation-questions.md Q1a.
+argon2-cffi==23.1.0
+
+# JWT issue/verify, U3 auth (FR-1.2). Chosen over python-jose: smaller
+# surface and actively maintained.
+#
+# 2.10.1 carried 11 advisories found by pip-audit at build-and-test.
+# 2.13.0 clears all of them; no API change was needed on our side.
+PyJWT==2.13.0
+
+# OpenAI official SDK, U2 judgment (FR-6.3, FR-8.1, ADR-005).
+#
+# Why the official SDK over raw httpx: it ships the strict Structured Outputs
+# request shape, a per-request timeout, and typed exceptions that separate
+# "retry this" (timeout / connection / 5xx / 429) from "do not retry this"
+# (other 4xx). Hand-rolling that classification over httpx is the part that
+# would go wrong. Note the client is constructed with max_retries=0 - BR-6.7
+# allows exactly one retry and the SDK's own retry loop would double it.
+openai==1.59.6

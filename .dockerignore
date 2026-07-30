@@ -1,0 +1,37 @@
+# 빌드 컨텍스트에서 제외 — 이미지 크기와 캐시 무효화를 줄인다.
+
+# 버전 관리·에디터
+.git
+.gitignore
+.vscode
+.idea
+*.swp
+
+# AI-DLC 워크스페이스와 문서 — 런타임에 필요 없다
+aidlc/
+.claude/
+docs/
+*.md
+!README.md
+
+# 비밀 — 이미지에 굽지 않는다 (FR-1.4, NFR-6).
+# 환경변수는 compose의 env_file로 런타임에 주입한다.
+.env
+.env.*
+!.env.example
+
+# Python 산출물
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.ruff_cache/
+**/.mypy_cache/
+**/.venv/
+**/venv/
+
+# 프론트엔드 — 이미지 안에서 새로 빌드한다
+frontend/node_modules/
+frontend/dist/
+
+# 백엔드가 로컬에서 만든 정적 파일 (Dockerfile이 빌드 스테이지에서 직접 복사한다)
+backend/static/

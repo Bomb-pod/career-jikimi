@@ -12,6 +12,25 @@ dist
 dist-ssr
 *.local
 
+# Secrets — 환경변수 파일은 절대 커밋하지 않는다 (FR-1.4, NFR-6).
+# 커밋되는 것은 값이 비어 있는 템플릿 `.env.example` 하나뿐이다.
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# 프론트엔드 빌드 산출물이 백엔드로 복사되는 위치 (Dockerfile이 만든다)
+backend/static/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

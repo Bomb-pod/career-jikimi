@@ -1,0 +1,20 @@
+# Dev/test-only dependencies.
+#
+# ASCII-ONLY for the same reason as requirements.txt: pip decodes this file
+# with the locale codepage on Windows, and cp949 chokes on non-ASCII bytes
+# before resolution starts.
+#
+# Never installed into the runtime image - the Dockerfile uses
+# requirements.txt only. To run tests inside the container, install this
+# file explicitly.
+
+-r requirements.txt
+
+pytest==8.3.4
+pytest-asyncio==0.25.0
+
+# starlette's TestClient requires httpx
+httpx==0.28.1
+
+# lint + format (org.md "Code Style" delegates to project config)
+ruff==0.8.6

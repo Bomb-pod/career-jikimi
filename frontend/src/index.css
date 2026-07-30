@@ -1,0 +1,563 @@
+/* 셸 최소 스타일. 화면별 스타일은 U3~U5가 자기 뷰와 함께 가져온다. */
+
+:root {
+  --bg: #12141a;
+  --panel: #1b1f28;
+  --text: #e8eaf0;
+  --muted: #9aa3b2;
+  --accent: #5b8def;
+  --border: #2a3040;
+
+  color-scheme: dark light;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    'Malgun Gothic',
+    sans-serif;
+  line-height: 1.6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app-shell {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.app-tagline {
+  margin: 0.25rem 0 1rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.app-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+}
+
+.app-nav-item {
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.app-nav-item:hover {
+  border-color: var(--accent);
+}
+
+/* 현재 화면을 색만으로 구분하지 않는다 — 굵기와 왼쪽 표시를 함께 쓴다
+   (components.md § UI 컴포넌트 명세의 "색 의존 금지"와 같은 원칙). */
+.app-nav-item[aria-current='page'] {
+  border-color: var(--accent);
+  border-left-width: 4px;
+  font-weight: 700;
+}
+
+/* 키보드 포커스를 지우지 않는다. 확인 팝업의 포커스 이동이 보여야 한다. */
+.app-nav-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.app-main {
+  margin-top: 1.5rem;
+}
+
+.app-placeholder {
+  padding: 1rem;
+  border: 1px dashed var(--border);
+  border-radius: 0.5rem;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------------
+   U3 auth-friends — 폼과 목록
+   ------------------------------------------------------------------------ */
+
+/* 시각적으로 숨기되 스크린리더에는 남긴다. `display: none`을 쓰면 읽히지 않아
+   aria-live 알림이 사라진다. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.panel {
+  max-width: 28rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--panel);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.form-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1 1 12rem;
+}
+
+/* 라벨은 항상 보인다 — placeholder만으로 대신하지 않는다
+   (`business-logic-model.md` § 접근성). placeholder는 입력을 시작하면 사라져
+   무엇을 적는 칸이었는지 알 수 없게 된다. */
+.field label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.field input {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.field input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.field-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* 오류 영역은 비어 있어도 자리를 지킨다 — 나중에 삽입되는 요소보다 미리 있는
+   영역의 내용 변경이 스크린리더에 더 확실히 전달된다. 화면도 덜 흔들린다. */
+.form-error {
+  min-height: 1.4rem;
+  color: #ff9a9a;
+  font-size: 0.9rem;
+}
+
+.form-error:empty {
+  min-height: 0;
+}
+
+button.primary,
+button.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--border);
+  font: inherit;
+  cursor: pointer;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0b1020;
+  font-weight: 600;
+}
+
+button.secondary {
+  background: var(--panel);
+  color: var(--text);
+}
+
+/* 비활성 상태를 색만으로 구분하지 않는다 — 투명도와 커서를 함께 바꾼다. */
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+button.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.spinner {
+  width: 0.8em;
+  height: 0.8em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 움직임을 줄이도록 설정한 사용자에게는 회전시키지 않는다. */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}
+
+.form-switch {
+  margin: 1rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.result-card {
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.4rem;
+}
+
+.result-name {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+}
+
+.friend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.friend-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+}
+
+.friend-alias {
+  flex: 1 1 auto;
+}
+
+/* ------------------------------------------------------------------------
+   U4 rooms-realtime — 방 목록, 배지, 배너, 토스트
+   ------------------------------------------------------------------------ */
+
+/* 배너는 상단에 고정해 화면을 옮겨도 보이게 한다 (BR-5.5). 밀려난 탭은 남의
+   메시지를 받지 못하므로 그 사실이 계속 보여야 한다. */
+.banner {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--accent);
+  border-left-width: 4px;
+  border-radius: 0.35rem;
+  background: rgba(91, 141, 239, 0.12);
+  font-size: 0.9rem;
+}
+
+.banner-muted {
+  border-color: var(--border);
+  background: none;
+  color: var(--muted);
+}
+
+.friend-picker,
+.room-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.friend-picker label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.room-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.room-item:hover {
+  border-color: var(--accent);
+}
+
+/* 현재 방을 색만으로 구분하지 않는다 — 왼쪽 굵은 테두리를 함께 쓴다. */
+.room-item[aria-current='true'] {
+  border-color: var(--accent);
+  border-left-width: 4px;
+  font-weight: 600;
+}
+
+.room-name {
+  flex: 1 1 auto;
+}
+
+/* 배지는 0이면 렌더링되지 않는다 — 여기서 숨기지 않는다. CSS로 숨기면 DOM에는
+   남아 스크린리더가 읽을 수 있다. */
+.badge {
+  min-width: 1.5rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #0b1020;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.current-room {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.current-room label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+/* 토스트는 화면 오른쪽 아래에 쌓인다. 최대 3개는 스토어가 보장한다. */
+.toast-host {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: min(22rem, calc(100vw - 2rem));
+  z-index: 10;
+}
+
+.toast {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.4rem;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.toast-room {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.toast-body {
+  /* 긴 메시지가 화면을 덮지 않게 한 줄로 자른다. 전문은 방에 들어가면 보인다. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------------
+   U5 messaging — 대화 화면과 확인 팝업
+   ------------------------------------------------------------------------ */
+
+.chat-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.chat-header h3 {
+  margin: 0;
+}
+
+.chat-header label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  /* 긴 대화도 화면을 밀어내지 않는다. 커서 페이지네이션이 위쪽을 채운다. */
+  max-height: 22rem;
+  overflow-y: auto;
+  margin: 0.75rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chat-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+}
+
+.chat-sender {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.chat-body {
+  flex: 1 1 auto;
+  /* 줄바꿈과 연속 공백을 입력한 그대로 보여준다. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* 전송 중인 임시 메시지 (FR-4.3). 점선으로 "아직 확정되지 않았다"를 나타내되,
+   옆의 "보내는 중…" 문구가 같은 사실을 글로도 전한다 — 색·테두리에만 기대지 않는다. */
+.chat-pending {
+  border-style: dashed !important;
+  opacity: 0.75;
+}
+
+/* "검증 안 됨" 배지 (BR-8.6). 숫자 배지(.badge)와 색을 달리하되, 문구 자체가
+   의미를 담고 있어 색을 못 봐도 읽힌다. */
+.badge-warn {
+  background: var(--warn, #f0b429);
+  color: #2a1d00;
+  font-weight: 600;
+}
+
+.chat-composer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.chat-composer textarea {
+  flex: 1 1 12rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+
+.chat-composer textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* 확인 팝업 두 종. **배경에 클릭 핸들러가 없다** — 실수로 흘려보내면 안 되는
+   결정이다 (`ConfirmDialog` 참조). 여기서는 겹침과 위치만 다룬다. */
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 20;
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 24rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--panel);
+  color: var(--text);
+}
+
+.dialog-title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.dialog-subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

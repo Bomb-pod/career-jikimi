@@ -215,6 +215,70 @@ Ideation에서 닫힌 항목은 위 목록에서 뺐다 — 프로젝트명(`car
 
 ---
 
+## 실행
+
+### `docker compose up` 한 번으로 (권장)
+
+```bash
+git clone <repo> && cd mini_project
+cp .env.example .env          # Windows PowerShell: Copy-Item .env.example .env
+# .env에서 JWT_SECRET과 OPENAI_API_KEY를 채운다 (둘 다 비어 있으면 앱이 기동하지 않는다)
+docker compose up --build
+```
+
+접속: <http://localhost:8000>
+
+- `JWT_SECRET` 생성: `python -c "import secrets; print(secrets.token_urlsafe(48))"`
+- 기동 순서는 `db` healthy → `alembic upgrade head`(재시도 포함) → `uvicorn`(워커 1개)이다
+- 상태 확인: `curl http://localhost:8000/health` → `{"status":"ok","db":"ok"}`
+- DB는 호스트에 포트를 노출하지 않는다. 들여다보려면 `docker compose exec db mariadb -u root -p`
+- 종료: `docker compose down` (데이터는 명명 볼륨에 남는다. 지우려면 `-v`)
+
+**`.env`는 커밋되지 않는다.** 커밋되는 것은 `.env.example` 템플릿 하나뿐이다.
+
+### 개발 중에는 두 프로세스로
+
+프론트엔드를 고치면서 즉시 반영을 보려면 Vite dev 서버를 따로 띄운다.
+
+```bash
+# 1) DB만 컨테이너로
+docker compose up -d db
+
+# 2) 백엔드 (backend/)
+python -m venv .venv && .venv/Scripts/activate   # Linux/macOS: source .venv/bin/activate
+pip install -r requirements-dev.txt
+#   .env의 DATABASE_URL 호스트를 db -> 127.0.0.1 로 바꾸고, db 포트를 노출해야 한다
+#   CORS_ORIGINS=http://localhost:5173 을 설정한다 (비어 있으면 CORS가 붙지 않는다)
+alembic upgrade head
+uvicorn app.main:app --reload --port 8000
+
+# 3) 프론트엔드 (frontend/)
+npm install
+npm run dev        # http://localhost:5173, /auth·/rooms·/ws 등을 8000으로 프록시
+```
+
+### 테스트
+
+```bash
+# 백엔드 (backend/)
+pytest
+ruff check . && ruff format --check .
+
+# 프론트엔드 (frontend/)
+npm run typecheck && npm run build
+npm test
+```
+
+`tests/test_schema.py`는 **실제 MariaDB**를 쓴다. `TEST_DATABASE_URL`이 없으면
+skip된다 — SQLite로 대체하면 복합 PK와 `utf8mb4` 검증이 거짓 통과하기 때문이다.
+
+```bash
+# 예: 테스트 전용 DB를 하나 만들고
+TEST_DATABASE_URL='mysql+asyncmy://root:<pw>@127.0.0.1:3306/career_jikimi_test?charset=utf8mb4' pytest
+```
+
+---
+
 ## 개발 워크플로
 
 이 프로젝트는 [AI-DLC](https://github.com/awslabs/aidlc-workflows) v2로 진행한다.
