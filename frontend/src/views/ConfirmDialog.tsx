@@ -104,17 +104,19 @@ export default function ConfirmDialog({
         data-testid={testId}
         onKeyDown={handleKeyDown}
       >
-        <p className="dialog-title" id={titleId}>
+        {/* `h2`인 이유 — `aria-labelledby`가 가리키는 요소가 제목 시맨틱이어야
+            스크린리더가 팝업을 "제목이 있는 대화상자"로 읽는다. */}
+        <h2 id={titleId}>
           {/* 색만으로 표시하지 않는다 — 기호와 문구를 함께 둔다. */}
           <span aria-hidden="true">{icon}</span> {title}
-        </p>
-        {subtitle !== undefined && <p className="dialog-subtitle">{subtitle}</p>}
+        </h2>
+        {subtitle !== undefined && <p>{subtitle}</p>}
         {children}
         <div className="dialog-actions">
           {/* DOM 순서에서 "취소"가 먼저다 — Tab 순서와 기본 포커스가 어긋나지 않게. */}
           <button
             type="button"
-            className="secondary"
+            className="dialog-cancel"
             data-testid={cancelTestId}
             ref={cancelRef}
             onClick={onCancel}
@@ -123,7 +125,7 @@ export default function ConfirmDialog({
           </button>
           <button
             type="button"
-            className="primary"
+            className="dialog-confirm"
             data-testid={confirmTestId}
             ref={confirmRef}
             onClick={onConfirm}

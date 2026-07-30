@@ -11657,3 +11657,99 @@
 **Duration ms**: 1577
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-07-30T08:43:41Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T08:45:56Z
+**Event**: HUMAN_TURN
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T08:47:40Z
+**Event**: SENSOR_FIRED
+**Fire id**: 627b530e
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/lib/avatar.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T08:47:42Z
+**Event**: SENSOR_PASSED
+**Fire id**: 627b530e
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/lib/avatar.ts
+**Duration ms**: 2285
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T08:48:03Z
+**Event**: SENSOR_FIRED
+**Fire id**: 055d3af7
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/lib/time.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T08:48:05Z
+**Event**: SENSOR_PASSED
+**Fire id**: 055d3af7
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/lib/time.ts
+**Duration ms**: 1496
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T08:50:04Z
+**Event**: SENSOR_FIRED
+**Fire id**: 29cb8575
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/Icons.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T08:50:05Z
+**Event**: SENSOR_PASSED
+**Fire id**: 29cb8575
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/Icons.tsx
+**Duration ms**: 1546
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T08:51:09Z
+**Event**: SENSOR_FIRED
+**Fire id**: 996bcac1
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/App.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T08:51:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: 996bcac1
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/App.tsx
+**Duration ms**: 1663
+
+---

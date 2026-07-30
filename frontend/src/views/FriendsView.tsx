@@ -2,6 +2,7 @@ import { useEffect, useId, useState, type FormEvent } from 'react'
 
 import * as api from '../lib/apiClient'
 import { ALIAS_MAX_LENGTH, USERNAME_MAX_LENGTH } from '../lib/constants'
+import { avatarColor, avatarInitial } from '../lib/avatar'
 import { useChatStore } from '../store/chatStore'
 
 /**
@@ -222,11 +223,13 @@ export default function FriendsView() {
       {/* ---------------- 목록 ---------------- */}
       <h3>내 친구</h3>
       {friends.length === 0 ? (
-        <p className="muted" data-testid="friends-empty">
-          아직 친구가 없습니다. 아이디로 검색해 추가하세요.
+        <p className="empty-state" data-testid="friends-empty">
+          아직 친구가 없습니다.
+          <br />
+          아이디로 검색해 추가하세요.
         </p>
       ) : (
-        <ul className="friend-list" data-testid="friends-list">
+        <ul className="list" data-testid="friends-list">
           {friends.map((friend) => (
             <li key={friend.id} data-testid={`friends-list-item-${friend.id}`}>
               {editingId === friend.id ? (
@@ -263,10 +266,19 @@ export default function FriendsView() {
                   </button>
                 </form>
               ) : (
-                <>
+                <div className="row" style={{ cursor: 'default' }}>
+                  <span
+                    className="avatar"
+                    style={{ background: avatarColor(friend.alias) }}
+                    aria-hidden="true"
+                  >
+                    {avatarInitial(friend.alias)}
+                  </span>
                   {/* 별칭만 보인다. `Friend` 타입에 상대의 이름이 없어 다른 것을
                       보여줄 방법이 없다 (FR-2.4). */}
-                  <span className="friend-alias">{friend.alias}</span>
+                  <span className="row-body">
+                    <span className="row-title">{friend.alias}</span>
+                  </span>
                   <button
                     type="button"
                     className="secondary"
@@ -279,7 +291,7 @@ export default function FriendsView() {
                   >
                     이름 수정
                   </button>
-                </>
+                </div>
               )}
             </li>
           ))}

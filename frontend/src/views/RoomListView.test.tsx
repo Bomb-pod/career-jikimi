@@ -135,9 +135,11 @@ describe('RoomListView 목록', () => {
     signedIn()
     render(<RoomListView />)
 
-    expect(await screen.findByTestId('rooms-empty')).toHaveTextContent(
-      '채팅방이 없습니다. 친구를 초대해 만들어보세요.',
-    )
+    // 두 문장을 각각 확인한다 — 재디자인이 `<br>`로 줄을 나눠 정확 일치가 깨졌다.
+    // 문구 자체는 그대로이며, 여기서 지키는 것은 "무엇을 해야 하는지 알려주는가"다.
+    const empty = await screen.findByTestId('rooms-empty')
+    expect(empty).toHaveTextContent('채팅방이 없습니다')
+    expect(empty).toHaveTextContent('친구를 초대해 만들어보세요')
     expect(screen.queryByTestId('room-list')).not.toBeInTheDocument()
   })
 

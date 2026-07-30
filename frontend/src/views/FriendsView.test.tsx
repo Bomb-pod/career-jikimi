@@ -207,9 +207,11 @@ describe('FriendsView 목록', () => {
     signedIn()
     render(<FriendsView />)
 
-    expect(screen.getByTestId('friends-empty')).toHaveTextContent(
-      '아직 친구가 없습니다. 아이디로 검색해 추가하세요.',
-    )
+    // 두 문장을 각각 확인한다 — 재디자인이 `<br>`로 줄을 나눠 정확 일치가 깨졌다.
+    // 문구 자체는 그대로이며, 여기서 지키는 것은 "무엇을 해야 하는지 알려주는가"다.
+    const empty = screen.getByTestId('friends-empty')
+    expect(empty).toHaveTextContent('아직 친구가 없습니다')
+    expect(empty).toHaveTextContent('아이디로 검색해 추가하세요')
     expect(screen.queryByTestId('friends-list')).not.toBeInTheDocument()
   })
 
