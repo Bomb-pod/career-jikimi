@@ -29,7 +29,13 @@ import { useChatStore } from '../store/chatStore'
 
 type Mode = 'login' | 'signup'
 
-export default function AuthView() {
+/**
+ * `onSignedIn` — 로그인·회원가입이 성공한 직후 호출한다.
+ *
+ * 이 컴포넌트가 직접 화면을 옮기지 않는 이유 — 어느 화면으로 갈지는 App 셸의
+ * 관심사다. 뷰가 그것을 알면 셸의 구조가 뷰 안으로 새어 들어온다.
+ */
+export default function AuthView({ onSignedIn }: { onSignedIn?: () => void }) {
   const setAuth = useChatStore((state) => state.setAuth)
   const token = useChatStore((state) => state.auth.token)
 
@@ -91,6 +97,7 @@ export default function AuthView() {
       }
       // 회원가입도 토큰을 함께 받는다 — 자동 로그인이므로 로그인과 같은 경로로 저장한다.
       setAuth(result.data.token, result.data.user)
+      onSignedIn?.()
     } catch (caught) {
       // 네트워크·5xx만 여기로 온다 (apiClient의 규약). 사용자가 고칠 수 없는 실패다.
       setError(caught instanceof Error ? caught.message : '요청을 처리할 수 없습니다')

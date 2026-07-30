@@ -24,7 +24,14 @@ import { useChatStore } from '../store/chatStore'
  * 소관이므로, 입장한 방의 설정을 이 화면의 "현재 방" 영역에서 바꾼다. `data-testid`가
  * `room-ai-toggle`(방 id 없음)인 것도 화면에 하나만 있다는 뜻이다.
  */
-export default function RoomListView() {
+/**
+ * `onOpenRoom` — 방에 입장한 직후 호출한다. App 셸이 대화 화면으로 옮긴다.
+ *
+ * **입장과 화면 전환을 나눈 이유** — 입장은 스토어의 일(포인터 이동 + 히스토리
+ * 조회, BR-3.5)이고 어느 화면을 그릴지는 셸의 일이다. `ToastHost`도 같은 모양의
+ * 콜백을 받는다.
+ */
+export default function RoomListView({ onOpenRoom }: { onOpenRoom?: (roomId: number) => void }) {
   const token = useChatStore((state) => state.auth.token)
   const myUserId = useChatStore((state) => state.auth.user?.id ?? null)
   const friends = useChatStore((state) => state.friends)
@@ -240,7 +247,12 @@ export default function RoomListView() {
                   type="button"
                   className="room-item"
                   aria-current={room.id === currentRoomId ? 'true' : undefined}
-                  onClick={() => void enterRoom(room.id)}
+                  onClick={() => {
+                    // 화면 전환을 기다리지 않는다 — 히스토리가 늦게 와도 대화 화면은
+                    // 바로 열려야 한다. 그 화면이 자기 로딩 상태를 그린다.
+                    void enterRoom(room.id)
+                    onOpenRoom?.(room.id)
+                  }}
                 >
                   <span className="room-name">{label}</span>
                   {/* **0이면 아예 렌더링하지 않는다.** 숫자만 두지 않고 aria-label을

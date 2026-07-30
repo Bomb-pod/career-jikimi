@@ -6,25 +6,52 @@
 
 ---
 
-## 지금 당장 할 것 — 판정을 실제 키로 돌려보기
+## 지금 당장 할 것 — API 키 넣기. 그것뿐이다.
 
-`.env`의 `OPENAI_API_KEY`가 아직 `PLACEHOLDER-...`다. 그것만 채우면:
+`.env`의 `OPENAI_API_KEY`가 아직 `PLACEHOLDER-...`다. **그 한 줄만 바꾸면 아래 셋이 즉시 돈다.** 다른 준비는 없다.
 
 ```bash
+# 1) 키를 넣는다
+#    .env 의 OPENAI_API_KEY=PLACEHOLDER-... 를 실제 키로
+
+# 2) 컨테이너에 반영 (재빌드 아니라 재시작이면 된다 — env_file은 런타임에 읽는다)
+docker compose up -d
+
+# 3) 판정 한 건 — 채팅 UI도 방도 사용자도 필요 없다
 docker compose exec app python -m app.judgment.try \
   --context "내일 회의 몇 시죠?" "10시입니다" "자료는 제가 준비할게요" \
   --candidate "오늘 저녁에 치킨 어때?"
 ```
 
-**채팅 UI도 방도 사용자도 필요 없다.** `judgment-core`를 의존 그래프에서 앞으로 당긴 값어치가 정확히 여기다 — 점수·판정·지연·토큰이 바로 나온다. `--show-prompt`를 붙이면 조립된 프롬프트를 눈으로 확인할 수 있다.
+`--show-prompt`를 붙이면 조립된 프롬프트를 눈으로 확인할 수 있고, `--dry-run`은 **키 없이도** 익명화를 보여준다.
 
-확인할 것 셋 — 전부 **검증되지 않은 가정**이다:
+### 그리고 이것 — 라벨 데이터셋으로 recall을 실제로 산출한다
 
-1. **프롬프트가 실제로 문맥 부적합을 잡는가** — 이 프로젝트의 가장 큰 미지수
-2. **NFR-1** — 정상 5초 / 최악 10초 안에 드는가
-3. **점수 구간 설명이 분포를 벌리는가** — 안 벌리면 0.5 근처로 몰린다
+```bash
+cd backend
+.venv/Scripts/python.exe -m app.judgment.evaluate --limit 40
+```
 
-방법은 `aidlc/.../construction/build-and-test/performance-test-instructions.md`.
+`dataset/`의 744행 라벨 데이터셋에 **판정 경로와 똑같은 프롬프트**를 돌려 precision·**recall**·F1·혼동행렬·점수 분포·난이도별 성능·임계값 스윕을 낸다.
+
+**FR-7.5가 "recall은 산출 불가 — 라벨 데이터셋 필요"라고 못박은 그 항목이 여기서 산출된다.** 라이브 지표(`report`)에서 불가인 이유는 놓친 오발송의 모수를 모르기 때문이고, 라벨은 그 모수를 준다.
+
+| | 무엇을 재는가 | recall |
+|---|---|---|
+| `python -m app.judgment.report` | 실사용 중 사용자가 어떻게 반응했는가 | 산출 불가 |
+| `python -m app.judgment.evaluate` | 모델이 정답 라벨을 맞히는가 | **산출된다** |
+
+`--limit 40`은 첫 실행을 싸게 하려는 값이다(토큰 추정 비용이 함께 찍힌다). 전량은 `--limit 0`, 표본별 결과 저장은 `--out result.csv`. **표본은 두 라벨에서 번갈아 뽑아 항상 50:50이고, 같은 `--limit`은 매번 같은 표본을 준다** — 프롬프트를 고친 전후를 비교할 수 있어야 하기 때문이다.
+
+임계값 스윕이 `ASM-3`("임계값은 데이터를 보고 정할 값")에 답한다 — 0.05 간격으로 훑어 F1이 가장 높은 지점을 현재 설정값과 나란히 보여준다.
+
+### 확인할 것 셋 — 전부 아직 검증되지 않은 가정이다
+
+1. **프롬프트가 실제로 문맥 부적합을 잡는가** — 이 프로젝트의 가장 큰 미지수. `evaluate`의 recall과 점수 분포가 답한다
+2. **점수 구간 설명이 분포를 벌리는가** — `evaluate`가 두 라벨의 평균 간격을 출력하고, 0.1 미만이면 경고한다
+3. **NFR-1** — 정상 5초 / 최악 10초. `evaluate`가 p50·p95·max와 5초 초과 건수를 함께 낸다
+
+방법의 상세는 `aidlc/.../construction/build-and-test/performance-test-instructions.md`.
 
 ---
 
@@ -36,7 +63,9 @@ docker compose up -d --build
 # → http://localhost:8000
 ```
 
-지금 동작하는 것: **회원가입 → 친구 추가 → 방 생성(친구 선택) → 메시지 전송 → 히스토리 → 오발송 신고.** 라이브 스모크 29/29로 확인됨.
+지금 동작하는 것: **회원가입 → 친구 추가 → 방 생성(친구 선택) → 방 클릭으로 대화 진입 → 메시지 전송 → 히스토리 → 오발송 신고 → 로그아웃.** 라이브 스모크 29/29로 확인됨.
+
+새로고침해도 로그인이 유지된다 — 부팅 시 `GET /auth/me`로 세션을 복구하고 방 목록으로 보낸다. 토큰이 만료됐으면(401) 지우고 로그인 화면으로, 서버가 잠깐 죽은 것이면(네트워크·5xx) 토큰을 지키고 이름만 비워둔다.
 
 ### 테스트
 
@@ -49,9 +78,9 @@ docker run -d --name cj-testdb -e MARIADB_ROOT_PASSWORD=testpw \
 
 cd backend && python -m venv .venv
 .venv/Scripts/python.exe -m pip install -r requirements-dev.txt
-.venv/Scripts/python.exe -m pytest -q -rs        # 314 passed / skip 0
+.venv/Scripts/python.exe -m pytest -q -rs        # 338 passed / skip 0
 
-cd ../frontend && npm install && npx vitest run   # 130 passed
+cd ../frontend && npm install && npx vitest run   # 147 passed
 ```
 
 **`-rs`를 항상 붙인다.** 스키마 테스트는 실제 MariaDB를 요구하고 없으면 skip된다 — 통과처럼 보이는 미검증이 가장 나쁘다.
@@ -59,10 +88,11 @@ cd ../frontend && npm install && npx vitest run   # 130 passed
 ### 지표
 
 ```bash
-docker compose exec app python -m app.judgment.report
+docker compose exec app python -m app.judgment.report      # 라이브 지표
+cd backend && .venv/Scripts/python.exe -m app.judgment.evaluate --limit 40   # 오프라인 평가
 ```
 
-`recall`은 수치가 아니라 `산출 불가 — 라벨 데이터셋 필요`로 나오는 것이 정상이다 (FR-7.5).
+`report`에서 `recall`이 수치가 아니라 `산출 불가 — 라벨 데이터셋 필요`로 나오는 것이 **정상이다** (FR-7.5). 그 값이 필요하면 `evaluate`를 쓴다 — 위 § 지금 당장 할 것.
 
 ---
 
@@ -74,7 +104,7 @@ docker compose exec app python -m app.judgment.report
 | bun | `C:\Users\403\.bun\bin\bun.exe` |
 | 스코프 | `greenfield-local-demo` |
 | git | `main` → `github.com/Bomb-pod/career-jikimi` · `construction/code-generation` 브랜치에 세부 이력 |
-| 테스트 | 백엔드 314 / 프론트 130 / **skip 0** |
+| 테스트 | 백엔드 **338** / 프론트 **147** / **skip 0** |
 | 스택 | `python:3.12-slim` + FastAPI + SQLAlchemy async + asyncmy · React 18 + TS + Vite + Zustand |
 
 `--doctor`에서 bun이 실패하면 VSCode가 완전히 종료되지 않은 것이다. 창만 닫지 말고 `파일 > 끝내기`로 나갔다 다시 열 것.

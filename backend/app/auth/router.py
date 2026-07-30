@@ -19,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth import service
 from app.auth.schemas import AuthResponse, LoginRequest, SignupRequest, UserOut
 from app.auth.security import create_token
+from app.auth.service import current_user
 from app.core.db import get_session
 from app.models import User
 
@@ -26,6 +27,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 #: 요청 단위 세션. 두 핸들러가 같은 표기를 쓰도록 별칭으로 둔다.
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
+
+#: 인증된 호출자. `GET /auth/me`가 쓴다.
+CurrentUserDep = Annotated[User, Depends(current_user)]
 
 
 def _authenticated(user: User) -> AuthResponse:
@@ -82,6 +86,32 @@ async def login(payload: LoginRequest, session: SessionDep) -> AuthResponse:
     """
     user = await service.login(session, payload.username, payload.password)
     return _authenticated(user)
+
+
+@router.get(
+    "/me",
+    response_model=UserOut,
+    summary="현재 사용자",
+    responses={
+        401: {"description": "토큰이 없거나 유효하지 않음 (BR-1.5)"},
+    },
+)
+async def me(user: CurrentUserDep) -> UserOut:
+    """토큰이 가리키는 사용자를 돌려준다.
+
+    **왜 필요한가** — 프론트엔드는 토큰만 `localStorage`에 남긴다(FR-1.2에 리프레시
+    토큰이 없으므로 사용자 객체를 저장할 이유도 없다). 그래서 새로고침 후에는 토큰은
+    유효한데 "내가 누구인지"를 모르는 상태가 된다. 이 엔드포인트가 그 한 조각을
+    복구한다.
+
+    `component-methods.md`에 없던 표면이다. U4·U5의 `code-summary.md`가 둘 다
+    "화면이 현재 사용자 이름을 보여주려면 `GET /auth/me`가 필요하다"로 남겨둔
+    항목이며, 프론트엔드를 마무리하면서 그 필요가 실제로 발생했다.
+
+    **새 토큰을 발급하지 않는다.** 토큰 갱신은 FR-1.2가 범위 밖으로 정했다 —
+    여기서 갱신하면 사실상 무기한 세션이 되어 그 결정이 뒤집힌다.
+    """
+    return UserOut.model_validate(user)
 
 
 __all__ = ["router"]

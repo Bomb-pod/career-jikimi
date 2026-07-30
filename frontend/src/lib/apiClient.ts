@@ -325,6 +325,20 @@ export function login(username: string, password: string): Promise<ApiResult<Aut
 }
 
 /**
+ * `GET /auth/me` — 저장된 토큰이 가리키는 사용자.
+ *
+ * **새로고침 후 "내가 누구인지"를 복구하는 용도다.** `localStorage`에는 토큰만
+ * 남기므로(사용자 객체를 저장하면 서버에서 바뀌어도 낡은 값이 남는다) 부팅 시
+ * 이것으로 한 번 채운다.
+ *
+ * **401은 오류 처리 대상이 아니라 "토큰을 지워라"는 신호다.** 만료·위조·서명 오류가
+ * 전부 401로 오므로 호출부는 상태만 보고 `clearAuth()`를 부른다.
+ */
+export function me(): Promise<ApiResult<CurrentUser>> {
+  return request<CurrentUser>('GET', '/auth/me')
+}
+
+/**
  * `GET /users/search` — 아이디 정확 일치.
  *
  * **없어도 성공이다** — `{ok: true, data: {user: null}}`가 온다 (BR-2.1).

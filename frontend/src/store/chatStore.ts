@@ -16,6 +16,7 @@ import { create } from 'zustand'
 import {
   listMessages,
   markRead as markReadRequest,
+  me as fetchMe,
   setAuthToken,
   type ChatMessage,
   type CurrentUser,
@@ -145,6 +146,19 @@ export interface ChatState {
   setAuth: (token: string, user: CurrentUser) => void
   /** 로그아웃 또는 토큰 만료(401) 시 호출한다. */
   clearAuth: () => void
+  /**
+   * 저장된 토큰으로 `GET /auth/me`를 불러 `auth.user`를 채운다 — 부팅 시 한 번.
+   *
+   * 토큰이 없으면 아무 일도 하지 않는다. **401이면 `clearAuth()`를 부른다** — 낡은
+   * 토큰을 들고 있으면 이후 모든 요청이 401이 되고 사용자는 로그인했다고 믿는다.
+   *
+   * 그 밖의 실패(네트워크·5xx)에는 토큰을 지우지 않는다. 서버가 잠깐 죽은 것과
+   * 토큰이 죽은 것은 다르며, 전자에서 로그아웃시키면 서버가 돌아와도 다시
+   * 로그인해야 한다.
+   *
+   * 반환값은 "이 토큰이 살아 있는가"다 — App 셸이 첫 화면을 정하는 데 쓴다.
+   */
+  hydrateSession: () => Promise<boolean>
   setFriends: (friends: Friend[]) => void
   /**
    * 친구 하나를 추가하거나 이미 있으면 갈아끼운다.
@@ -271,9 +285,8 @@ setAuthToken(initialToken)
 export const useChatStore = create<ChatState>((set, get) => ({
   auth: {
     token: initialToken,
-    // 새로고침 직후에는 토큰만 있고 사용자 정보가 없다. 화면이 사용자 이름을 쓰지
-    // 않으므로(FR-2.4의 정신) 이 상태로도 동작한다. 필요해지면 `GET /auth/me`를
-    // 추가하는 것이 맞고, 지금 요구사항에는 없다.
+    // 새로고침 직후에는 토큰만 있고 사용자 정보가 없다. `hydrateSession()`이
+    // `GET /auth/me`로 이 한 조각을 채운다 — App 셸이 부팅 시 한 번 부른다.
     user: null,
   },
   friends: [],
@@ -297,6 +310,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
     setAuthToken(token)
     writeStoredToken(token)
     set({ auth: { token, user } })
+  },
+
+  hydrateSession: async () => {
+    if (get().auth.token === null) return false
+
+    const result = await fetchMe()
+    if (result.ok) {
+      set((state) => ({ auth: { ...state.auth, user: result.data } }))
+      return true
+    }
+    // 401만 토큰을 지운다 — 만료·위조·서명 오류가 전부 여기로 온다.
+    if (result.error.status === 401) {
+      get().clearAuth()
+      return false
+    }
+    // 네트워크·5xx는 토큰을 건드리지 않는다. 사용자 이름만 비어 있을 뿐
+    // 나머지 화면은 그대로 동작하며, 다음 새로고침에 다시 시도된다.
+    return true
   },
 
   clearAuth: () => {

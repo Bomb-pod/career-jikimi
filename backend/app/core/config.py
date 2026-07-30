@@ -23,8 +23,14 @@ API 키·비밀번호·서명 키에 해당하는 리터럴 문자열이 존재�
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+#: 저장소 루트 — `backend/app/core/config.py`에서 세 단계 위.
+#: `.env`를 cwd와 무관하게 찾는 데 쓴다 (아래 `env_file` 참조).
+_REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class Settings(BaseSettings):
@@ -35,7 +41,15 @@ class Settings(BaseSettings):
     """
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        # 두 자리를 모두 본다 — 앞의 것이 이긴다.
+        #
+        # `".env"`(cwd 기준)만 두면 저장소 루트에서 돌릴 때만 잡히고, `backend/`에서
+        # `python -m app.judgment.evaluate`처럼 돌리면 못 찾아 기동이 실패한다.
+        # 컨테이너에서는 compose가 환경변수를 직접 주입하므로 둘 다 없어도 된다.
+        #
+        # **환경변수가 파일보다 우선한다** — pydantic-settings의 기본 우선순위이며,
+        # CI·k8s가 파일 없이 주입하는 경로를 파일이 덮어쓰면 안 된다.
+        env_file=(".env", _REPO_ROOT / ".env"),
         env_file_encoding="utf-8",
         case_sensitive=True,
         # 모르는 환경변수를 무시한다. compose가 MARIADB_* 같은 db 컨테이너용 변수를
