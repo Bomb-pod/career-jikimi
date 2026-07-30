@@ -25,10 +25,21 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any
 
 from fastapi import WebSocket, status
+
+#: 밀려난 연결의 `close()`를 기다려 주는 상한 (초).
+#:
+#: `close()`는 close 핸드셰이크가 끝날 때까지 기다린다. 정상 브라우저는 즉시
+#: 응답하지만(실측 0.0초), 멈춘 탭이나 끊긴 네트워크는 응답하지 않아 uvicorn의
+#: 기본 상한인 **10초**를 그대로 기다린다 — 그동안 새 탭의 `auth_ok`가 나가지
+#: 못한다. 레지스트리는 이 시점에 이미 새 소켓으로 교체됐고 `session_replaced`도
+#: 이미 전달된 뒤라 기다릴 이유가 없다. 1초는 정상 응답에는 충분히 넉넉하고
+#: 비협조적 상대에게는 새 연결을 붙잡아 두지 않는 값이다.
+EVICTED_CLOSE_TIMEOUT_SECONDS = 1.0
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +89,20 @@ async def register(user_id: int, ws: WebSocket) -> None:
         logger.info("밀려난 연결에 session_replaced를 보내지 못했습니다 (user_id=%s)", user_id)
 
     try:
-        await existing.close(code=status.WS_1000_NORMAL_CLOSURE)
+        # 상한을 건다 — 위 상수의 근거 참조. 시간이 지나면 그냥 넘어간다:
+        # 소켓은 핸들러의 finally와 TCP 타임아웃이 결국 정리하고, 그 정리는
+        # 소유권 확인 때문에 새 연결을 건드리지 못한다 (`unregister` 참조).
+        await asyncio.wait_for(
+            existing.close(code=status.WS_1000_NORMAL_CLOSURE),
+            timeout=EVICTED_CLOSE_TIMEOUT_SECONDS,
+        )
+    except TimeoutError:
+        # 밀려난 상대가 close 핸드셰이크에 응답하지 않는다. 새 연결을 더 붙잡지 않는다.
+        logger.info(
+            "밀려난 연결이 %.1f초 안에 닫히지 않아 기다리지 않고 진행합니다 (user_id=%s)",
+            EVICTED_CLOSE_TIMEOUT_SECONDS,
+            user_id,
+        )
     except Exception:
         # 상대가 먼저 끊었거나 이미 닫혀 있다. 레지스트리에서는 이미 빠졌다.
         logger.info("밀려난 연결을 닫지 못했습니다 (user_id=%s)", user_id)

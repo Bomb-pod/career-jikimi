@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 import pytest
@@ -245,3 +246,42 @@ async def test_push_to_nobody_is_a_no_op() -> None:
     await ws_registry.push_to_users([], {"type": "message"})
 
     assert ws_registry.connection_count() == 0
+
+
+class HangingCloseSocket(FakeSocket):
+    """`close()`가 영영 끝나지 않는 소켓.
+
+    close 핸드셰이크에 응답하지 않는 실제 클라이언트(멈춘 탭, 끊긴 네트워크)를
+    흉내낸다. `send_json`은 정상 동작한다 — 프레임은 나가고 응답만 없는 상황이다.
+    """
+
+    async def close(self, code: int = 1000) -> None:
+        await asyncio.sleep(3600)
+
+
+async def test_an_unresponsive_evicted_socket_does_not_delay_the_new_connection() -> None:
+    """밀려난 연결이 close에 응답하지 않아도 교체가 즉시 끝난다.
+
+    **build-and-test에서 라이브 스택으로 실측해 찾은 결함의 회귀 테스트다.**
+    수정 전에는 `await existing.close()`가 uvicorn의 close 핸드셰이크 상한인
+    10초를 그대로 기다렸고, 그동안 새 탭의 `auth_ok`가 나가지 못했다. 정상
+    브라우저는 즉시 응답해(실측 0.0초) 평소에는 드러나지 않지만, 멈춘 탭 하나가
+    새 탭 접속을 10초 막는다.
+
+    상한(1초)보다 넉넉하되 수정 전 동작(10초)보다는 훨씬 짧은 2초로 재는 이유 —
+    상한 값 자체를 박으면 값을 바꿀 때 테스트도 함께 고치게 되어 불변식이
+    사라진다. 여기서 지키는 불변식은 "비협조적 상대가 교체를 붙잡지 못한다"다.
+    """
+    stuck = HangingCloseSocket()
+    await ws_registry.register(1, _as_socket(stuck))
+
+    fresh = FakeSocket()
+    started = asyncio.get_running_loop().time()
+    await asyncio.wait_for(ws_registry.register(1, _as_socket(fresh)), timeout=5.0)
+    elapsed = asyncio.get_running_loop().time() - started
+
+    assert elapsed < 2.0, f"교체가 {elapsed:.1f}초 걸렸다 — 비협조적 소켓이 붙잡고 있다"
+    # 기다리지 않았어도 알림은 나갔고 새 소켓이 자리를 차지했다.
+    assert stuck.sent == [{"type": "session_replaced"}]
+    await ws_registry.push_to_users([1], {"type": "message"})
+    assert fresh.sent == [{"type": "message"}]
