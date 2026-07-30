@@ -1,0 +1,46 @@
+# ruff(lint + format)와 pytest 설정.
+#
+# 패키지로 배포하지 않으므로 [project] 섹션이 없다. 이 파일은 도구 설정 전용이다.
+# org.md § Code Style이 린터·포매터 선택을 프로젝트 설정에 위임했고,
+# ruff 하나가 black + isort + flake8을 대체한다 (code-generation-plan.md § 스택 확정).
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["migrations/versions"]
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle
+    "W",     # pycodestyle warnings
+    "F",     # pyflakes
+    "I",     # isort
+    "UP",    # pyupgrade
+    "B",     # flake8-bugbear
+    "C4",    # flake8-comprehensions
+    "SIM",   # flake8-simplify
+    "ASYNC", # flake8-async
+    "S",     # flake8-bandit — 비밀 하드코딩 탐지 (FR-1.4, NFR-6)
+]
+ignore = [
+    # B008: FastAPI의 Depends()는 기본값 위치에 두는 것이 정식 관용구다.
+    "B008",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# S101: 테스트는 assert를 쓴다.
+# S105/S106: 테스트용 자리 채우기 문자열은 비밀이 아니다.
+# SIM300: `x == pytest.approx(y)`를 Yoda 조건으로 오인한다. pytest의 정식 관용구다.
+"tests/*" = ["S101", "S105", "S106", "SIM300"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.pytest.ini_options]
+# asyncio_mode=auto — async 테스트에 데코레이터를 붙이지 않아도 된다.
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers"
+filterwarnings = ["error::DeprecationWarning:app.*"]

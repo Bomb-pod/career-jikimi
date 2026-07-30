@@ -1,0 +1,12 @@
+# 줄바꿈 정규화.
+#
+# **셸 스크립트를 LF로 고정하는 이유** — Windows에서 체크아웃할 때 CRLF로 바뀌면
+# 컨테이너 안에서 `#!/bin/sh\r`을 해석하려다 "no such file or directory"로 죽는다.
+# 원인이 셔뱅의 보이지 않는 문자라서 찾는 데 오래 걸리는 종류의 실패다.
+*.sh text eol=lf
+
+# Dockerfile과 compose 파일도 리눅스 도구가 읽는다.
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+.env.example text eol=lf

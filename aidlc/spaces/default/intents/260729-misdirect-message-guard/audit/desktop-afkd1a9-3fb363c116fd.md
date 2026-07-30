@@ -6643,3 +6643,3999 @@
 **Timestamp**: 2026-07-29T08:59:57Z
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-07-29T09:03:07Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-29T09:05:03Z
+**Event**: HUMAN_TURN
+
+---
+
+## Session End
+**Timestamp**: 2026-07-29T09:08:47Z
+**Event**: SESSION_ENDED
+**Reason**: other
+
+---
+
+## Session End
+**Timestamp**: 2026-07-29T09:08:58Z
+**Event**: SESSION_ENDED
+**Reason**: other
+
+---
+
+## Session Compacted
+**Timestamp**: 2026-07-29T09:09:02Z
+**Event**: SESSION_COMPACTED
+**Current Stage**: code-generation
+**State Validity**: valid
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-29T09:11:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a15e63075481a4b07
+**Message**: <analysis>\nLet me work through this conversation chronologically.\n\n**Opening**: The user said "using AI-DLC, 프로젝트를 이어서 진행해줘" (continue the project using AI-DLC). I invoked the `aidlc` skill with `--st
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-29T09:15:06Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-29T09:17:32Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-29T09:18:05Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-29T09:18:30Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-29T09:18:38Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-29T09:21:00Z
+**Event**: HUMAN_TURN
+
+---
+
+## Session End
+**Timestamp**: 2026-07-29T09:23:59Z
+**Event**: SESSION_ENDED
+**Reason**: other
+
+---
+
+## Session Start
+**Timestamp**: 2026-07-30T00:06:38Z
+**Event**: SESSION_STARTED
+**Source**: startup
+
+---
+
+## Session Start
+**Timestamp**: 2026-07-30T00:06:38Z
+**Event**: SESSION_STARTED
+**Source**: startup
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T00:07:02Z
+**Event**: HUMAN_TURN
+
+---
+
+## Workflow Unparked
+**Timestamp**: 2026-07-30T00:08:12Z
+**Event**: WORKFLOW_UNPARKED
+**Timestamp**: 2026-07-30T00:08:12Z
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T00:09:23Z
+**Event**: HUMAN_TURN
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T00:12:11Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/code-generation/memory.md
+**Context**: construction > code-generation > memory.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T00:13:42Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/foundation/code-generation/code-generation-plan.md
+**Context**: construction > foundation > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T00:13:59Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/foundation/code-generation/code-generation-questions.md
+**Context**: construction > foundation > code-generation > code-generation-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T00:14:05Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/foundation/code-generation/code-generation-questions.md
+**Context**: construction > foundation > code-generation > code-generation-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T00:14:10Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/foundation/code-generation/code-generation-questions.md
+**Context**: construction > foundation > code-generation > code-generation-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-07-30T00:14:17Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: U1 foundation 계획 승인 + 단위 내 백엔드/프론트 구현 순서
+**Options**: 백엔드 먼저,프론트 먼저(mock),단위 안에서 얇게 교차,Approve Plan,Request Changes
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T00:20:18Z
+**Event**: HUMAN_TURN
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T00:20:28Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/foundation/code-generation/code-generation-questions.md
+**Context**: construction > foundation > code-generation > code-generation-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T00:20:33Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/foundation/code-generation/code-generation-questions.md
+**Context**: construction > foundation > code-generation > code-generation-questions.md
+
+---
+
+## Question Answered
+**Timestamp**: 2026-07-30T00:20:40Z
+**Event**: QUESTION_ANSWERED
+**Stage**: code-generation
+**Details**: Q1: 백엔드 먼저 (추천) / Q2: Approve Plan
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T00:45:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 74781a59
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/vite.config.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T00:45:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 74781a59
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/vite.config.ts
+**Duration ms**: 3674
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T00:45:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 288d9e8b
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/vite.config.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T00:45:26Z
+**Event**: SENSOR_PASSED
+**Fire id**: 288d9e8b
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/vite.config.ts
+**Duration ms**: 1914
+**Note**: script-error: exit-1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T00:45:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: c7746361
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/vitest.config.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T00:45:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: c7746361
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/vitest.config.ts
+**Duration ms**: 753
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T00:45:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: 41f432ce
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/vitest.config.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T00:45:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: 41f432ce
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/vitest.config.ts
+**Duration ms**: 363
+**Note**: script-error: exit-1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T00:45:43Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2f38e8f2
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/main.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T00:45:44Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2f38e8f2
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/main.tsx
+**Duration ms**: 339
+**Note**: script-error: exit-1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T00:46:01Z
+**Event**: SENSOR_FIRED
+**Fire id**: 27fe199e
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T00:46:01Z
+**Event**: SENSOR_PASSED
+**Fire id**: 27fe199e
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+**Duration ms**: 340
+**Note**: script-error: exit-1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T00:46:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: 17e9a56d
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/setupTests.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T00:46:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: 17e9a56d
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/setupTests.ts
+**Duration ms**: 733
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T00:46:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: b5d352ad
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/setupTests.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T00:46:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: b5d352ad
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/setupTests.ts
+**Duration ms**: 349
+**Note**: script-error: exit-1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T00:46:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: b38cf224
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T00:46:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: b38cf224
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.test.tsx
+**Duration ms**: 345
+**Note**: script-error: exit-1
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T00:55:41Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-developer-agent
+**Agent ID**: a623f760bcf40a409
+**Message**: Everything is in place and verified.\n\n## Subagent Summary: Code Generation — U1 foundation\n\n### Produced\n\n**Root (container + config):**\n- `C:\IDE\workplace\jihwan\mini_project\Dockerfile`: 3-stage bu
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T00:56:50Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/foundation/code-generation/code-summary.md
+**Context**: construction > foundation > code-generation > code-summary.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T00:57:04Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-reviewer-dispatch.json
+**Context**: .aidlc-reviewer-dispatch.json
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-30T00:57:11Z
+**Event**: REVIEW_REQUESTED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: foundation
+**Iteration**: 1
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T00:58:22Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Glob
+**Target**: .
+**Stage**: code-generation
+**Unit**: foundation
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T00:58:23Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Glob
+**Target**: .
+**Stage**: code-generation
+**Unit**: foundation
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T00:58:23Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Glob
+**Target**: .
+**Stage**: code-generation
+**Unit**: foundation
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T00:58:23Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Glob
+**Target**: .
+**Stage**: code-generation
+**Unit**: foundation
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T00:58:27Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Glob
+**Target**: .
+**Stage**: code-generation
+**Unit**: foundation
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T00:58:27Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Glob
+**Target**: .
+**Stage**: code-generation
+**Unit**: foundation
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T01:03:40Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Bash
+**Target**: .
+**Stage**: code-generation
+**Unit**: foundation
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T01:05:36Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Glob
+**Target**: .
+**Stage**: code-generation
+**Unit**: foundation
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T01:07:25Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Bash
+**Target**: .
+**Stage**: code-generation
+**Unit**: foundation
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T01:07:57Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a32da188417bb09a6
+**Message**: The whole `construction/foundation/` directory is untracked (new, from this stage run), which is expected — my edit landed inside it, and no other file outside my designated scope was touched.\n\n**Revi
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-30T01:08:22Z
+**Event**: REVIEW_COMPLETED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: foundation
+**Iteration**: 1
+**Verdict**: READY
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T01:09:19Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/code-generation/memory.md
+**Context**: construction > code-generation > memory.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T01:11:57Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/code-generation/code-generation-plan.md
+**Context**: construction > auth-friends > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T01:12:12Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/code-generation/code-generation-questions.md
+**Context**: construction > auth-friends > code-generation > code-generation-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-07-30T01:12:20Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: auth-friends: 비밀번호 해시 라이브러리 + 계획 승인
+**Options**: argon2id,bcrypt,bcrypt+72바이트 400,Approve Plan,Request Changes
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T01:13:21Z
+**Event**: HUMAN_TURN
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T01:13:46Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/code-generation/code-generation-questions.md
+**Context**: construction > auth-friends > code-generation > code-generation-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T01:13:56Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/code-generation/code-generation-questions.md
+**Context**: construction > auth-friends > code-generation > code-generation-questions.md
+
+---
+
+## Question Answered
+**Timestamp**: 2026-07-30T01:14:08Z
+**Event**: QUESTION_ANSWERED
+**Stage**: code-generation
+**Details**: Q1: X. Other — '난 무슨 말인지 모르겠어' (Q1a로 재질의) / Q2: Approve Plan
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T01:19:08Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/code-generation/memory.md
+**Context**: construction > code-generation > memory.md
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T01:23:01Z
+**Event**: HUMAN_TURN
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T01:23:08Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/code-generation/code-generation-questions.md
+**Context**: construction > auth-friends > code-generation > code-generation-questions.md
+
+---
+
+## Question Answered
+**Timestamp**: 2026-07-30T01:23:16Z
+**Event**: QUESTION_ANSWERED
+**Stage**: code-generation
+**Details**: Q1a: argon2 (추천) — 재질의 후 확정. auth-friends 생성 진행
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:44:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8ad75dd5
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:44:55Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8ad75dd5
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+**Duration ms**: 1706
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:44:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: 24f91c0a
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:44:57Z
+**Event**: SENSOR_PASSED
+**Fire id**: 24f91c0a
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+**Duration ms**: 1862
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:46:38Z
+**Event**: SENSOR_FIRED
+**Fire id**: 66ffca57
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:46:38Z
+**Event**: SENSOR_PASSED
+**Fire id**: 66ffca57
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 784
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:46:39Z
+**Event**: SENSOR_FIRED
+**Fire id**: 70bf36ef
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:46:40Z
+**Event**: SENSOR_PASSED
+**Fire id**: 70bf36ef
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 1412
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:47:07Z
+**Event**: SENSOR_FIRED
+**Fire id**: 61ac7ca0
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:47:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: 61ac7ca0
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 802
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:47:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0d2a4ac4
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:47:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0d2a4ac4
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 1538
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:47:45Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0e1d4a83
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:47:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0e1d4a83
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.tsx
+**Duration ms**: 1643
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:48:04Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8038347b
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T01:48:06Z
+**Event**: SENSOR_FAILED
+**Fire id**: 8038347b
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-8038347b.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:48:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: f2d2c7a6
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T01:48:12Z
+**Event**: SENSOR_FAILED
+**Fire id**: f2d2c7a6
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-f2d2c7a6.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:48:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7428a44d
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T01:48:18Z
+**Event**: SENSOR_FAILED
+**Fire id**: 7428a44d
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-7428a44d.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:48:31Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9350a4d8
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:48:32Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9350a4d8
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.tsx
+**Duration ms**: 1598
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:49:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: 278de511
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/FriendsView.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:49:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 278de511
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/FriendsView.tsx
+**Duration ms**: 1544
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:49:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4674ef4d
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T01:49:29Z
+**Event**: SENSOR_FAILED
+**Fire id**: 4674ef4d
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-4674ef4d.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:49:36Z
+**Event**: SENSOR_FIRED
+**Fire id**: ea382a92
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:49:38Z
+**Event**: SENSOR_PASSED
+**Fire id**: ea382a92
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+**Duration ms**: 1480
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:51:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: bf1c3445
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:51:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: bf1c3445
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.test.tsx
+**Duration ms**: 1503
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:51:43Z
+**Event**: SENSOR_FIRED
+**Fire id**: 35b73cb2
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:51:45Z
+**Event**: SENSOR_PASSED
+**Fire id**: 35b73cb2
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/AuthView.test.tsx
+**Duration ms**: 1464
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:52:51Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4712cbf7
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/FriendsView.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:52:52Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4712cbf7
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/FriendsView.test.tsx
+**Duration ms**: 1476
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:53:41Z
+**Event**: SENSOR_FIRED
+**Fire id**: b31c347c
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/FriendsView.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:53:43Z
+**Event**: SENSOR_PASSED
+**Fire id**: b31c347c
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/FriendsView.test.tsx
+**Duration ms**: 1510
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:53:49Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5dd233d2
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/FriendsView.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:53:51Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5dd233d2
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/FriendsView.test.tsx
+**Duration ms**: 1401
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:54:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7b88c63f
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:54:56Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7b88c63f
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.test.ts
+**Duration ms**: 823
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T01:54:56Z
+**Event**: SENSOR_FIRED
+**Fire id**: d3205583
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T01:54:57Z
+**Event**: SENSOR_PASSED
+**Fire id**: d3205583
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.test.ts
+**Duration ms**: 1425
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T01:58:42Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-developer-agent
+**Agent ID**: a93beeae77d63f12c
+**Message**: Everything is green. All 25 plan checkboxes across the 10 steps are marked `- [x]`.\n\n## Subagent Summary: Code Generation — auth-friends\n\n### Produced\n\n**Backend — auth (`C:\IDE\workplace\jihwan\mini_
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T02:00:27Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-reviewer-dispatch.json
+**Context**: .aidlc-reviewer-dispatch.json
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-30T02:00:35Z
+**Event**: REVIEW_REQUESTED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: auth-friends
+**Iteration**: 1
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T02:01:33Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Glob
+**Target**: .
+**Stage**: code-generation
+**Unit**: auth-friends
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T02:01:33Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Glob
+**Target**: .
+**Stage**: code-generation
+**Unit**: auth-friends
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T02:01:33Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Glob
+**Target**: .
+**Stage**: code-generation
+**Unit**: auth-friends
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T02:01:33Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Glob
+**Target**: .
+**Stage**: code-generation
+**Unit**: auth-friends
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T02:06:13Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Bash
+**Target**: .
+**Stage**: code-generation
+**Unit**: auth-friends
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T02:11:35Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/code-generation/code-summary.md
+**Context**: construction > auth-friends > code-generation > code-summary.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T02:11:54Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: abc66d0a72c82bccc
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Verdict: READY**\n\nI ran an adversarial pass against unit `auth-friends` (U3): read the plan, Q&A, and all three functional-design contracts; read eve
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-30T02:12:04Z
+**Event**: REVIEW_COMPLETED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: auth-friends
+**Iteration**: 1
+**Verdict**: READY
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T02:13:48Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-reviewer-dispatch.json
+**Context**: .aidlc-reviewer-dispatch.json
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-30T02:14:00Z
+**Event**: REVIEW_REQUESTED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: auth-friends
+**Iteration**: 2
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T02:15:56Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Bash
+**Target**: c:/IDE/workplace/jihwan/mini_project
+**Stage**: code-generation
+**Unit**: auth-friends
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T02:18:14Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Bash
+**Target**: c:/IDE/workplace/jihwan/mini_project
+**Stage**: code-generation
+**Unit**: auth-friends
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T02:20:49Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/auth-friends/code-generation/code-summary.md
+**Context**: construction > auth-friends > code-generation > code-summary.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T02:21:10Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a20f6be9864f0c92a
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Verdict: READY**\n\nSummary of this second pass: no application code changed since my first-pass READY. I fact-checked every checkable claim in the new
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-30T02:21:22Z
+**Event**: REVIEW_COMPLETED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: auth-friends
+**Iteration**: 2
+**Verdict**: READY
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T02:21:35Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/code-generation/memory.md
+**Context**: construction > code-generation > memory.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T02:25:18Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/code-generation/code-generation-plan.md
+**Context**: construction > judgment-core > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T02:25:39Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/code-generation/code-generation-questions.md
+**Context**: construction > judgment-core > code-generation > code-generation-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-07-30T02:25:50Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: judgment-core: AI_TIMEOUT_SECONDS 기본값 결함(5가 NFR-1 초과) + 계획 승인
+**Options**: 4로 낮춤,3으로 낮춤,5 유지하고 NFR-1을 12초로 수정,Approve Plan,Request Changes
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T02:27:56Z
+**Event**: HUMAN_TURN
+
+---
+
+## Question Answered
+**Timestamp**: 2026-07-30T02:28:16Z
+**Event**: QUESTION_ANSWERED
+**Stage**: code-generation
+**Details**: Q1: 4초로 낮춘다 (추천) / Q2: Approve Plan
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T03:06:24Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-developer-agent
+**Agent ID**: a279cf6305696ef7d
+**Message**: All 12 modules and 6 test files are in place, the plan's 64 checkboxes are marked, and every verification command passes.\n\n## Subagent Summary: Code Generation — judgment-core\n\n### Produced\n- `C:\IDE\
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T03:07:28Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/code-generation/code-summary.md
+**Context**: construction > judgment-core > code-generation > code-summary.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T03:07:37Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-reviewer-dispatch.json
+**Context**: .aidlc-reviewer-dispatch.json
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-30T03:07:46Z
+**Event**: REVIEW_REQUESTED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: judgment-core
+**Iteration**: 1
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T03:23:52Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/code-generation/code-summary.md
+**Context**: construction > judgment-core > code-generation > code-summary.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T03:24:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a4fcd1cc485c3ab19
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Verdict: NOT-READY**\n\nI appended the full review to `aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/code-gene
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-30T03:24:38Z
+**Event**: REVIEW_COMPLETED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: judgment-core
+**Iteration**: 1
+**Verdict**: NOT-READY
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T03:27:39Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-developer-agent
+**Agent ID**: a279cf6305696ef7d
+**Message**: The reviewer's exact reproduction path — `Settings(_env_file=None)` with only the three required secrets — now resolves to `4.0`.\n\n### Files changed (2)\n\n**`backend/app/core/config.py`** — field defau
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T03:28:06Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/code-generation/code-summary.md
+**Context**: construction > judgment-core > code-generation > code-summary.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T03:28:41Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-reviewer-dispatch.json
+**Context**: .aidlc-reviewer-dispatch.json
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-30T03:28:50Z
+**Event**: REVIEW_REQUESTED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: judgment-core
+**Iteration**: 2
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T03:33:28Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Grep
+**Target**: c:\IDE\workplace\jihwan\mini_project
+**Stage**: code-generation
+**Unit**: judgment-core
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T03:35:24Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/judgment-core/code-generation/code-summary.md
+**Context**: construction > judgment-core > code-generation > code-summary.md
+
+---
+
+## Reviewer Scope Blocked
+**Timestamp**: 2026-07-30T03:35:35Z
+**Event**: REVIEWER_SCOPE_BLOCKED
+**Tool**: Bash
+**Target**: aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/
+**Stage**: code-generation
+**Unit**: judgment-core
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T03:36:02Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a88fd231dc1143f35
+**Message**: Confirmed: `backend/` is unmodified by me (still shown only as pre-existing untracked content from the lead's fix, not newly changed by this session), and the only content I wrote is inside the alread
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-30T03:36:12Z
+**Event**: REVIEW_COMPLETED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: judgment-core
+**Iteration**: 2
+**Verdict**: READY
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T03:36:28Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/code-generation/memory.md
+**Context**: construction > code-generation > memory.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T03:38:51Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-generation-plan.md
+**Context**: construction > rooms-realtime > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T03:39:15Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-generation-questions.md
+**Context**: construction > rooms-realtime > code-generation > code-generation-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-07-30T03:39:29Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: rooms-realtime: FR-10(Should) 절단 여부 + 계획 승인
+**Options**: 지금 자른다,만든다,Approve Plan,Request Changes
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T03:44:00Z
+**Event**: HUMAN_TURN
+
+---
+
+## Question Answered
+**Timestamp**: 2026-07-30T03:44:20Z
+**Event**: QUESTION_ANSWERED
+**Stage**: code-generation
+**Details**: Q1: 지금 자른다 (추천) — FR-10 절단 / Q2: Approve Plan
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T03:57:24Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-generation-plan.md
+**Context**: construction > rooms-realtime > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T03:57:37Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-generation-plan.md
+**Context**: construction > rooms-realtime > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T03:57:51Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-generation-plan.md
+**Context**: construction > rooms-realtime > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T03:58:00Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-generation-plan.md
+**Context**: construction > rooms-realtime > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T03:58:10Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-generation-plan.md
+**Context**: construction > rooms-realtime > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T04:05:45Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-generation-plan.md
+**Context**: construction > rooms-realtime > code-generation > code-generation-plan.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:06:49Z
+**Event**: SENSOR_FIRED
+**Fire id**: f8da6029
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:06:50Z
+**Event**: SENSOR_PASSED
+**Fire id**: f8da6029
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 776
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:06:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6e91e7a9
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:06:51Z
+**Event**: SENSOR_PASSED
+**Fire id**: 6e91e7a9
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 1779
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:07:07Z
+**Event**: SENSOR_FIRED
+**Fire id**: 901c8967
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:07:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: 901c8967
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 751
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:07:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 847e9fa5
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:07:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: 847e9fa5
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 1819
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:07:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: b6ffe526
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/wsClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:07:56Z
+**Event**: SENSOR_PASSED
+**Fire id**: b6ffe526
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/wsClient.ts
+**Duration ms**: 764
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:07:56Z
+**Event**: SENSOR_FIRED
+**Fire id**: 04c9759e
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/wsClient.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T04:07:58Z
+**Event**: SENSOR_FAILED
+**Fire id**: 04c9759e
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/wsClient.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-04c9759e.md
+**Findings count**: 5
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:08:12Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8f7120cd
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:08:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8f7120cd
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+**Duration ms**: 751
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:08:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: 66c92600
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:08:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 66c92600
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+**Duration ms**: 1801
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:09:33Z
+**Event**: SENSOR_FIRED
+**Fire id**: c5304c63
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:09:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: c5304c63
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 781
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:09:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: c52620f9
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:09:36Z
+**Event**: SENSOR_PASSED
+**Fire id**: c52620f9
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 1738
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:09:54Z
+**Event**: SENSOR_FIRED
+**Fire id**: dfd5f329
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/roomName.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:09:55Z
+**Event**: SENSOR_PASSED
+**Fire id**: dfd5f329
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/roomName.ts
+**Duration ms**: 759
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:09:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: e291b953
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/roomName.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:09:56Z
+**Event**: SENSOR_PASSED
+**Fire id**: e291b953
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/roomName.ts
+**Duration ms**: 1335
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:10:06Z
+**Event**: SENSOR_FIRED
+**Fire id**: ae436199
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:10:07Z
+**Event**: SENSOR_PASSED
+**Fire id**: ae436199
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 739
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:10:07Z
+**Event**: SENSOR_FIRED
+**Fire id**: 470688aa
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T04:10:09Z
+**Event**: SENSOR_FAILED
+**Fire id**: 470688aa
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-470688aa.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:10:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: 16626bd5
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:10:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: 16626bd5
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 838
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:10:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: a7279857
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:10:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: a7279857
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 1436
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:11:04Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4e3857b9
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/RoomListView.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T04:11:06Z
+**Event**: SENSOR_FAILED
+**Fire id**: 4e3857b9
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/RoomListView.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-4e3857b9.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:12:03Z
+**Event**: SENSOR_FIRED
+**Fire id**: f93ab6ec
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:12:03Z
+**Event**: SENSOR_PASSED
+**Fire id**: f93ab6ec
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 736
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:12:03Z
+**Event**: SENSOR_FIRED
+**Fire id**: d0e12563
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:12:05Z
+**Event**: SENSOR_PASSED
+**Fire id**: d0e12563
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 1889
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:12:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: cb83631e
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ToastHost.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:12:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: cb83631e
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ToastHost.tsx
+**Duration ms**: 1431
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:12:32Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6bc53c44
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T04:12:33Z
+**Event**: SENSOR_FAILED
+**Fire id**: 6bc53c44
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-6bc53c44.md
+**Findings count**: 5
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:12:42Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8bff0255
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T04:12:43Z
+**Event**: SENSOR_FAILED
+**Fire id**: 8bff0255
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-8bff0255.md
+**Findings count**: 5
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:12:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: e887d5fa
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T04:12:52Z
+**Event**: SENSOR_FAILED
+**Fire id**: e887d5fa
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-e887d5fa.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:13:02Z
+**Event**: SENSOR_FIRED
+**Fire id**: 64fd17b4
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:13:03Z
+**Event**: SENSOR_PASSED
+**Fire id**: 64fd17b4
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+**Duration ms**: 1436
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:13:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 99c2d87f
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:13:21Z
+**Event**: SENSOR_PASSED
+**Fire id**: 99c2d87f
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+**Duration ms**: 746
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:13:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9d885034
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:13:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9d885034
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+**Duration ms**: 1913
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T04:13:55Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-generation-plan.md
+**Context**: construction > rooms-realtime > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T04:14:05Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-generation-plan.md
+**Context**: construction > rooms-realtime > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T04:14:19Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-generation-plan.md
+**Context**: construction > rooms-realtime > code-generation > code-generation-plan.md
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:15:06Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7f070244
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/wsClient.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:15:06Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7f070244
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/wsClient.test.ts
+**Duration ms**: 769
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:15:06Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5ed69dad
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/wsClient.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:15:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5ed69dad
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/wsClient.test.ts
+**Duration ms**: 1348
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:16:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 41d122e8
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:16:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 41d122e8
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.test.ts
+**Duration ms**: 738
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:16:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0e37acc8
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:16:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0e37acc8
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.test.ts
+**Duration ms**: 1494
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:17:35Z
+**Event**: SENSOR_FIRED
+**Fire id**: 92c30f5d
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/RoomListView.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:17:37Z
+**Event**: SENSOR_PASSED
+**Fire id**: 92c30f5d
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/RoomListView.test.tsx
+**Duration ms**: 1487
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T04:18:59Z
+**Event**: SENSOR_FIRED
+**Fire id**: 53fc7e04
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ToastHost.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T04:19:01Z
+**Event**: SENSOR_PASSED
+**Fire id**: 53fc7e04
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ToastHost.test.tsx
+**Duration ms**: 1564
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T04:20:49Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-generation-plan.md
+**Context**: construction > rooms-realtime > code-generation > code-generation-plan.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T04:23:09Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-developer-agent
+**Agent ID**: a4a3619ca6ddf3247
+**Message**: All eleven live steps are done and every gate is green. Final verification summary:\n\n```markdown\n## Subagent Summary: Code Generation — rooms-realtime\n\n### Produced\n\n**Backend**\n- `C:\IDE\workplace\ji
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T04:24:11Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-summary.md
+**Context**: construction > rooms-realtime > code-generation > code-summary.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T04:24:19Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-reviewer-dispatch.json
+**Context**: .aidlc-reviewer-dispatch.json
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-30T04:24:28Z
+**Event**: REVIEW_REQUESTED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: rooms-realtime
+**Iteration**: 1
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T04:33:08Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/rooms-realtime/code-generation/code-summary.md
+**Context**: construction > rooms-realtime > code-generation > code-summary.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T04:33:24Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: aaf10699d4ba6dd71
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Verdict: READY**\n\nI ran the full adversarial pass against `backend/app/core/ws_registry.py`, `backend/app/rooms/*`, the modified `backend/app/main.py
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-30T04:33:35Z
+**Event**: REVIEW_COMPLETED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: rooms-realtime
+**Iteration**: 1
+**Verdict**: READY
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T04:36:24Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/code-generation/code-generation-plan.md
+**Context**: construction > messaging > code-generation > code-generation-plan.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T04:36:45Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/code-generation/code-generation-questions.md
+**Context**: construction > messaging > code-generation > code-generation-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-07-30T04:36:56Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: messaging: 메시지 본문 길이 상한 + 계획 승인
+**Options**: 2000자,500자,상한 없음,Approve Plan,Request Changes
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T04:56:14Z
+**Event**: HUMAN_TURN
+
+---
+
+## Question Answered
+**Timestamp**: 2026-07-30T04:56:27Z
+**Event**: QUESTION_ANSWERED
+**Stage**: code-generation
+**Details**: Q1: 2000자 (추천) / Q2: Approve Plan
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:26:09Z
+**Event**: SENSOR_FIRED
+**Fire id**: 498889e0
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:26:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: 498889e0
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 821
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:26:10Z
+**Event**: SENSOR_FIRED
+**Fire id**: 681623bc
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:26:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: 681623bc
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 2130
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:26:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: f4d9c9c6
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:26:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: f4d9c9c6
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 754
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:26:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3c043274
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:26:25Z
+**Event**: SENSOR_FAILED
+**Fire id**: 3c043274
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-3c043274.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:26:32Z
+**Event**: SENSOR_FIRED
+**Fire id**: a4bd590f
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:26:33Z
+**Event**: SENSOR_PASSED
+**Fire id**: a4bd590f
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 792
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:26:33Z
+**Event**: SENSOR_FIRED
+**Fire id**: d5ca48f3
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:26:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: d5ca48f3
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 1426
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:27:04Z
+**Event**: SENSOR_FIRED
+**Fire id**: e5040ede
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:27:05Z
+**Event**: SENSOR_PASSED
+**Fire id**: e5040ede
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 772
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:27:05Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9b7182cf
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:27:07Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9b7182cf
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/apiClient.ts
+**Duration ms**: 2095
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:27:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2c4f231b
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:27:25Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2c4f231b
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+**Duration ms**: 808
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:27:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 82ad2d92
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:27:27Z
+**Event**: SENSOR_PASSED
+**Fire id**: 82ad2d92
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+**Duration ms**: 2129
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:27:57Z
+**Event**: SENSOR_FIRED
+**Fire id**: a6b56ff5
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:27:58Z
+**Event**: SENSOR_PASSED
+**Fire id**: a6b56ff5
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 882
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:27:58Z
+**Event**: SENSOR_FIRED
+**Fire id**: c1b26921
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:28:00Z
+**Event**: SENSOR_FAILED
+**Fire id**: c1b26921
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-c1b26921.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:28:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8d282994
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:28:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8d282994
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 770
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:28:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 171806c8
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:28:17Z
+**Event**: SENSOR_FAILED
+**Fire id**: 171806c8
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-171806c8.md
+**Findings count**: 4
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:28:33Z
+**Event**: SENSOR_FIRED
+**Fire id**: 269f51eb
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:28:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: 269f51eb
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 801
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:28:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0c9760c5
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:28:36Z
+**Event**: SENSOR_FAILED
+**Fire id**: 0c9760c5
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-0c9760c5.md
+**Findings count**: 5
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:28:49Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6dd0f15a
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:28:50Z
+**Event**: SENSOR_PASSED
+**Fire id**: 6dd0f15a
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 777
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:28:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6a335fe3
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:28:52Z
+**Event**: SENSOR_FAILED
+**Fire id**: 6a335fe3
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-6a335fe3.md
+**Findings count**: 5
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:29:01Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7519d9e0
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:29:02Z
+**Event**: SENSOR_PASSED
+**Fire id**: 7519d9e0
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 779
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:29:02Z
+**Event**: SENSOR_FIRED
+**Fire id**: 28397093
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:29:04Z
+**Event**: SENSOR_FAILED
+**Fire id**: 28397093
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-28397093.md
+**Findings count**: 5
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:29:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 26dcd077
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:29:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: 26dcd077
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 835
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:29:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: 64c4c0a6
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:29:18Z
+**Event**: SENSOR_FAILED
+**Fire id**: 64c4c0a6
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-64c4c0a6.md
+**Findings count**: 5
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:29:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 91562b61
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:29:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 91562b61
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 794
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:29:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8fd6adc4
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:29:25Z
+**Event**: SENSOR_FAILED
+**Fire id**: 8fd6adc4
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-8fd6adc4.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:29:39Z
+**Event**: SENSOR_FIRED
+**Fire id**: 574daac8
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:29:40Z
+**Event**: SENSOR_PASSED
+**Fire id**: 574daac8
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 826
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:29:40Z
+**Event**: SENSOR_FIRED
+**Fire id**: ffa4dac1
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:29:41Z
+**Event**: SENSOR_FAILED
+**Fire id**: ffa4dac1
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-ffa4dac1.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:29:57Z
+**Event**: SENSOR_FIRED
+**Fire id**: d58289ef
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:29:58Z
+**Event**: SENSOR_PASSED
+**Fire id**: d58289ef
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 844
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:29:58Z
+**Event**: SENSOR_FIRED
+**Fire id**: 70a3446d
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:29:59Z
+**Event**: SENSOR_PASSED
+**Fire id**: 70a3446d
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 1506
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:30:11Z
+**Event**: SENSOR_FIRED
+**Fire id**: f5f2e1dc
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:30:12Z
+**Event**: SENSOR_PASSED
+**Fire id**: f5f2e1dc
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 775
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:30:12Z
+**Event**: SENSOR_FIRED
+**Fire id**: c80f2c1a
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:30:14Z
+**Event**: SENSOR_FAILED
+**Fire id**: c80f2c1a
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-c80f2c1a.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:30:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 03b21c93
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:30:23Z
+**Event**: SENSOR_PASSED
+**Fire id**: 03b21c93
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 782
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:30:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 034d4a99
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:30:24Z
+**Event**: SENSOR_PASSED
+**Fire id**: 034d4a99
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.ts
+**Duration ms**: 1527
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:31:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 94f9f3a1
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:31:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: 94f9f3a1
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+**Duration ms**: 814
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:31:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: ff19fc3b
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:31:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: ff19fc3b
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+**Duration ms**: 1430
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:32:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 49595650
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:32:28Z
+**Event**: SENSOR_PASSED
+**Fire id**: 49595650
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+**Duration ms**: 782
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:32:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: cafc12f5
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:32:29Z
+**Event**: SENSOR_PASSED
+**Fire id**: cafc12f5
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+**Duration ms**: 1456
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:33:32Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9d6fb471
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ConfirmDialog.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:33:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9d6fb471
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ConfirmDialog.tsx
+**Duration ms**: 1532
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:33:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 84d68603
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/JudgeConfirmDialog.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:33:49Z
+**Event**: SENSOR_PASSED
+**Fire id**: 84d68603
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/JudgeConfirmDialog.tsx
+**Duration ms**: 1474
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:34:02Z
+**Event**: SENSOR_FIRED
+**Fire id**: c3c5c22c
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/DegradedDialog.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:34:04Z
+**Event**: SENSOR_PASSED
+**Fire id**: c3c5c22c
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/DegradedDialog.tsx
+**Duration ms**: 1476
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:34:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: 45671b7f
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:34:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 45671b7f
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+**Duration ms**: 752
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:34:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8f366a53
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:34:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8f366a53
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/lib/constants.ts
+**Duration ms**: 2018
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:35:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: f429ae1f
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ChatView.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:35:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: f429ae1f
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ChatView.tsx
+**Duration ms**: 1618
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:35:29Z
+**Event**: SENSOR_FIRED
+**Fire id**: 632cea06
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:35:31Z
+**Event**: SENSOR_FAILED
+**Fire id**: 632cea06
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-632cea06.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:35:39Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7ac1ce67
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:35:41Z
+**Event**: SENSOR_FAILED
+**Fire id**: 7ac1ce67
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-7ac1ce67.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:35:52Z
+**Event**: SENSOR_FIRED
+**Fire id**: d50375bf
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:35:53Z
+**Event**: SENSOR_PASSED
+**Fire id**: d50375bf
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.tsx
+**Duration ms**: 1513
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:36:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 76b9a275
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:36:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 76b9a275
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.test.ts
+**Duration ms**: 800
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:36:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 12590dac
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.test.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:36:20Z
+**Event**: SENSOR_PASSED
+**Fire id**: 12590dac
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/store/chatStore.test.ts
+**Duration ms**: 1485
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:37:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0f552f92
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:37:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0f552f92
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/App.test.tsx
+**Duration ms**: 1453
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:38:06Z
+**Event**: SENSOR_FIRED
+**Fire id**: a6c52536
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:38:08Z
+**Event**: SENSOR_PASSED
+**Fire id**: a6c52536
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+**Duration ms**: 1597
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:38:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5f7416e1
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:38:10Z
+**Event**: SENSOR_FAILED
+**Fire id**: 5f7416e1
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-5f7416e1.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:38:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: cf29b631
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:38:29Z
+**Event**: SENSOR_PASSED
+**Fire id**: cf29b631
+**Sensor ID**: linter
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+**Duration ms**: 842
+**Note**: tool-unavailable
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:38:29Z
+**Event**: SENSOR_FIRED
+**Fire id**: 62c0f601
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:38:31Z
+**Event**: SENSOR_PASSED
+**Fire id**: 62c0f601
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/useSendMessage.ts
+**Duration ms**: 2030
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:38:38Z
+**Event**: SENSOR_FIRED
+**Fire id**: ee7d4b74
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ChatView.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:38:40Z
+**Event**: SENSOR_PASSED
+**Fire id**: ee7d4b74
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ChatView.tsx
+**Duration ms**: 1874
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:40:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: 02d60a57
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:40:02Z
+**Event**: SENSOR_PASSED
+**Fire id**: 02d60a57
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+**Duration ms**: 1595
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:40:35Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2128d3fc
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:40:36Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2128d3fc
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+**Duration ms**: 1598
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:40:46Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1a755459
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:40:48Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1a755459
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+**Duration ms**: 1633
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:40:57Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4ceaecbc
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-30T05:40:59Z
+**Event**: SENSOR_FAILED
+**Fire id**: 4ceaecbc
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/code-generation/type-check-4ceaecbc.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:41:03Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5f029884
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:41:05Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5f029884
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+**Duration ms**: 1599
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:41:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: bd877dca
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:41:49Z
+**Event**: SENSOR_PASSED
+**Fire id**: bd877dca
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+**Duration ms**: 1649
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:41:59Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8ebf0b84
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:42:01Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8ebf0b84
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/degradedFlow.test.tsx
+**Duration ms**: 1599
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:43:41Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2b15a4b3
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ChatView.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:43:43Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2b15a4b3
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ChatView.test.tsx
+**Duration ms**: 1611
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:44:08Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3f8a4f49
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ChatView.test.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:44:10Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3f8a4f49
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ChatView.test.tsx
+**Duration ms**: 1512
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-30T05:44:59Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8953d0ea
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ChatView.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-30T05:45:01Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8953d0ea
+**Sensor ID**: type-check
+**Stage slug**: code-generation
+**Output path**: frontend/src/views/ChatView.tsx
+**Duration ms**: 1719
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T05:48:27Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-developer-agent
+**Agent ID**: a544a15c3d47cb6c4
+**Message**: All four endpoints are registered. Final verification is green across the board.\n\n## Subagent Summary: Code Generation — messaging\n\n### Produced\n\n**Backend (`c:\IDE\workplace\jihwan\mini_project\backe
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T05:49:54Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/code-generation/code-summary.md
+**Context**: construction > messaging > code-generation > code-summary.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-07-30T05:50:07Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-reviewer-dispatch.json
+**Context**: .aidlc-reviewer-dispatch.json
+
+---
+
+## Review Requested
+**Timestamp**: 2026-07-30T05:50:23Z
+**Event**: REVIEW_REQUESTED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: messaging
+**Iteration**: 1
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T06:04:03Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/code-generation/code-summary.md
+**Context**: construction > messaging > code-generation > code-summary.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-07-30T06:04:23Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: a8fde996089e32a65
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Verdict: READY**\n\nI appended the full review to `aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/messaging/code-generation/c
+
+---
+
+## Review Completed
+**Timestamp**: 2026-07-30T06:04:43Z
+**Event**: REVIEW_COMPLETED
+**Stage**: code-generation
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: messaging
+**Iteration**: 1
+**Verdict**: READY
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-07-30T06:05:02Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: c:/IDE/workplace/jihwan/mini_project/aidlc/spaces/default/intents/260729-misdirect-message-guard/construction/code-generation/memory.md
+**Context**: construction > code-generation > memory.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-07-30T06:06:04Z
+**Event**: DECISION_RECORDED
+**Stage**: code-generation
+**Decision**: §13 학습 후보 11건 선별 + 추가 메모
+**Options**: 인코딩/의존성 파일,요약 먼저 리뷰어 나중,조용한 skip 방지,설정 출처 전수 확인,불변식으로 테스트,동시성 버그,숫자 전사 금지,리뷰 후 산출물 재작성,U1 packaging 특성,Docker 실증,venv 경로,Nothing to add,Add a note
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T06:20:37Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T06:28:28Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T06:34:00Z
+**Event**: HUMAN_TURN
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-07-30T06:36:32Z
+**Event**: RULE_LEARNED
+**Stage**: code-generation
+**Candidate-ID**: c8
+**Destination**: C:\IDE\workplace\jihwan\mini_project\aidlc\spaces\default\memory\project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-07-30T06:36:32Z
+**Event**: RULE_LEARNED
+**Stage**: code-generation
+**Candidate-ID**: c6
+**Destination**: C:\IDE\workplace\jihwan\mini_project\aidlc\spaces\default\memory\project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-07-30T06:36:32Z
+**Event**: RULE_LEARNED
+**Stage**: code-generation
+**Candidate-ID**: c11
+**Destination**: C:\IDE\workplace\jihwan\mini_project\aidlc\spaces\default\memory\project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-07-30T06:36:32Z
+**Event**: RULE_LEARNED
+**Stage**: code-generation
+**Candidate-ID**: c2
+**Destination**: C:\IDE\workplace\jihwan\mini_project\aidlc\spaces\default\memory\project.md
+**Heading**: ## Corrections
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-07-30T06:36:32Z
+**Event**: RULE_LEARNED
+**Stage**: code-generation
+**Candidate-ID**: c7
+**Destination**: C:\IDE\workplace\jihwan\mini_project\aidlc\spaces\default\memory\project.md
+**Heading**: ## Testing Posture
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-07-30T06:36:32Z
+**Event**: RULE_LEARNED
+**Stage**: code-generation
+**Candidate-ID**: c9
+**Destination**: C:\IDE\workplace\jihwan\mini_project\aidlc\spaces\default\memory\project.md
+**Heading**: ## Testing Posture
+**Source**: orchestrator
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-07-30T06:36:32Z
+**Event**: RULE_LEARNED
+**Stage**: code-generation
+**Candidate-ID**: c10
+**Destination**: C:\IDE\workplace\jihwan\mini_project\aidlc\spaces\default\memory\project.md
+**Heading**: ## Testing Posture
+**Source**: orchestrator
+
+---
+
+## Question Answered
+**Timestamp**: 2026-07-30T06:36:47Z
+**Event**: QUESTION_ANSWERED
+**Stage**: code-generation
+**Details**: Q1·Q2: 추천대로 (7건 기록 — 설정 출처 전수, 요약 먼저, 숫자 전사 금지, 인코딩 일반화, 조용한 skip 금지, 불변식 고정, 동시성 테스트) / Q3: 아무것도 남기지 않음 / Q4: Nothing to add
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-07-30T06:36:56Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: code-generation
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-30T06:37:38Z
+**Event**: HUMAN_TURN
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-07-30T06:37:51Z
+**Event**: GATE_APPROVED
+**Stage**: code-generation
+**User Input**: Approve
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-07-30T06:37:51Z
+**Event**: STAGE_COMPLETED
+**Stage**: code-generation
+**Details**: Stage Code Generation approved by gate
+
+---
+
+## Stage Start
+**Timestamp**: 2026-07-30T06:37:51Z
+**Event**: STAGE_STARTED
+**Stage**: build-and-test
+**Agent**: aidlc-quality-agent
+
+---

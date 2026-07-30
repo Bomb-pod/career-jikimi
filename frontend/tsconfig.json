@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+
+    /* strict를 켠다 — 뒤 단위가 WebSocket 프레임과 API 응답을 다룰 때
+       null 체크 누락이 실행 시점 오류가 되는 것을 컴파일 시점으로 옮긴다. */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+
+    /* Vite가 번들링하므로 tsc는 타입만 본다. */
+    "noEmit": true,
+
+    /* vitest의 describe/it/expect를 전역으로 쓴다 (vitest.config.ts의 globals: true와 짝). */
+    "types": ["vitest/globals"]
+  },
+  "include": ["src", "vite.config.ts", "vitest.config.ts"]
+}
