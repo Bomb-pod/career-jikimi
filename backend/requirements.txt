@@ -22,7 +22,11 @@ SQLAlchemy==2.0.36
 alembic==1.14.0
 
 # MariaDB async driver. The pairing services.md "app <-> db" fixed.
-asyncmy==0.2.10
+#
+# 0.2.11 is the latest release. PYSEC-2026-286 affects it and has no fix
+# version published; pinning older does not help. Tracked in
+# build-and-test/security-test-instructions.md.
+asyncmy==0.2.11
 
 # Typed settings object (components.md, core/config)
 pydantic==2.10.4
@@ -40,7 +44,10 @@ argon2-cffi==23.1.0
 
 # JWT issue/verify, U3 auth (FR-1.2). Chosen over python-jose: smaller
 # surface and actively maintained.
-PyJWT==2.10.1
+#
+# 2.10.1 carried 11 advisories found by pip-audit at build-and-test.
+# 2.13.0 clears all of them; no API change was needed on our side.
+PyJWT==2.13.0
 
 # OpenAI official SDK, U2 judgment (FR-6.3, FR-8.1, ADR-005).
 #
