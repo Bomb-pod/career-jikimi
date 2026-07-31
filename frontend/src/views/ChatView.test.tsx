@@ -2,7 +2,7 @@ import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import ChatView from './ChatView'
+import ChatView, { firstUnreadSeq } from './ChatView'
 import type { ChatMessage, RoomSummary, VerificationStatus } from '../lib/apiClient'
 import { AI_CONTEXT_N, MESSAGE_MAX_LENGTH } from '../lib/constants'
 import { useChatStore } from '../store/chatStore'
@@ -305,6 +305,119 @@ describe('오발송 신고', () => {
     for (const id of [31, 32, 33]) {
       expect(screen.getByTestId(`chat-report-${id}`)).toBeInTheDocument()
     }
+  })
+})
+
+// --------------------------------------------------------------------------
+// 진입 시 화면 위치 — 안 읽은 첫 메시지
+// --------------------------------------------------------------------------
+describe('안 읽은 지점 찾기', () => {
+  const history = [
+    message({ id: 1, seq: 1, sender_id: OTHER }),
+    message({ id: 2, seq: 2, sender_id: ME }),
+    message({ id: 3, seq: 3, sender_id: OTHER }),
+    message({ id: 4, seq: 4, sender_id: OTHER }),
+  ]
+
+  it('읽음 위치 다음의 첫 메시지를 가리킨다', () => {
+    expect(firstUnreadSeq(history, 2, ME)).toBe(3)
+  })
+
+  it('전부 읽었으면 `null` — 경계선도 없고 맨 아래에서 시작한다', () => {
+    expect(firstUnreadSeq(history, 4, ME)).toBeNull()
+  })
+
+  it('아무것도 안 읽었으면 첫 메시지다', () => {
+    expect(firstUnreadSeq(history, 0, ME)).toBe(1)
+  })
+
+  it('**내가 보낸 메시지는 후보가 아니다**', () => {
+    // 다른 창에서 내가 보낸 메시지는 서버의 `last_read_seq`보다 뒤에 있을 수 있다.
+    // 내가 친 문장 위에 "여기부터 안 읽음"을 그리면 읽을 것이 없는 자리에 경계선이 선다.
+    expect(firstUnreadSeq([message({ id: 9, seq: 9, sender_id: ME })], 8, ME)).toBeNull()
+  })
+
+  it('메시지가 없으면 `null`', () => {
+    expect(firstUnreadSeq([], 0, ME)).toBeNull()
+  })
+})
+
+describe('진입 시 화면 위치', () => {
+  /** 안 읽은 자리로 화면을 맞추는지 — jsdom은 실제 스크롤을 계산하지 못하므로 호출로 잰다. */
+  function spyScroll() {
+    const calls: Element[] = []
+    const spy = vi
+      .spyOn(Element.prototype, 'scrollIntoView')
+      .mockImplementation(function (this: Element) {
+        calls.push(this)
+      })
+    return { calls, restore: () => spy.mockRestore() }
+  }
+
+  it('안 읽은 메시지가 있으면 그 자리에 경계선을 긋고 화면을 맞춘다', () => {
+    const scroll = spyScroll()
+    mount({
+      rooms: [room({ last_read_seq: 2 })],
+      messages: [
+        message({ id: 1, seq: 1, sender_id: OTHER }),
+        message({ id: 2, seq: 2, sender_id: OTHER }),
+        message({ id: 3, seq: 3, sender_id: OTHER }),
+      ],
+    })
+
+    expect(screen.getByTestId('chat-unread-divider')).toHaveTextContent('여기부터 안 읽음')
+    // 경계선은 **안 읽은 첫 메시지 항목 안에** 있다 — 그 자리로 화면이 맞춰진다.
+    expect(screen.getByTestId('chat-message-3')).toContainElement(
+      screen.getByTestId('chat-unread-divider'),
+    )
+    expect(scroll.calls).toEqual([screen.getByTestId('chat-message-3')])
+
+    scroll.restore()
+  })
+
+  it('전부 읽었으면 경계선이 없다 — 맨 아래에서 시작한다', () => {
+    const scroll = spyScroll()
+    mount({
+      rooms: [room({ last_read_seq: 3 })],
+      messages: [
+        message({ id: 1, seq: 1, sender_id: OTHER }),
+        message({ id: 3, seq: 3, sender_id: OTHER }),
+      ],
+    })
+
+    expect(screen.queryByTestId('chat-unread-divider')).not.toBeInTheDocument()
+    // `scrollIntoView`가 아니라 목록의 `scrollTop`을 밀어 바닥으로 간다.
+    expect(scroll.calls).toEqual([])
+
+    scroll.restore()
+  })
+
+  it('읽는 도중에 메시지가 도착해도 경계선으로 되돌아가지 않는다', () => {
+    // 방 하나당 한 번만 맞춘다. 막지 않으면 새 메시지가 올 때마다 화면이 위로
+    // 튀어 어디를 읽고 있었는지 잃는다.
+    const scroll = spyScroll()
+    mount({
+      rooms: [room({ last_read_seq: 1 })],
+      messages: [
+        message({ id: 1, seq: 1, sender_id: OTHER }),
+        message({ id: 2, seq: 2, sender_id: OTHER }),
+      ],
+    })
+    expect(scroll.calls).toHaveLength(1)
+
+    act(() => {
+      useChatStore.setState({
+        messages: [
+          message({ id: 1, seq: 1, sender_id: OTHER }),
+          message({ id: 2, seq: 2, sender_id: OTHER }),
+          message({ id: 3, seq: 3, sender_id: OTHER }),
+        ],
+      })
+    })
+
+    expect(scroll.calls).toHaveLength(1)
+
+    scroll.restore()
   })
 })
 

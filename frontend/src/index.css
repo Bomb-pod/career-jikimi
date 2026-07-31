@@ -449,6 +449,29 @@ button {
   list-style: none;
 }
 
+/* "여기부터 안 읽음" — 진입 시 화면이 맞춰지는 자리다.
+   날짜 구분선과 생김새를 달리한다: 저쪽은 알약형 회색이고 이쪽은 **양옆으로 뻗는
+   선**이라, 스크롤백에서 둘이 나란히 있어도 어느 것이 경계인지 헷갈리지 않는다.
+   색만으로 구분하지 않기 위해 문구를 함께 둔다. */
+.unread-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.875rem 0.25rem;
+  color: var(--brand);
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.unread-divider::before,
+.unread-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--brand);
+  opacity: 0.55;
+}
+
 .date-divider {
   display: flex;
   justify-content: center;

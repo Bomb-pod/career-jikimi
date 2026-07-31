@@ -18,3 +18,18 @@ Object.defineProperty(document, 'hasFocus', {
   writable: true,
   value: () => true,
 })
+
+// jsdom에는 `Element.prototype.scrollIntoView`가 **아예 없다** — 레이아웃을 계산하지
+// 않으니 스크롤이라는 개념도 없다는 뜻이고, 그 입장에서는 맞는 답이다.
+//
+// 그런데 없으면 `vi.spyOn`이 "존재하지 않는다"며 거부하고, 실제 코드는 "함수가
+// 아니다"로 터진다 — 안 읽은 메시지가 있는 방을 그리는 테스트가 전부 붉어진다.
+// 아무것도 하지 않는 함수로 채워, 호출 여부는 테스트가 감시할 수 있게 한다.
+//
+// **여기서 확인되는 것은 "어디로 가야 하는가"까지다.** 실제로 어디에 섰는지는
+// jsdom이 계산하지 못하므로 브라우저로 따로 봐야 한다.
+Object.defineProperty(Element.prototype, 'scrollIntoView', {
+  configurable: true,
+  writable: true,
+  value: () => undefined,
+})

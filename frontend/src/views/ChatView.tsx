@@ -62,6 +62,37 @@ function isUnverified(status: VerificationStatus): boolean {
 }
 
 /**
+ * 바닥으로 따라갈지 판정하는 여유 (px).
+ *
+ * 정확히 바닥일 때만 따라가면 한 줄만 올려 봐도 새 메시지가 안 따라와 대화가 멈춘
+ * 것처럼 보인다. 반대로 크게 잡으면 스크롤백 중에 화면이 끌려 내려간다. 말풍선
+ * 한두 개 높이가 그 사이다.
+ */
+const FOLLOW_THRESHOLD_PX = 80
+
+/**
+ * 안 읽은 첫 메시지의 `seq`. 전부 읽었으면 `null`.
+ *
+ * **내가 보낸 메시지는 후보가 아니다.** 다른 창에서 내가 보낸 메시지는 서버의
+ * `last_read_seq`보다 뒤에 있을 수 있는데, 내가 친 문장 위에 "여기부터 안 읽음"을
+ * 그리면 읽을 것이 없는 자리에 경계선이 선다.
+ *
+ * 순수 함수로 빼둔 이유 — 이 판정이 화면 위치를 정하는 유일한 근거이고, jsdom은
+ * 실제 스크롤을 계산하지 못해 "어디로 갔는가"를 직접 잴 수 없다. 적어도 "어디로
+ * 가야 하는가"는 이 함수 하나로 확인된다.
+ */
+export function firstUnreadSeq(
+  messages: readonly ChatMessage[],
+  lastReadSeq: number,
+  myUserId: number | null,
+): number | null {
+  const target = messages.find(
+    (message) => message.seq > lastReadSeq && message.sender_id !== myUserId,
+  )
+  return target?.seq ?? null
+}
+
+/**
  * `onClose` — 대화를 닫는다. 앱 셸이 `leaveRoom()`으로 연결한다.
  *
  * 대화가 팝업으로 열리므로 닫는 버튼이 이 화면 안에 있어야 한다. 셸의 상단 바에
@@ -87,6 +118,19 @@ export default function ChatView({ onClose }: { onClose?: () => void } = {}) {
   const settingsButtonRef = useRef<HTMLButtonElement>(null)
   const inputId = useId()
 
+  const listRef = useRef<HTMLUListElement>(null)
+  /** "여기부터 안 읽음" 경계선이 붙은 항목. 진입 시 이 자리로 화면을 맞춘다. */
+  const unreadAnchorRef = useRef<HTMLLIElement>(null)
+  /** 위치를 이미 잡은 방. 방을 옮기면 비워져 다시 잡는다. */
+  const anchoredRoom = useRef<number | null>(null)
+  /**
+   * 사용자가 목록 바닥 근처에 있는가 — 새 메시지를 따라갈지의 기준.
+   *
+   * state가 아니라 ref인 이유: 스크롤할 때마다 바뀌는 값이라 state로 두면 스크롤
+   * 한 번에 재렌더가 수십 번 인다. 화면에 그리는 값이 아니라 판단에만 쓴다.
+   */
+  const nearBottom = useRef(true)
+
   const send = useSendMessage()
   const room = rooms.find((item) => item.id === currentRoomId) ?? null
 
@@ -97,6 +141,60 @@ export default function ChatView({ onClose }: { onClose?: () => void } = {}) {
     const timer = setTimeout(() => dismissNotice(), TOAST_TIMEOUT_MS)
     return () => clearTimeout(timer)
   }, [notice, dismissNotice])
+
+  // 방을 옮기거나 나가면 다음 진입에서 위치를 다시 잡는다. 비우지 않으면 같은 방에
+  // 다시 들어왔을 때 맨 위에 그대로 서 있다.
+  useEffect(() => {
+    return () => {
+      anchoredRoom.current = null
+    }
+  }, [currentRoomId])
+
+  /**
+   * **진입 시 화면 위치** — 안 읽은 첫 메시지, 없으면 맨 아래.
+   *
+   * 맨 위에서 시작하면 대화가 쌓인 방일수록 사용자가 직접 끝까지 내려야 하고,
+   * 그 사이의 스크롤은 전부 이미 읽은 내용이다.
+   *
+   * **방 하나당 한 번만 잡는다.** `messages.length`가 의존성에 있어 새 메시지마다
+   * 다시 돌지만 `anchoredRoom` 검사가 막는다 — 막지 않으면 읽는 도중에 메시지가
+   * 도착할 때마다 화면이 경계선으로 되돌아간다.
+   *
+   * 히스토리가 도착하기 전에는 아무것도 하지 않는다(`messages.length === 0`).
+   * 그때 잡으면 빈 목록의 바닥, 즉 맨 위에 서고 그것이 지금의 증상이다.
+   */
+  useEffect(() => {
+    const list = listRef.current
+    if (currentRoomId === null || list === null || messages.length === 0) return
+    if (anchoredRoom.current === currentRoomId) return
+    anchoredRoom.current = currentRoomId
+
+    const anchor = unreadAnchorRef.current
+    if (anchor !== null) {
+      // 경계선이 화면 맨 위에 오게 한다 — 안 읽은 첫 줄부터 읽기 시작한다.
+      anchor.scrollIntoView({ block: 'start' })
+      // 위쪽에 섰으므로 새 메시지를 따라 내려가지 않는다. 읽는 중에 화면이
+      // 끌려가면 어디를 읽고 있었는지 잃는다.
+      nearBottom.current = false
+      return
+    }
+    list.scrollTop = list.scrollHeight
+    nearBottom.current = true
+  }, [currentRoomId, messages.length])
+
+  /**
+   * 바닥 근처에 있을 때만 새 메시지를 따라 내려간다.
+   *
+   * 무조건 따라가면 스크롤백 중에 화면이 끌려 내려가고, 아예 안 따라가면 바닥에서
+   * 대화하는 동안 새 말이 화면 밖에 쌓인다. 위 진입 효과가 위쪽에 세운 경우
+   * `nearBottom`이 거짓이라 여기서 건드리지 않는다.
+   */
+  useEffect(() => {
+    const list = listRef.current
+    if (list === null || anchoredRoom.current !== currentRoomId) return
+    if (!nearBottom.current) return
+    list.scrollTop = list.scrollHeight
+  }, [currentRoomId, messages.length, pending.length])
 
   if (currentRoomId === null || room === null) {
     return (
@@ -111,6 +209,11 @@ export default function ChatView({ onClose }: { onClose?: () => void } = {}) {
   const names = new Map(room.members.map((member) => [member.user_id, member.display_name]))
   const roomPending = pending.filter((item) => item.roomId === currentRoomId)
   const coldStart = messages.length < AI_CONTEXT_N
+
+  // `room.last_read_seq`는 이 화면이 떠 있는 동안 바뀌지 않는다 — `enterRoom()`이
+  // 서버의 읽음 위치를 밀어 올리지만 그 응답을 스토어에 되쓰지 않는다. 덕분에
+  // 경계선이 읽는 도중에 움직이지 않고 진입 시점 그 자리에 남는다.
+  const unreadFrom = firstUnreadSeq(messages, room.last_read_seq, myUserId)
 
   function nameOf(message: ChatMessage): string {
     // 방 참여자 목록이 우선이다 — 서버가 **호출자 기준으로** 해석한 표시명이며
@@ -231,7 +334,16 @@ export default function ChatView({ onClose }: { onClose?: () => void } = {}) {
           첫 메시지를 보내보세요.
         </p>
       ) : (
-        <ul className="chat-list" data-testid="chat-list">
+        <ul
+          className="chat-list"
+          data-testid="chat-list"
+          ref={listRef}
+          onScroll={(event) => {
+            const el = event.currentTarget
+            nearBottom.current =
+              el.scrollHeight - el.scrollTop - el.clientHeight < FOLLOW_THRESHOLD_PX
+          }}
+        >
           {messages.map((message, index) => {
             const mine = message.sender_id === myUserId
             const previous = index === 0 ? null : (messages[index - 1] ?? null)
@@ -246,8 +358,23 @@ export default function ChatView({ onClose }: { onClose?: () => void } = {}) {
               previous.sender_id === message.sender_id &&
               formatClock(previous.created_at) === formatClock(message.created_at)
 
+            const startsUnread = message.seq === unreadFrom
+
             return (
-              <li key={message.id} data-testid={`chat-message-${message.id}`}>
+              <li
+                key={message.id}
+                data-testid={`chat-message-${message.id}`}
+                // 경계선이 붙은 항목에만 ref를 단다 — 진입 효과가 이 자리로 화면을 맞춘다.
+                ref={startsUnread ? unreadAnchorRef : undefined}
+              >
+                {/* **여기부터 안 읽음** — 날짜 구분선보다 위에 둔다. 날짜가 바뀌는
+                    자리와 겹치면 "며칠치를 안 읽었다"가 한눈에 읽힌다. */}
+                {startsUnread && (
+                  <div className="unread-divider" data-testid="chat-unread-divider">
+                    <span>여기부터 안 읽음</span>
+                  </div>
+                )}
+
                 {newDay && (
                   <div className="date-divider">
                     <span>{formatDateDivider(message.created_at)}</span>
