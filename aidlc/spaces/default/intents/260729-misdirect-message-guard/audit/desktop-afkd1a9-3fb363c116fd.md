@@ -13922,3 +13922,201 @@
 **Findings count**: 2
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-07-31T05:37:19Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-31T05:38:39Z
+**Event**: HUMAN_TURN
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-31T05:41:29Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5c6b6d45
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-31T05:41:32Z
+**Event**: SENSOR_FAILED
+**Fire id**: 5c6b6d45
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/build-and-test/type-check-5c6b6d45.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-31T05:41:42Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6379ae9c
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-31T05:41:44Z
+**Event**: SENSOR_FAILED
+**Fire id**: 6379ae9c
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/build-and-test/type-check-6379ae9c.md
+**Findings count**: 5
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-31T05:42:04Z
+**Event**: SENSOR_FIRED
+**Fire id**: fa9e1e72
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-31T05:42:06Z
+**Event**: SENSOR_FAILED
+**Fire id**: fa9e1e72
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/build-and-test/type-check-fa9e1e72.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-31T05:42:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 58977871
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-31T05:42:17Z
+**Event**: SENSOR_FAILED
+**Fire id**: 58977871
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/build-and-test/type-check-58977871.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-31T05:42:29Z
+**Event**: SENSOR_FIRED
+**Fire id**: 29324417
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-31T05:42:31Z
+**Event**: SENSOR_FAILED
+**Fire id**: 29324417
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/build-and-test/type-check-29324417.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-31T05:42:45Z
+**Event**: SENSOR_FIRED
+**Fire id**: d9b5e894
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.tsx
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-31T05:42:47Z
+**Event**: SENSOR_PASSED
+**Fire id**: d9b5e894
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.tsx
+**Duration ms**: 1809
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-31T05:43:30Z
+**Event**: SENSOR_FIRED
+**Fire id**: 45632804
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.test.tsx
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-07-31T05:43:32Z
+**Event**: SENSOR_FAILED
+**Fire id**: 45632804
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/views/ChatView.test.tsx
+**Detail path**: aidlc/spaces/default/intents/260729-misdirect-message-guard/.aidlc-sensors/build-and-test/type-check-45632804.md
+**Findings count**: 5
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-07-31T05:44:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 94e16fc3
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/setupTests.ts
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-07-31T05:44:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: 94e16fc3
+**Sensor ID**: type-check
+**Stage slug**: build-and-test
+**Output path**: frontend/src/setupTests.ts
+**Duration ms**: 1798
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-31T05:49:27Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-31T06:52:40Z
+**Event**: HUMAN_TURN
+
+---
