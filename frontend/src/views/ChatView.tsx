@@ -12,7 +12,9 @@ import { roomDisplayName } from '../lib/roomName'
 import { formatClock, formatDateDivider, isSameDay } from '../lib/time'
 import { useChatStore } from '../store/chatStore'
 import DegradedDialog from './DegradedDialog'
+import { CloseIcon, SettingsIcon } from './Icons'
 import JudgeConfirmDialog from './JudgeConfirmDialog'
+import RoomSettingsDialog from './RoomSettingsDialog'
 import { useSendMessage } from './useSendMessage'
 
 /**
@@ -20,13 +22,19 @@ import { useSendMessage } from './useSendMessage'
  *
  * | 영역 | 내용 |
  * |---|---|
- * | 헤더 | 방 이름 + **AI 검증 토글** + **프라이버시 고지** (NFR-5) |
- * | 목록 | 메시지 + 발신자 표시명 + **미검증 배지** + 신고 |
+ * | 헤더 | 닫기 + 방 이름 + **설정 버튼** |
+ * | 목록 | 메시지 + 발신자 표시명 + **내 메시지의 미검증 배지** + 신고 |
  * | 입력 | textarea + 전송 버튼 (+ "다시 시도" 조건부) |
  * | 비어 있음 | "첫 메시지를 보내보세요." + **콜드스타트 안내** |
  *
- * **프라이버시 고지는 토글이 꺼져 있어도 보인다** (NFR-5) — 켜기 전에 무슨 일이
- * 일어나는지 알아야 결정할 수 있다. 켠 뒤에만 보여주면 고지의 목적이 사라진다.
+ * **AI 검증 토글은 이 화면에 없다.** 설정 버튼이 여는 `RoomSettingsDialog` 안에만
+ * 있다 — 개인 설정이 여러 화면에 흩어지면 어느 쪽이 진짜인지 확인하는 일이 사용자
+ * 몫이 된다.
+ *
+ * **프라이버시 고지는 두 곳에 나뉜다** (NFR-5). 전문은 설정 팝업 안에 늘 펼쳐져
+ * 있고(끄고 켜는 결정을 그 자리에서 한다), 대화 화면에는 **검증이 켜져 있을 때만**
+ * 한 줄 요약이 남는다. 전송이 실제로 일어나는 상태에서는 그 사실이 화면에서 사라지지
+ * 않아야 한다.
  *
  * **콜드스타트 안내가 중요하다** — 방에 메시지가 `N`개 미만이면 판정이 돌지 않는데
  * (BR-6.2), 그걸 모르면 "AI 검증이 켜져 있는데 왜 아무 일도 안 일어나지"가 된다.
@@ -53,7 +61,14 @@ function isUnverified(status: VerificationStatus): boolean {
   return UNVERIFIED.has(status)
 }
 
-export default function ChatView() {
+/**
+ * `onClose` — 대화를 닫는다. 앱 셸이 `leaveRoom()`으로 연결한다.
+ *
+ * 대화가 팝업으로 열리므로 닫는 버튼이 이 화면 안에 있어야 한다. 셸의 상단 바에
+ * 두면 팝업 바깥의 버튼이 팝업을 닫는 모양이 되어, 어느 것이 무엇을 닫는지
+ * 화면에서 읽히지 않는다.
+ */
+export default function ChatView({ onClose }: { onClose?: () => void } = {}) {
   const myUserId = useChatStore((state) => state.auth.user?.id ?? null)
   const rooms = useChatStore((state) => state.rooms)
   const currentRoomId = useChatStore((state) => state.currentRoomId)
@@ -66,12 +81,11 @@ export default function ChatView() {
   const dismissNotice = useChatStore((state) => state.dismissNotice)
 
   const [text, setText] = useState('')
-  const [privacyOpen, setPrivacyOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [roomError, setRoomError] = useState<string | null>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const settingsButtonRef = useRef<HTMLButtonElement>(null)
   const inputId = useId()
-  const toggleId = useId()
-  const privacyDetailId = useId()
 
   const send = useSendMessage()
   const room = rooms.find((item) => item.id === currentRoomId) ?? null
@@ -160,40 +174,36 @@ export default function ChatView() {
 
   return (
     <div className="chat-screen">
-      {/* ---------------- 설정 영역 ---------------- */}
-      <div className="chat-settings">
-        <strong data-testid="chat-room-name">{roomDisplayName(room, myUserId)}</strong>
-
-        <div className="toggle-row">
-          <input
-            id={toggleId}
-            type="checkbox"
-            data-testid="chat-ai-toggle"
-            checked={room.ai_check_enabled}
-            onChange={(event) => void handleAiCheck(event.target.checked)}
-          />
-          <label htmlFor={toggleId}>이 방에서 AI 검증 사용</label>
-        </div>
-
-        {/* **NFR-5 — 토글이 꺼져 있어도 보인다.** 켜기 전에 무슨 일이 일어나는지
-            알아야 결정할 수 있다. `details`가 아니라 버튼인 이유는 열림 상태를
-            테스트가 확인할 수 있게 하기 위해서다. */}
+      {/* ---------------- 헤더 ---------------- */}
+      {/* 닫기와 설정이 대화 화면 안에 있다 — 대화가 팝업으로 열리므로 그 팝업을
+          여닫는 버튼이 팝업 바깥에 있으면 무엇이 무엇을 닫는지 읽히지 않는다. */}
+      <div className="chat-header">
         <button
           type="button"
-          className="link"
-          data-testid="chat-privacy-notice"
-          aria-expanded={privacyOpen}
-          aria-controls={privacyDetailId}
-          onClick={() => setPrivacyOpen((open) => !open)}
+          className="icon-button"
+          data-testid="chat-close"
+          aria-label="대화 닫기"
+          onClick={() => onClose?.()}
         >
-          검증 시 최근 대화가 외부 AI로 전송됩니다
+          <CloseIcon />
         </button>
-        {privacyOpen && (
-          <p className="field-hint" id={privacyDetailId} data-testid="chat-privacy-detail">
-            검증을 켜면 이 방의 최근 {AI_CONTEXT_N}개 메시지 <strong>본문만</strong> 외부 AI
-            서비스로 전송됩니다. 참여자의 아이디·이름·별칭은 포함되지 않습니다.
-          </p>
-        )}
+
+        <strong className="chat-header-title" data-testid="chat-room-name">
+          {roomDisplayName(room, myUserId)}
+        </strong>
+
+        <button
+          type="button"
+          className="icon-button"
+          ref={settingsButtonRef}
+          data-testid="chat-settings-open"
+          aria-label="채팅방 설정"
+          aria-haspopup="dialog"
+          aria-expanded={settingsOpen}
+          onClick={() => setSettingsOpen(true)}
+        >
+          <SettingsIcon />
+        </button>
       </div>
 
       {degraded && (
@@ -214,7 +224,10 @@ export default function ChatView() {
 
       {/* ---------------- 목록 ---------------- */}
       {messages.length === 0 && roomPending.length === 0 ? (
-        <p className="empty-state" data-testid="chat-empty">
+        // **`chat-empty`가 남은 공간을 전부 먹는다.** 이 클래스가 없으면 문단이
+        // 자기 높이만 차지하고 입력바가 그 바로 아래 — 화면 한가운데 — 에 뜬다.
+        // 방금 만든 방에서 반드시 마주치는 상태라 눈에 잘 띈다.
+        <p className="empty-state chat-empty" data-testid="chat-empty">
           첫 메시지를 보내보세요.
         </p>
       ) : (
@@ -269,8 +282,15 @@ export default function ChatView() {
                     </div>
 
                     {/* 배지와 신고를 말풍선 아래 줄로 뺀다 — 말풍선 안에 넣으면
-                        본문과 섞여 어디까지가 사용자가 쓴 말인지 흐려진다. */}
-                    {(isUnverified(message.verification_status) || mine) && (
+                        본문과 섞여 어디까지가 사용자가 쓴 말인지 흐려진다.
+
+                        **둘 다 내 메시지에만 붙는다.** 신고는 원래 자기 신고이고
+                        (BR-11.1), 배지도 같은 이유로 내 것에만 둔다 — 검증은 발신자
+                        개인 설정이라(FR-6.1) 남의 메시지에 붙은 "검증 안 됨"은 그 사람이
+                        토글을 껐거나 그 사람 쪽 호출이 실패했다는 뜻이 되어, 내가 어쩔
+                        수 없는 남의 설정 상태를 읽게 한다. 배지가 답해야 하는 질문은
+                        "내가 검증받았다고 믿은 이 메시지가 실제로는 아니었는가"다. */}
+                    {mine && (
                       <div className="msg-meta">
                         {/* **세 상태에만 붙는다** (BR-8.6). 색이 아니라 아이콘과
                             문구로 알린다 — 색 의존 금지. */}
@@ -284,19 +304,15 @@ export default function ChatView() {
                           </span>
                         )}
 
-                        {/* **내 메시지에만** 신고 버튼이 있다 (BR-11.1). 남의 메시지를
-                            오발송으로 신고할 수 없다 — 이것은 자기 신고다. */}
-                        {mine && (
-                          <button
-                            type="button"
-                            className="link"
-                            data-testid={`chat-report-${message.id}`}
-                            aria-pressed={message.misdirect_reported_at !== null}
-                            onClick={() => void handleReport(message)}
-                          >
-                            {message.misdirect_reported_at === null ? '잘못 보냈어요' : '신고 취소'}
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          className="link"
+                          data-testid={`chat-report-${message.id}`}
+                          aria-pressed={message.misdirect_reported_at !== null}
+                          onClick={() => void handleReport(message)}
+                        >
+                          {message.misdirect_reported_at === null ? '잘못 보냈어요' : '신고 취소'}
+                        </button>
                       </div>
                     )}
                   </div>
@@ -331,6 +347,17 @@ export default function ChatView() {
         <p className="chat-hint" data-testid="chat-cold-start">
           이 방의 메시지가 {AI_CONTEXT_N}개 미만이라 아직 AI 검증이 동작하지 않습니다. 대화가
           쌓이면 자동으로 시작됩니다.
+        </p>
+      )}
+
+      {/* **NFR-5의 상시 고지** — 전문은 설정 팝업 안에 있고 여기엔 한 줄만 남긴다.
+          검증이 **켜져 있을 때만** 보이는 것이 요점이다: 외부 전송이 실제로 일어나는
+          동안에는 그 사실이 화면에서 사라지지 않아야 하고, 꺼져 있으면 일어나지 않는
+          일을 알릴 이유가 없다. 콜드스타트 안내가 이미 떠 있으면 겹치지 않게 접는다 —
+          그 상태에서는 판정 자체가 돌지 않아 전송도 없다. */}
+      {room.ai_check_enabled && !coldStart && (
+        <p className="chat-hint" data-testid="chat-privacy-line">
+          AI 검증 켜짐 · 전송 전 최근 {AI_CONTEXT_N}개 메시지 본문이 외부 AI로 전송됩니다
         </p>
       )}
 
@@ -376,7 +403,21 @@ export default function ChatView() {
         )}
       </div>
 
-      {/* ---------------- 팝업 두 종 ---------------- */}
+      {/* ---------------- 설정 팝업 ---------------- */}
+      {/* **AI 검증 토글의 유일한 자리다** (FR-6.1). 결정 팝업 두 종보다 먼저 그리되,
+          동시에 뜰 일은 없다 — 판정 대기 중에는 설정 버튼도 화면에 있지만 팝업이
+          모달이라 그 버튼에 닿을 수 없다. */}
+      {settingsOpen && (
+        <RoomSettingsDialog
+          roomName={roomDisplayName(room, myUserId)}
+          aiCheckEnabled={room.ai_check_enabled}
+          onChangeAiCheck={(enabled) => void handleAiCheck(enabled)}
+          onClose={() => setSettingsOpen(false)}
+          returnFocusTo={settingsButtonRef}
+        />
+      )}
+
+      {/* ---------------- 결정 팝업 두 종 ---------------- */}
       {send.decision?.kind === 'inappropriate' && (
         <JudgeConfirmDialog
           onConfirm={() => void handleConfirm()}

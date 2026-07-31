@@ -7,8 +7,8 @@
  * 데모에서 가장 빠르게 읽힌다.
  *
  * **브랜드는 가져오지 않았다** — 로고도, 특정 서비스의 브랜드 색 값도 쓰지 않는다.
- * 이 앱은 자기 이름으로 서고, 노란 말풍선은 특정 회사의 것이 아니라 이 장르의
- * 관용구로서 쓴다.
+ * 이 앱은 자기 이름으로 선다. 말풍선의 좌우 배치와 꼬리 방향은 이 장르의 관용구지만
+ * 색은 이 앱의 것이다.
  *
  * ## 접근성이 디자인보다 먼저다
  *
@@ -30,10 +30,20 @@
    토큰
    ========================================================================== */
 :root {
-  /* 강조색 — 내 말풍선과 주 버튼. 검은 글자와 대비가 매우 높다. */
-  --brand: #f9e000;
-  --brand-strong: #e6cf00;
-  --brand-ink: #1c1c1e;
+  /* 강조색 — 내 말풍선과 주 버튼. **위에 올라가는 글자는 항상 `--brand-ink`다.**
+   *
+   * 값을 고를 때 흰 글자와의 대비가 제약이었다. 지정된 파랑(#3b82f6)은 흰 글자와
+   * 3.68:1이라 버튼 기준(3:1)은 넘지만 본문 기준(4.5:1)에 못 미친다 — 내 말풍선
+   * 본문이 정확히 그 본문이다. 한 단계 진한 이 값이 **5.17:1**(실제 브라우저에서
+   * 계산해 확인)로 둘 다 넘긴다. 육안으로는 거의 같은 파랑이고, 이 파일 맨 위의
+   * "접근성이 디자인보다 먼저다"와 어긋나지 않는다.
+   *
+   * `--brand-strong`(hover)은 6.70:1로 더 진하다 — 대비는 hover에서 나빠지지 않는다.
+   *
+   * 색을 바꾸려면 여기 세 줄만 고친다 — 나머지는 전부 이 변수를 참조한다. */
+  --brand: #2563eb;
+  --brand-strong: #1d4ed8;
+  --brand-ink: #ffffff;
 
   /* 대화 배경 — 이 장르의 관용색인 차분한 청회색. 흰 말풍선이 떠 보이게 한다. */
   --chat-bg: #b3c6d6;
@@ -128,6 +138,9 @@ button {
    셸 — 세로로 긴 프레임, 상단 바 + 본문 + 하단 탭
    ========================================================================== */
 .app-shell {
+  /* 대화 팝업(`.chat-overlay`)의 기준 상자다. 이것이 없으면 팝업이 뷰포트를
+     기준으로 잡혀 넓은 화면에서 셸의 `max-width` 밖으로 퍼진다. */
+  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -390,6 +403,43 @@ button {
   background: var(--chat-bg);
 }
 
+/* 대화 전용 창(`?room=<id>`)의 셸 — 창 전체가 대화 하나다.
+   폭 제한을 풀어 창 크기를 그대로 쓴다. 창을 사용자가 넓히면 넓어져야 하고, 여기서
+   `--frame-width`로 묶으면 넓힌 만큼 양옆이 회색으로 남는다. */
+.app-shell-room {
+  max-width: none;
+  box-shadow: none;
+}
+
+.chat-window {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+}
+
+/* 대화 오버레이 — 팝업이 차단됐을 때만 쓰는 대체 경로. 셸 전체(하단 탭 포함)를
+   덮는다. `position: absolute`가 `.app-shell`의 `position: relative`를 기준으로
+   잡힌다. `fixed`로 두면 셸의 `max-width`를 무시하고 넓은 화면 전체로 퍼진다. */
+.chat-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  background: var(--chat-bg);
+}
+
+/* 메시지가 없을 때 남은 공간을 전부 먹어 입력바를 바닥으로 민다.
+   이것이 없으면 문단이 제 높이만 차지하고 입력바가 화면 한가운데에 뜬다 —
+   방금 만든 방에서 반드시 마주치는 상태다. `.chat-composer`의 `margin-top: auto`와
+   함께 두 겹으로 막는다. */
+.chat-empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+}
+
 .chat-list {
   flex: 1;
   min-height: 0;
@@ -485,6 +535,10 @@ button {
 
 .msg-mine .bubble {
   background: var(--brand);
+  /* **`.bubble`의 `color: var(--ink)`를 반드시 덮는다.** 강조색이 밝을 때는
+     어두운 본문이 맞았지만 지금은 진한 파랑이라, 안 덮으면 남색 위 검은 글자가
+     된다(대비 1.6:1). 배경색과 글자색은 한 쌍으로만 바꾼다. */
+  color: var(--brand-ink);
   border-top-right-radius: 4px;
 }
 
@@ -524,6 +578,7 @@ button {
 
 .chat-pending .bubble {
   background: var(--brand);
+  color: var(--brand-ink);
   opacity: 0.55;
 }
 
@@ -589,6 +644,10 @@ button {
   padding: 0.5rem 0.625rem;
   border-top: 1px solid var(--border-strong);
   background: var(--surface);
+  /* **바닥에 고정한다.** 위쪽 형제 중 아무도 남는 공간을 먹지 않는 상태
+     (메시지 0개)에서도 입력바는 아래에 있어야 한다. `.chat-list`가 있을 때는
+     그쪽이 `flex: 1`로 공간을 먹으므로 이 값이 0으로 풀린다. */
+  margin-top: auto;
 }
 
 .chat-composer textarea {
@@ -884,6 +943,29 @@ input[type='search'] {
   line-height: 1.45;
 }
 
+/* 설정 팝업은 왼쪽 정렬이다 — 결정 팝업 두 종은 짧은 질문 하나라 가운데가 맞지만,
+   체크박스와 여러 줄 고지가 가운데 정렬되면 읽는 시작점이 줄마다 달라진다. */
+.dialog-left {
+  text-align: left;
+}
+
+.dialog-left .toggle-row {
+  margin-top: 0.25rem;
+}
+
+.dialog-left .field-hint {
+  margin-bottom: 0.75rem;
+}
+
+/* 설정 대상이 무엇인지 — 방 이름. `h2`가 "채팅방 설정"이라 대상이 따로 필요하다.
+   `.dialog p`가 muted로 깔아두므로 선택자를 그보다 강하게 잡아 되살린다. */
+.dialog p.dialog-subject {
+  margin: 0 0 0.75rem;
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
 .dialog p {
   margin: 0 0 1rem;
   color: var(--muted);
@@ -924,22 +1006,67 @@ input[type='search'] {
 
 /* ==========================================================================
    방 만들기 — 친구 다중 선택
-   ========================================================================== */
-.picker {
-  margin: 0.5rem 0 0;
+   ==========================================================================
+   **클래스 이름이 마크업과 어긋나 있었다.** 여기는 `.picker`로 적혀 있는데
+   `RoomListView`는 `.friend-picker`를 쓴다 — 그래서 이 폼은 처음부터 스타일이
+   하나도 걸리지 않은 채였다. 이름을 마크업에 맞춘다. */
+.room-create {
+  padding: 0.875rem;
+}
+
+.room-create-title {
+  margin: 0 0 0.875rem;
+  font-size: 1.0625rem;
+}
+
+/* `fieldset`의 기본 테두리·여백을 걷어낸다. 남겨두면 안쪽 목록의 테두리와 겹쳐
+   상자가 두 겹으로 보인다. */
+.picker-field {
+  margin: 0 0 1rem;
   padding: 0;
-  max-height: 240px;
+  border: 0;
+}
+
+.picker-field legend {
+  padding: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.picker-count {
+  margin: 0.125rem 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.picker-empty {
+  margin: 0;
+  padding: 1.5rem 1rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+.friend-picker {
+  margin: 0;
+  padding: 0;
+  /* 다섯 줄쯤에서 자르고 스크롤한다 — 친구가 늘어도 방 이름 칸과 버튼이 화면
+     아래로 밀려나지 않아야 한다. 밀려나면 사용자가 만들기 버튼을 못 찾는다. */
+  max-height: 264px;
   overflow-y: auto;
   border: 1px solid var(--border);
   border-radius: 10px;
+  background: var(--surface);
   list-style: none;
 }
 
-.picker li + li {
+.friend-picker li + li {
   border-top: 1px solid var(--surface-sunken);
 }
 
-.picker label {
+.friend-picker label {
   display: flex;
   align-items: center;
   gap: 0.625rem;
@@ -948,10 +1075,49 @@ input[type='search'] {
   cursor: pointer;
 }
 
-.picker input[type='checkbox'] {
+.friend-picker label:hover {
+  background: var(--surface-sunken);
+}
+
+/* 고른 줄 — **색만으로 알리지 않는다.** 체크박스의 체크 표시가 1차 신호이고,
+   배경과 왼쪽 띠는 목록을 훑을 때 고른 것이 몇 개인지 한눈에 보이게 하는 보조다. */
+.friend-picker label.picked {
+  background: color-mix(in srgb, var(--brand) 8%, transparent);
+  box-shadow: inset 3px 0 0 var(--brand);
+}
+
+.friend-picker input[type='checkbox'] {
+  flex: none;
   width: 20px;
   height: 20px;
-  accent-color: var(--focus);
+  accent-color: var(--brand);
+}
+
+.picker-name {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 라벨 전체가 클릭 대상이므로 포커스 링은 체크박스가 아니라 줄에 그린다 —
+   키보드 사용자가 지금 어느 친구 위에 있는지 알아야 한다. */
+.friend-picker input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.room-create-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.room-create-actions .secondary,
+.room-create-actions .primary {
+  flex: 1;
+  width: auto;
+  min-height: var(--tap);
 }
 
 .toggle-row {
@@ -976,18 +1142,29 @@ input[type='search'] {
 }
 
 /* ==========================================================================
-   대화 헤더의 설정 영역 (AI 토글 + 프라이버시 고지)
+   대화 헤더 — 닫기 + 방 이름 + 설정
    ========================================================================== */
-.chat-settings {
-  padding: 0.5rem 0.875rem;
+/* AI 토글은 여기 없다. 설정 버튼이 여는 팝업 안에만 있다 — 같은 개인 설정이
+   목록 화면과 대화 헤더 두 곳에 있던 것을 한 곳으로 모았다. */
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.375rem 0.5rem;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
-  font-size: 0.8125rem;
 }
 
-.chat-settings .link {
-  color: var(--focus);
-  font-size: 0.75rem;
+/* 제목이 남는 공간을 먹고, 긴 방 이름은 말줄임한다 — 줄바꿈하면 헤더 높이가
+   방마다 달라져 아래 목록이 들썩인다. */
+.chat-header-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.9375rem;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 제출 중 스피너 — `aria-hidden`이므로 의미는 옆의 aria-live 문구가 전한다. */
@@ -1030,6 +1207,34 @@ input[type='search'] {
   align-items: flex-end;
   gap: 0.5rem;
   padding: 0.625rem 0.875rem;
+}
+
+/* **가로 폼 안에서는 `.field`가 늘고 버튼이 줄지 않는다.**
+   `.field`는 원래 `display: block`이라 flex 자식이 되면 내용 폭으로 쪼그라들고,
+   `.primary`는 `width: 100%`라 남은 폭을 전부 먹는다 — 그래서 입력칸이 좁아지고
+   버튼만 커지는 일그러진 줄이 나왔다. `.inline-actions`에는 같은 뜻의 규칙이
+   이미 있었는데 이쪽에만 빠져 있었다. */
+.form-inline .field {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.form-inline .primary,
+.form-inline .secondary {
+  flex: none;
+  width: auto;
+  min-height: var(--tap);
+  padding: 0 1rem;
+}
+
+/* 라벨이 있는 입력칸과 버튼의 바닥을 맞춘다 — `align-items: flex-end`가 라벨
+   높이만큼 어긋난 두 요소를 정렬해 주지만, 버튼에 라벨이 없어 한 줄만큼 뜬다. */
+.form-inline label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
 
 .form-inline .field {

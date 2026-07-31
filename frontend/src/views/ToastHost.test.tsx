@@ -48,19 +48,40 @@ describe('ToastHost', () => {
     expect(screen.getByTestId('toast-3')).toHaveTextContent('저녁 뭐 먹지')
   })
 
-  it('클릭하면 그 방으로 이동하고 토스트가 사라진다 (BR-5.9)', async () => {
-    // FR-5.3의 둘째 기준 — 이동 + 배지 소멸. `enterRoom()`이 둘 다 한다.
+  it('클릭하면 그 방이 새 창으로 열리고 배지와 토스트가 사라진다 (BR-5.9)', async () => {
+    // FR-5.3의 둘째 기준 — 이동 + 배지 소멸. 목록에서 방을 누르는 것과 **같은
+    // 동작이어야 한다**: 토스트만 같은 창에서 열리면 어디를 눌렀느냐에 따라 결과가
+    // 달라진다.
     const user = (await import('@testing-library/user-event')).default.setup()
     useChatStore.setState({ unread: { 3: 2 } })
-    const opened: number[] = []
-    render(<ToastHost onOpenRoom={(roomId) => opened.push(roomId)} />)
+    const open = vi.spyOn(window, 'open').mockReturnValue({ focus: vi.fn() } as unknown as Window)
 
+    render(<ToastHost />)
+    await user.click(screen.getByTestId('toast-3'))
+
+    expect(open).toHaveBeenCalledTimes(1)
+    expect(open.mock.calls[0]?.[0]).toBe('/?room=3')
+    // 이 창은 목록으로 남는다 — 새 창이 열렸으므로 여기서 방에 들어가지 않는다.
+    expect(useChatStore.getState().currentRoomId).toBeNull()
+    expect(useChatStore.getState().unread[3]).toBe(0)
+    expect(screen.queryByTestId('toast-3')).not.toBeInTheDocument()
+
+    open.mockRestore()
+  })
+
+  it('팝업이 차단되면 같은 창에서 연다', async () => {
+    // 차단된 것을 모른 채 아무 일도 일어나지 않는 화면이 가장 나쁘다.
+    const user = (await import('@testing-library/user-event')).default.setup()
+    useChatStore.setState({ unread: { 3: 2 } })
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+
+    render(<ToastHost />)
     await user.click(screen.getByTestId('toast-3'))
 
     expect(useChatStore.getState().currentRoomId).toBe(3)
     expect(useChatStore.getState().unread[3]).toBe(0)
-    expect(opened).toEqual([3])
-    expect(screen.queryByTestId('toast-3')).not.toBeInTheDocument()
+
+    open.mockRestore()
   })
 
   it('4초 뒤에 스스로 사라진다', () => {
