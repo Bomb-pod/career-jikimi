@@ -53,14 +53,15 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     흐름은 `business-logic-model.md` W5 그대로다:
 
         accept → 5초 안에 첫 프레임 → type == 'auth' → verify_token()
-               → register()(기존 연결 교체) → auth_ok → 수신 루프 → unregister
+               → register()(기존 연결과 나란히) → auth_ok → 수신 루프 → unregister
 
     **`unregister()`가 모든 종료 경로에서 돈다.** `finally`에 두는 것이 그 장치다 —
     예외로 빠져나가는 경로에서 빠뜨리면 죽은 소켓이 레지스트리에 남고, 그 사용자는
     다음 브로드캐스트에서 "연결된 것으로 보이지만 받지 못하는" 상태가 된다.
 
-    **자기 소켓을 함께 넘긴다.** 밀려난 연결이 뒤늦게 정리될 때 새 연결을 지우는
-    사고를 막는다(`ws_registry.unregister()` 참조).
+    **자기 소켓을 함께 넘긴다.** 한 사용자가 창을 여럿 열 수 있으므로, 소켓을
+    빠뜨리면 이 창을 닫을 때 그 사용자의 **다른 창의 연결까지** 레지스트리에서
+    사라진다 (`ws_registry.unregister()` 참조).
     """
     await websocket.accept()
 
@@ -71,10 +72,10 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
             # 실패 응답과 종료는 `_authenticate()`가 이미 처리했다.
             return
 
-        # 기존 연결이 있으면 여기서 교체된다 — session_replaced를 보낸 뒤 닫는다
-        # (BR-5.4). 등록이 auth_ok보다 먼저인 이유는, 클라이언트가 auth_ok를 보고
-        # 화면을 열었는데 아직 등록되지 않아 그 사이 메시지를 놓치는 창을 없애기
-        # 위해서다.
+        # 기존 연결이 있어도 닫지 않는다 — 같은 사용자의 창이 여럿 살아 있는 것이
+        # 정상이다 (`ws_registry` § 사용자당 여러 연결). 등록이 auth_ok보다 먼저인
+        # 이유는, 클라이언트가 auth_ok를 보고 화면을 열었는데 아직 등록되지 않아
+        # 그 사이 메시지를 놓치는 창을 없애기 위해서다.
         await register(user_id, websocket)
         await websocket.send_json({"type": "auth_ok"})
         logger.info("WebSocket 인증에 성공했습니다 (user_id=%s)", user_id)
@@ -166,7 +167,7 @@ async def _reject(websocket: WebSocket, reason: str) -> None:
     """`auth_error`를 보내고 연결을 닫는다 (BR-5.6).
 
     **프레임을 먼저 보내고 닫는다.** 그냥 닫으면 클라이언트가 네트워크 오류로 오인해
-    재연결을 반복한다 — `session_replaced`가 같은 이유로 같은 순서를 쓴다(BR-5.4).
+    재연결을 반복한다 — 닫기 전에 이유를 알리는 프레임 하나가 그 순환을 끊는다.
 
     전송·종료 실패를 삼키는 이유 — 이 경로는 이미 실패 처리 중이며, 여기서 예외가
     올라가면 호출자의 `finally`가 도는 것 말고는 할 수 있는 일이 없다.

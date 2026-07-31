@@ -74,6 +74,7 @@ beforeEach(() => {
     auth: { token: 'jwt-token', user: { id: 1, username: 'alice' } },
     rooms: [],
     unread: {},
+    roomsViewedElsewhere: [],
     currentRoomId: null,
     messages: [],
     toasts: [],
@@ -196,6 +197,44 @@ describe('receiveMessage', () => {
     expect(api.markRead).toHaveBeenCalledWith(2, 12)
   })
 
+  it('**창이 뒤로 밀려 있으면 읽음으로 밀지 않는다** — 목록에는 넣는다', async () => {
+    // 창이 다른 창 뒤에 있으면 사용자는 이 메시지를 보지 못했다. 그런데도 읽음으로
+    // 밀어 올리면 두 가지가 어긋난다: 목록 창의 배지는 올라가 있는데 서버의
+    // `last_read_seq`는 이미 끝까지 가 있어, 목록을 새로고침하는 순간 안 읽은
+    // 메시지가 조용히 사라진다.
+    const focus = vi.spyOn(document, 'hasFocus').mockReturnValue(false)
+    useChatStore.setState({ rooms: [room({ id: 2 })] })
+    await useChatStore.getState().enterRoom(2)
+    api.markRead.mockClear()
+
+    useChatStore.getState().receiveMessage(message({ id: 8, room_id: 2, seq: 12 }))
+
+    // 목록에는 들어간다 — 창을 앞으로 가져오면 바로 보여야 한다.
+    expect(useChatStore.getState().messages.map((item) => item.id)).toEqual([8])
+    expect(api.markRead).not.toHaveBeenCalled()
+
+    focus.mockRestore()
+  })
+
+  it('창이 다시 앞으로 나오면 밀린 읽음을 한 번에 민다', async () => {
+    const focus = vi.spyOn(document, 'hasFocus').mockReturnValue(false)
+    useChatStore.setState({ rooms: [room({ id: 2 })] })
+    await useChatStore.getState().enterRoom(2)
+    useChatStore.getState().receiveMessage(message({ id: 8, room_id: 2, seq: 12 }))
+    useChatStore.getState().receiveMessage(message({ id: 9, room_id: 2, seq: 13 }))
+    api.markRead.mockClear()
+
+    focus.mockReturnValue(true)
+    useChatStore.getState().markCurrentRoomRead()
+
+    // 가장 마지막 seq 하나로 끝난다 — 메시지마다 요청을 보내지 않는다.
+    expect(api.markRead).toHaveBeenCalledTimes(1)
+    expect(api.markRead).toHaveBeenCalledWith(2, 13)
+    expect(useChatStore.getState().unread[2]).toBe(0)
+
+    focus.mockRestore()
+  })
+
   it('보고 있는 방에는 토스트를 띄우지 않는다 (BR-5.9)', async () => {
     // FR-5.3의 셋째 기준 — 이미 보고 있는 방이다.
     useChatStore.setState({ rooms: [room({ id: 2 })] })
@@ -221,6 +260,100 @@ describe('receiveMessage', () => {
     const toasts = useChatStore.getState().toasts
     expect(toasts).toHaveLength(1)
     expect(toasts[0]?.roomName).toBe('가족')
+  })
+
+  it('**내가 보낸 메시지는 배지를 올리지 않는다** — 다른 창에서 보냈어도', () => {
+    // 서버는 발신자에게도 브로드캐스트한다 (BR-5.8). 그 규칙은 다른 창·기기의
+    // 세션을 갱신하기 위한 것이지 배지를 올리기 위한 것이 아니다 — 안 읽은 개수는
+    // "내가 아직 읽지 않은 남의 말"이고, 내가 방금 친 문장은 정의상 읽은 것이다.
+    //
+    // 대화를 새 창으로 열면서 드러난 결함이다. 그전에는 창이 하나뿐이라 발신자의
+    // 창이 곧 그 방을 보고 있는 창이었고, 이 경로로 내려올 일이 없었다. 지금은
+    // 목록 창이 방 밖에 있어 자기 메시지가 여기로 온다.
+    useChatStore.setState({ rooms: [room({ id: 3, name: '가족' })], currentRoomId: null })
+
+    // `sender_id: 1` = 로그인한 본인(alice).
+    useChatStore.getState().receiveMessage(message({ id: 1, room_id: 3, seq: 1, sender_id: 1 }))
+
+    expect(useChatStore.getState().unread[3] ?? 0).toBe(0)
+    expect(useChatStore.getState().toasts).toEqual([])
+  })
+
+  it('남이 보낸 메시지는 그대로 배지를 올린다 — 위 규칙이 전부를 삼키지 않는다', () => {
+    // 발신자 비교를 잘못 넣으면 배지 기능 자체가 죽는다. 같은 방에 두 종류를
+    // 섞어 보내 내 것만 빠지는지 확인한다.
+    useChatStore.setState({ rooms: [room({ id: 3, name: '가족' })], currentRoomId: null })
+
+    useChatStore.getState().receiveMessage(message({ id: 1, room_id: 3, seq: 1, sender_id: 1 }))
+    useChatStore.getState().receiveMessage(message({ id: 2, room_id: 3, seq: 2, sender_id: 2 }))
+    useChatStore.getState().receiveMessage(message({ id: 3, room_id: 3, seq: 3, sender_id: 1 }))
+
+    expect(useChatStore.getState().unread[3]).toBe(1)
+    expect(useChatStore.getState().toasts).toHaveLength(1)
+  })
+
+  it('**다른 창이 보고 있는 방은 세지 않는다** — 남이 보낸 메시지여도', () => {
+    // 대화가 새 창으로 나가면서 생긴 공백이다. 이 창은 목록만 보고 있어도 그 방을
+    // 여는 창이 따로 있고, 배지를 올리면 사용자는 **보고 있는 방인데 안 읽은 개수가
+    // 올라가는** 것을 본다. 읽음 처리는 그 창이 한다.
+    useChatStore.setState({
+      rooms: [room({ id: 3, name: '가족' })],
+      currentRoomId: null,
+      roomsViewedElsewhere: [3],
+    })
+
+    useChatStore.getState().receiveMessage(message({ id: 1, room_id: 3, seq: 1, sender_id: 2 }))
+
+    expect(useChatStore.getState().unread[3] ?? 0).toBe(0)
+    // 보고 있는 대화의 알림이 다른 창에 뜨면 이미 읽은 말을 한 번 더 읽게 된다.
+    expect(useChatStore.getState().toasts).toEqual([])
+  })
+
+  it('다른 창이 **안** 보고 있는 방은 그대로 센다', () => {
+    // 목록에 없는 방까지 삼키면 배지 기능이 통째로 죽는다.
+    useChatStore.setState({
+      rooms: [room({ id: 3, name: '가족' }), room({ id: 4, name: '회사' })],
+      currentRoomId: null,
+      roomsViewedElsewhere: [3],
+    })
+
+    useChatStore.getState().receiveMessage(message({ id: 1, room_id: 3, seq: 1, sender_id: 2 }))
+    useChatStore.getState().receiveMessage(message({ id: 2, room_id: 4, seq: 1, sender_id: 2 }))
+
+    expect(useChatStore.getState().unread[3] ?? 0).toBe(0)
+    expect(useChatStore.getState().unread[4]).toBe(1)
+    expect(useChatStore.getState().toasts).toHaveLength(1)
+  })
+
+  it('그 방을 보기 시작하면 이미 쌓인 배지도 사라진다', () => {
+    // 불변식: 보고 있는 방은 안 읽은 것이 없다. 대화 창이 앞으로 나온 순간
+    // 그동안 쌓인 숫자가 남아 있으면, 사용자는 읽고 있는 방에 배지가 붙은 화면을 본다.
+    useChatStore.setState({
+      rooms: [room({ id: 3, name: '가족' })],
+      currentRoomId: null,
+      roomsViewedElsewhere: [],
+      unread: { 3: 4 },
+    })
+
+    useChatStore.getState().setRoomsViewedElsewhere([3])
+
+    expect(useChatStore.getState().unread[3]).toBe(0)
+  })
+
+  it('그 창이 닫히면 다시 센다', () => {
+    // 목록이 갱신되면 그 다음 메시지부터 평소대로 돌아와야 한다 — 한 번 막힌 방이
+    // 계속 막히면 창을 닫고도 알림을 못 받는다.
+    useChatStore.setState({
+      rooms: [room({ id: 3, name: '가족' })],
+      currentRoomId: null,
+      roomsViewedElsewhere: [3],
+    })
+    useChatStore.getState().receiveMessage(message({ id: 1, room_id: 3, seq: 1, sender_id: 2 }))
+
+    useChatStore.getState().setRoomsViewedElsewhere([])
+    useChatStore.getState().receiveMessage(message({ id: 2, room_id: 3, seq: 2, sender_id: 2 }))
+
+    expect(useChatStore.getState().unread[3]).toBe(1)
   })
 
   it('이름 없는 방의 토스트에도 참여자 이름이 보인다', () => {

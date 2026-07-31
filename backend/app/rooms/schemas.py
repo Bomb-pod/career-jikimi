@@ -132,6 +132,20 @@ class MarkReadResponse(BaseModel):
     last_read_seq: int
 
 
+class AddMemberRequest(BaseModel):
+    """`POST /rooms/{id}/members` 요청 — FR-10.1.
+
+    **한 번에 한 명이다.** 목록을 받지 않는 이유는 오류 규약이 단수를 전제하기
+    때문이다 — BR-10.1의 `ALREADY_MEMBER`와 BR-3.2의 `NOT_A_FRIEND`가 "어느
+    대상이 문제인가"를 담지 않으므로(담으면 임의의 id로 관계를 탐색할 수 있다),
+    여러 명을 받으면 사용자가 누구 때문에 거절됐는지 알 수 없다. `POST /rooms`가
+    목록을 받는 것은 그쪽이 전부 아니면 전무이기 때문이고, 여기는 이미 있는 방에
+    한 명씩 더하는 일이다.
+    """
+
+    friend_user_id: int
+
+
 class AiCheckRequest(BaseModel):
     """`PATCH /rooms/{id}/ai-check` 요청."""
 
@@ -146,6 +160,7 @@ class AiCheckResponse(BaseModel):
 
 __all__ = [
     "ROOM_NAME_MAX_LENGTH",
+    "AddMemberRequest",
     "AiCheckRequest",
     "AiCheckResponse",
     "CreateRoomRequest",

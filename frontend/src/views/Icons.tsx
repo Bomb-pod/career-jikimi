@@ -62,6 +62,27 @@ export function BackIcon(props: Props) {
   return svg(<path d="M14.5 5.5 8 12l6.5 6.5" />, props)
 }
 
+export function CloseIcon(props: Props) {
+  return svg(
+    <>
+      <path d="m6 6 12 12" />
+      <path d="m18 6-12 12" />
+    </>,
+    props,
+  )
+}
+
+/** 톱니바퀴 — 방 설정 팝업을 여는 버튼. */
+export function SettingsIcon(props: Props) {
+  return svg(
+    <>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2.5v2.2M12 19.3v2.2M21.5 12h-2.2M4.7 12H2.5M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6M18.7 18.7l-1.6-1.6M6.9 6.9 5.3 5.3" />
+    </>,
+    props,
+  )
+}
+
 export function SignOutIcon(props: Props) {
   return svg(
     <>

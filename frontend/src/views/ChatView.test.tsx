@@ -2,7 +2,7 @@ import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import ChatView from './ChatView'
+import ChatView, { firstUnreadSeq } from './ChatView'
 import type { ChatMessage, RoomSummary, VerificationStatus } from '../lib/apiClient'
 import { AI_CONTEXT_N, MESSAGE_MAX_LENGTH } from '../lib/constants'
 import { useChatStore } from '../store/chatStore'
@@ -26,9 +26,9 @@ const api = vi.hoisted(() => ({
   sendMessage: vi.fn(),
   listMessages: vi.fn(() => Promise.resolve({ ok: true as const, data: { messages: [] } })),
   markRead: vi.fn(() => Promise.resolve({ ok: true as const, data: { last_read_seq: 0 } })),
-  setAiCheck: vi.fn(() =>
-    Promise.resolve({ ok: true as const, data: { ai_check_enabled: false } }),
-  ),
+  // 구현을 여기서 고정하지 않는다 — `as const`로 성공 모양이 박히면 실패 응답을
+  // 넣는 테스트가 타입에서 막힌다. 기본값은 아래 `beforeEach`가 준다.
+  setAiCheck: vi.fn(),
   reportMisdirect: vi.fn(),
   judgmentAction: vi.fn(() => Promise.resolve({ ok: true as const, data: null })),
   setAuthToken: vi.fn(),
@@ -102,6 +102,7 @@ function deferredSend() {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  api.setAiCheck.mockResolvedValue({ ok: true, data: { ai_check_enabled: false } })
   api.sendMessage.mockImplementation(() =>
     Promise.resolve({ kind: 'sent', message: message({ id: 90, sender_id: ME }) }),
   )
@@ -211,30 +212,42 @@ describe('미검증 배지', () => {
   const badged: VerificationStatus[] = ['failed', 'degraded', 'skipped_no_context']
   const plain: VerificationStatus[] = ['ok', 'flagged_sent', 'disabled']
 
-  it.each(badged)('`%s`에는 배지가 붙는다', (status) => {
-    mount({ messages: [message({ id: 11, verification_status: status })] })
+  it.each(badged)('내 메시지의 `%s`에는 배지가 붙는다', (status) => {
+    mount({ messages: [message({ id: 11, sender_id: ME, verification_status: status })] })
 
     expect(screen.getByTestId('chat-unverified-badge-11')).toHaveTextContent('검증 안 됨')
   })
 
-  it.each(plain)('`%s`에는 배지가 없다', (status) => {
+  it.each(plain)('내 메시지의 `%s`에는 배지가 없다', (status) => {
     // `disabled`를 빼는 이유 — 사용자가 스스로 껐으므로 이미 알고 있다.
     // `flagged_sent`도 빼는데, 검증을 받았고 경고까지 봤기 때문이다.
-    mount({ messages: [message({ id: 12, verification_status: status })] })
+    mount({ messages: [message({ id: 12, sender_id: ME, verification_status: status })] })
 
     expect(screen.queryByTestId('chat-unverified-badge-12')).not.toBeInTheDocument()
+  })
+
+  it.each(badged)('**남의** 메시지의 `%s`에는 배지가 붙지 않는다', (status) => {
+    // 검증은 발신자 개인 설정이다(FR-6.1). 남의 메시지에 붙은 "검증 안 됨"은
+    // 그 사람이 토글을 껐거나 그 사람 쪽 호출이 실패했다는 뜻이 되어, 내가 어쩔
+    // 수 없는 남의 설정 상태를 읽게 한다. 배지가 답해야 하는 질문은 "내가
+    // 검증받았다고 믿은 이 메시지가 실제로는 아니었는가"다.
+    mount({ messages: [message({ id: 15, sender_id: OTHER, verification_status: status })] })
+
+    expect(screen.queryByTestId('chat-unverified-badge-15')).not.toBeInTheDocument()
+    // 본문은 그대로 보인다 — 감추는 것은 배지뿐이다.
+    expect(screen.getByTestId('chat-message-15')).toHaveTextContent('본문 15')
   })
 
   it('스크롤해서 다시 봐도 남는다 — 메시지에 붙은 속성이다', () => {
     // FR-8.6. 목록을 다시 그려도(여기서는 재렌더로 대신한다) 배지가 유지된다.
     // 일시적 알림으로 만들면 사용자가 그 사실을 다시 확인할 방법이 없다.
-    mount({ messages: [message({ id: 13, verification_status: 'failed' })] })
+    mount({ messages: [message({ id: 13, sender_id: ME, verification_status: 'failed' })] })
 
     act(() => {
       useChatStore.setState({
         messages: [
-          message({ id: 13, verification_status: 'failed' }),
-          message({ id: 14, verification_status: 'ok' }),
+          message({ id: 13, sender_id: ME, verification_status: 'failed' }),
+          message({ id: 14, sender_id: ME, verification_status: 'ok' }),
         ],
       })
     })
@@ -296,29 +309,253 @@ describe('오발송 신고', () => {
 })
 
 // --------------------------------------------------------------------------
-// 프라이버시 고지 (NFR-5)와 콜드스타트 안내 (FR-6.4)
+// 진입 시 화면 위치 — 안 읽은 첫 메시지
 // --------------------------------------------------------------------------
-describe('고지와 안내', () => {
-  it('프라이버시 고지는 **토글이 꺼져 있어도** 보인다', () => {
-    // 켜기 전에 무슨 일이 일어나는지 알아야 결정할 수 있다. 켠 뒤에만 보여주면
-    // 고지의 목적이 사라진다.
-    mount({ rooms: [room({ ai_check_enabled: false })] })
+describe('안 읽은 지점 찾기', () => {
+  const history = [
+    message({ id: 1, seq: 1, sender_id: OTHER }),
+    message({ id: 2, seq: 2, sender_id: ME }),
+    message({ id: 3, seq: 3, sender_id: OTHER }),
+    message({ id: 4, seq: 4, sender_id: OTHER }),
+  ]
 
-    expect(screen.getByTestId('chat-privacy-notice')).toHaveTextContent(
-      '검증 시 최근 대화가 외부 AI로 전송됩니다',
-    )
+  it('읽음 위치 다음의 첫 메시지를 가리킨다', () => {
+    expect(firstUnreadSeq(history, 2, ME)).toBe(3)
   })
 
-  it('고지를 누르면 무엇이 전송되고 무엇이 전송되지 않는지 펼친다', async () => {
+  it('전부 읽었으면 `null` — 경계선도 없고 맨 아래에서 시작한다', () => {
+    expect(firstUnreadSeq(history, 4, ME)).toBeNull()
+  })
+
+  it('아무것도 안 읽었으면 첫 메시지다', () => {
+    expect(firstUnreadSeq(history, 0, ME)).toBe(1)
+  })
+
+  it('**내가 보낸 메시지는 후보가 아니다**', () => {
+    // 다른 창에서 내가 보낸 메시지는 서버의 `last_read_seq`보다 뒤에 있을 수 있다.
+    // 내가 친 문장 위에 "여기부터 안 읽음"을 그리면 읽을 것이 없는 자리에 경계선이 선다.
+    expect(firstUnreadSeq([message({ id: 9, seq: 9, sender_id: ME })], 8, ME)).toBeNull()
+  })
+
+  it('메시지가 없으면 `null`', () => {
+    expect(firstUnreadSeq([], 0, ME)).toBeNull()
+  })
+})
+
+describe('진입 시 화면 위치', () => {
+  /** 안 읽은 자리로 화면을 맞추는지 — jsdom은 실제 스크롤을 계산하지 못하므로 호출로 잰다. */
+  function spyScroll() {
+    const calls: Element[] = []
+    const spy = vi
+      .spyOn(Element.prototype, 'scrollIntoView')
+      .mockImplementation(function (this: Element) {
+        calls.push(this)
+      })
+    return { calls, restore: () => spy.mockRestore() }
+  }
+
+  it('안 읽은 메시지가 있으면 그 자리에 경계선을 긋고 화면을 맞춘다', () => {
+    const scroll = spyScroll()
+    mount({
+      rooms: [room({ last_read_seq: 2 })],
+      messages: [
+        message({ id: 1, seq: 1, sender_id: OTHER }),
+        message({ id: 2, seq: 2, sender_id: OTHER }),
+        message({ id: 3, seq: 3, sender_id: OTHER }),
+      ],
+    })
+
+    expect(screen.getByTestId('chat-unread-divider')).toHaveTextContent('여기부터 안 읽음')
+    // 경계선은 **안 읽은 첫 메시지 항목 안에** 있다 — 그 자리로 화면이 맞춰진다.
+    expect(screen.getByTestId('chat-message-3')).toContainElement(
+      screen.getByTestId('chat-unread-divider'),
+    )
+    expect(scroll.calls).toEqual([screen.getByTestId('chat-message-3')])
+
+    scroll.restore()
+  })
+
+  it('전부 읽었으면 경계선이 없다 — 맨 아래에서 시작한다', () => {
+    const scroll = spyScroll()
+    mount({
+      rooms: [room({ last_read_seq: 3 })],
+      messages: [
+        message({ id: 1, seq: 1, sender_id: OTHER }),
+        message({ id: 3, seq: 3, sender_id: OTHER }),
+      ],
+    })
+
+    expect(screen.queryByTestId('chat-unread-divider')).not.toBeInTheDocument()
+    // `scrollIntoView`가 아니라 목록의 `scrollTop`을 밀어 바닥으로 간다.
+    expect(scroll.calls).toEqual([])
+
+    scroll.restore()
+  })
+
+  it('읽는 도중에 메시지가 도착해도 경계선으로 되돌아가지 않는다', () => {
+    // 방 하나당 한 번만 맞춘다. 막지 않으면 새 메시지가 올 때마다 화면이 위로
+    // 튀어 어디를 읽고 있었는지 잃는다.
+    const scroll = spyScroll()
+    mount({
+      rooms: [room({ last_read_seq: 1 })],
+      messages: [
+        message({ id: 1, seq: 1, sender_id: OTHER }),
+        message({ id: 2, seq: 2, sender_id: OTHER }),
+      ],
+    })
+    expect(scroll.calls).toHaveLength(1)
+
+    act(() => {
+      useChatStore.setState({
+        messages: [
+          message({ id: 1, seq: 1, sender_id: OTHER }),
+          message({ id: 2, seq: 2, sender_id: OTHER }),
+          message({ id: 3, seq: 3, sender_id: OTHER }),
+        ],
+      })
+    })
+
+    expect(scroll.calls).toHaveLength(1)
+
+    scroll.restore()
+  })
+})
+
+// --------------------------------------------------------------------------
+// 방 설정 팝업 — AI 검증 토글의 유일한 자리 (FR-6.1)
+// --------------------------------------------------------------------------
+describe('방 설정 팝업', () => {
+  it('대화 화면 자체에는 토글이 없다 — 설정 버튼만 있다', () => {
+    // 같은 개인 설정이 여러 화면에 흩어지면 어느 쪽이 진짜인지 확인하는 일이
+    // 사용자 몫이 된다.
+    mount()
+
+    expect(screen.getByTestId('chat-settings-open')).toBeInTheDocument()
+    expect(screen.queryByTestId('room-settings-ai-toggle')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('이 방에서 AI 검증 사용')).not.toBeInTheDocument()
+  })
+
+  it('설정 버튼을 누르면 보이는 라벨이 붙은 진짜 체크박스가 나온다', async () => {
+    const user = userEvent.setup()
+    mount({ rooms: [room({ ai_check_enabled: true })] })
+
+    await user.click(screen.getByTestId('chat-settings-open'))
+
+    const toggle = await screen.findByTestId('room-settings-ai-toggle')
+    // div로 만들면 키보드로 조작할 수 없고 스크린리더가 상태를 읽지 못한다.
+    expect(toggle).toHaveAttribute('type', 'checkbox')
+    expect(toggle).toBeChecked()
+    expect(screen.getByLabelText('이 방에서 AI 검증 사용')).toBe(toggle)
+    expect(screen.getByTestId('room-settings-name')).toHaveTextContent('동아리')
+  })
+
+  it('토글을 바꾸면 낙관적으로 반영하고 서버에 보낸다', async () => {
+    // 체크박스가 응답을 기다리며 멈춰 있으면 고장으로 보인다.
+    const user = userEvent.setup()
+    mount({ rooms: [room({ ai_check_enabled: true })] })
+
+    await user.click(screen.getByTestId('chat-settings-open'))
+    await user.click(await screen.findByTestId('room-settings-ai-toggle'))
+
+    await waitFor(() => expect(api.setAiCheck).toHaveBeenCalledWith(ROOM, false))
+    expect(screen.getByTestId('room-settings-ai-toggle')).not.toBeChecked()
+  })
+
+  it('변경이 실패하면 원래 상태로 되돌린다', async () => {
+    // 낙관적으로 바꾼 뒤 실패를 무시하면 화면과 서버가 어긋난 채로 남는다.
+    const user = userEvent.setup()
+    api.setAiCheck.mockResolvedValue({
+      ok: false as const,
+      error: { code: 'FORBIDDEN', message: '이 방에 접근할 권한이 없습니다', status: 403 },
+    })
+    mount({ rooms: [room({ ai_check_enabled: true })] })
+
+    await user.click(screen.getByTestId('chat-settings-open'))
+    await user.click(await screen.findByTestId('room-settings-ai-toggle'))
+
+    await waitFor(() =>
+      expect(screen.getByTestId('room-settings-ai-toggle')).toBeChecked(),
+    )
+    expect(screen.getByTestId('chat-error')).toHaveTextContent('이 방에 접근할 권한이 없습니다')
+  })
+
+  it('Escape로 닫힌다 — 결정 팝업 두 종과 달리 그냥 나가도 되는 화면이다', async () => {
     const user = userEvent.setup()
     mount()
 
-    await user.click(screen.getByTestId('chat-privacy-notice'))
+    await user.click(screen.getByTestId('chat-settings-open'))
+    await screen.findByTestId('room-settings')
+    await user.keyboard('{Escape}')
 
-    const detail = screen.getByTestId('chat-privacy-detail')
+    expect(screen.queryByTestId('room-settings')).not.toBeInTheDocument()
+  })
+
+  it('배경을 눌러도 닫힌다', async () => {
+    // `JudgeConfirmDialog`·`DegradedDialog`는 반대다 — 그쪽은 흘려보내면 안 되는
+    // 결정이라 배경에 핸들러가 없다. 이쪽은 실수로 열었을 때 빠져나갈 길이 있어야 한다.
+    const user = userEvent.setup()
+    mount()
+
+    await user.click(screen.getByTestId('chat-settings-open'))
+    await user.click(await screen.findByTestId('room-settings-backdrop'))
+
+    expect(screen.queryByTestId('room-settings')).not.toBeInTheDocument()
+  })
+
+  it('팝업 안을 눌러도 닫히지 않는다', async () => {
+    // 배경 클릭으로 닫는 대가다 — 전파를 막지 않으면 설정을 만지자마자 닫힌다.
+    const user = userEvent.setup()
+    mount()
+
+    await user.click(screen.getByTestId('chat-settings-open'))
+    await user.click(await screen.findByTestId('room-settings-name'))
+
+    expect(screen.getByTestId('room-settings')).toBeInTheDocument()
+  })
+})
+
+// --------------------------------------------------------------------------
+// 프라이버시 고지 (NFR-5)와 콜드스타트 안내 (FR-6.4)
+// --------------------------------------------------------------------------
+describe('고지와 안내', () => {
+  it('전문은 설정 팝업 안에 있고 **토글이 꺼져 있어도** 보인다', async () => {
+    // 켜기 전에 무슨 일이 일어나는지 알아야 결정할 수 있다. 켠 뒤에만 보여주면
+    // 고지의 목적이 사라진다. 팝업 안이라 토글 바로 옆에서 읽힌다.
+    const user = userEvent.setup()
+    mount({ rooms: [room({ ai_check_enabled: false })] })
+
+    await user.click(screen.getByTestId('chat-settings-open'))
+
+    const detail = await screen.findByTestId('room-settings-privacy')
     expect(detail).toHaveTextContent(`최근 ${AI_CONTEXT_N}개`)
     expect(detail).toHaveTextContent('본문만')
     expect(detail).toHaveTextContent('포함되지 않습니다')
+  })
+
+  it('검증이 켜져 있으면 대화 화면에 한 줄 고지가 남는다', () => {
+    // 외부 전송이 실제로 일어나는 동안에는 그 사실이 화면에서 사라지면 안 된다.
+    // 팝업을 닫아도 남아야 하므로 팝업 밖에 있어야 한다.
+    mount({
+      rooms: [room({ ai_check_enabled: true })],
+      messages: Array.from({ length: AI_CONTEXT_N }, (_, index) =>
+        message({ id: 200 + index }),
+      ),
+    })
+
+    expect(screen.getByTestId('chat-privacy-line')).toHaveTextContent(`최근 ${AI_CONTEXT_N}개`)
+  })
+
+  it('검증이 꺼져 있으면 그 한 줄은 없다', () => {
+    // 일어나지 않는 일을 알릴 이유가 없다. 늘 떠 있으면 문구가 배경이 되어
+    // 켜져 있을 때도 읽히지 않는다.
+    mount({
+      rooms: [room({ ai_check_enabled: false })],
+      messages: Array.from({ length: AI_CONTEXT_N }, (_, index) =>
+        message({ id: 300 + index }),
+      ),
+    })
+
+    expect(screen.queryByTestId('chat-privacy-line')).not.toBeInTheDocument()
   })
 
   it('메시지가 N개 미만이면 콜드스타트 안내를 보여준다', () => {

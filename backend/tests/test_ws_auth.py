@@ -63,12 +63,22 @@ def _wait_until_disconnected(user_id: int, timeout: float = 2.0) -> bool:
     고정 `sleep`을 쓰지 않는 이유 — 짧으면 흔들리고 길면 매번 그 시간을 낸다.
     조건이 충족되면 즉시 반환한다.
     """
+    return _wait_until_connections(user_id, 0, timeout)
+
+
+def _wait_until_connections(user_id: int, expected: int, timeout: float = 2.0) -> bool:
+    """그 사용자의 소켓 수가 `expected`가 될 때까지 기다린다. 시간이 다하면 `False`.
+
+    사용자당 연결이 여럿이 되면서 필요해졌다 — 창 하나를 닫았을 때 "0이 되었는가"가
+    아니라 "하나 줄었는가"를 기다려야 한다. 이유는 위와 같다: 클라이언트 쪽 `with`
+    블록을 빠져나온 시점에 서버 핸들러의 `finally`가 아직 돌지 않았을 수 있다.
+    """
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
-        if not ws_registry.is_connected(user_id):
+        if ws_registry.connection_count_for(user_id) == expected:
             return True
         time.sleep(0.01)
-    return not ws_registry.is_connected(user_id)
+    return ws_registry.connection_count_for(user_id) == expected
 
 
 # --------------------------------------------------------------------------
@@ -114,14 +124,17 @@ def test_the_server_pushes_frames_over_the_authenticated_connection(ws_client: T
 
 
 # --------------------------------------------------------------------------
-# 사용자당 1개 (BR-5.4)
+# 사용자당 여러 연결 (2026-07-31, 이전 BR-5.4를 대체)
 # --------------------------------------------------------------------------
-def test_a_second_connection_replaces_the_first_with_a_frame(ws_client: TestClient) -> None:
-    """**BR-5.4** — 두 번째 연결이 첫 번째에 `session_replaced`를 보낸 뒤 닫는다.
+def test_two_windows_of_one_user_both_stay_connected(ws_client: TestClient) -> None:
+    """**같은 토큰으로 두 번 붙어도 앞 연결이 죽지 않는다.**
 
-    프레임 없이 닫으면 밀려난 탭이 네트워크 오류로 오인해 재연결하고, 두 탭이 서로를
-    밀어내는 순환이 생긴다. 클라이언트의 `replaced` 플래그가 그 순환을 끊는 나머지
-    절반이다 (BR-5.5, `wsClient.test.ts`).
+    방을 새 창으로 여는 사용법의 전제다. 이전 규칙(BR-5.4)에서는 두 번째 연결이
+    첫 번째에 `session_replaced`를 보내고 닫았고, 그러면 창을 열 때마다 목록 창이
+    죽어 두 창을 나란히 쓸 수 없다.
+
+    **실물 전송 계층으로 확인한다.** 가짜 소켓은 닫힘을 흉내 낼 뿐이라, 서버가
+    실제로 닫는지는 이 층위에서만 드러난다.
     """
     token = create_token(5)
     with ws_client.websocket_connect("/ws") as first:
@@ -132,16 +145,22 @@ def test_a_second_connection_replaces_the_first_with_a_frame(ws_client: TestClie
             second.send_text(_auth_frame(token))
             assert second.receive_json() == {"type": "auth_ok"}
 
-            # 밀려난 쪽이 받는 것은 **프레임이 먼저**다.
-            assert first.receive_json() == {"type": "session_replaced"}
-            # 그리고 서버가 닫는다.
-            assert first.receive()["type"] == "websocket.close"
+            assert ws_registry.connection_count_for(5) == 2
 
-            # 새 연결이 자리를 지킨다 — 밀려난 쪽의 정리가 이것을 지우면 안 된다.
-            assert ws_registry.is_connected(5)
+            # **둘 다 받는다.** 목록 창은 배지를, 대화 창은 말풍선을 그려야 한다.
             pushed = {"type": "message", "room_id": 1}
             ws_client.portal.call(ws_registry.push_to_users, [5], pushed)  # type: ignore[union-attr]
+            assert first.receive_json() == pushed
             assert second.receive_json() == pushed
+
+        # 두 번째 창을 닫아도 첫 번째는 계속 받는다.
+        #
+        # **기다린다.** `with`를 빠져나온 시점에 서버 핸들러의 `finally`가 아직 돌지
+        # 않았을 수 있다 — 곧바로 단정하면 구현이 맞아도 간헐적으로 붉어진다.
+        assert _wait_until_connections(5, 1)
+        again = {"type": "message", "room_id": 2}
+        ws_client.portal.call(ws_registry.push_to_users, [5], again)  # type: ignore[union-attr]
+        assert first.receive_json() == again
 
 
 # --------------------------------------------------------------------------

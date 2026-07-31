@@ -276,51 +276,27 @@ describe('RoomListView 배너와 토글', () => {
     expect(await screen.findByTestId('ws-reconnecting-banner')).toBeInTheDocument()
   })
 
-  it('AI 토글은 보이는 라벨이 붙은 진짜 체크박스다 (FR-6.1)', async () => {
+  it('AI 검증 토글을 그리지 않는다 (설정 팝업이 유일한 자리다)', async () => {
+    // 같은 개인 설정이 목록과 대화 두 곳에 있으면 사용자가 어느 쪽이 진짜인지
+    // 확인하려 들고, 한쪽만 고쳐지는 날 두 화면이 서로 다른 상태를 보여준다.
+    // 토글은 `RoomSettingsDialog` 안에만 있다 — 그쪽 테스트가 동작을 지킨다.
     const user = userEvent.setup()
     signedIn([room({ id: 9, ai_check_enabled: true })])
-    api.setAiCheck.mockResolvedValue({ ok: true, data: { ai_check_enabled: false } })
-    render(<RoomListView />)
-
-    // 방에 입장해야 그 방의 개인 설정이 보인다. 항목 안의 버튼을 누른다 —
-    // 각 항목이 링크 또는 버튼이어야 한다는 접근성 요구가 여기서도 확인된다.
-    await user.click(within(await screen.findByTestId('room-list-item-9')).getByRole('button'))
-
-    const toggle = await screen.findByTestId('room-ai-toggle')
-    // div로 만들면 키보드로 조작할 수 없고 스크린리더가 상태를 읽지 못한다.
-    expect(toggle).toHaveAttribute('type', 'checkbox')
-    expect(toggle).toBeChecked()
-    expect(screen.getByLabelText('이 방에서 AI 검증 사용')).toBe(toggle)
-
-    await user.click(toggle)
-
-    await waitFor(() => {
-      expect(api.setAiCheck).toHaveBeenCalledWith(9, false)
-    })
-    expect(await screen.findByTestId('room-ai-toggle')).not.toBeChecked()
-  })
-
-  it('토글 변경이 실패하면 원래 상태로 되돌린다', async () => {
-    // 낙관적으로 바꾼 뒤 실패를 무시하면 화면과 서버가 어긋난 채로 남는다.
-    const user = userEvent.setup()
-    signedIn([room({ id: 9, ai_check_enabled: true })])
-    api.setAiCheck.mockResolvedValue({
-      ok: false,
-      error: { code: 'FORBIDDEN', message: '이 방에 접근할 권한이 없습니다', status: 403 },
-    })
     render(<RoomListView />)
 
     await user.click(within(await screen.findByTestId('room-list-item-9')).getByRole('button'))
-    await user.click(await screen.findByTestId('room-ai-toggle'))
 
-    expect(await screen.findByTestId('rooms-error')).toHaveTextContent(
-      '이 방에 접근할 권한이 없습니다',
-    )
-    expect(screen.getByTestId('room-ai-toggle')).toBeChecked()
+    expect(screen.queryByTestId('room-ai-toggle')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('이 방에서 AI 검증 사용')).not.toBeInTheDocument()
+    expect(api.setAiCheck).not.toHaveBeenCalled()
   })
 
-  it('방에 입장하면 배지가 사라진다 (FR-5.2의 둘째 기준)', async () => {
+  it('방을 열면 이 창의 배지가 사라진다 (FR-5.2의 둘째 기준)', async () => {
+    // 읽는 것은 새 창이고 서버의 `last_read_seq`도 그쪽이 전진시키지만, 목록 창의
+    // 배지는 자기 상태라 아무도 지워주지 않는다 — 남겨두면 방을 열어놓고도 안 읽은
+    // 것으로 보인다.
     const user = userEvent.setup()
+    const open = vi.spyOn(window, 'open').mockReturnValue({ focus: vi.fn() } as unknown as Window)
     signedIn([room({ id: 9, unread_count: 2, last_seq: 2 })])
     render(<RoomListView />)
 
@@ -330,31 +306,60 @@ describe('RoomListView 배너와 토글', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('room-unread-badge-9')).not.toBeInTheDocument()
     })
-    // 서버의 읽음 위치도 함께 전진시킨다 — 그러지 않으면 목록을 다시 부를 때 되살아난다.
-    expect(api.markRead).toHaveBeenCalledWith(9, 2)
+    // **이 창은 방에 들어가지 않는다.** 목록과 대화를 나란히 보는 것이 새 창의 목적이다.
+    expect(useChatStore.getState().currentRoomId).toBeNull()
+
+    open.mockRestore()
   })
 })
 
-describe('방 진입과 화면 전환', () => {
-  it('방을 누르면 `onOpenRoom`을 그 방 id로 부른다', async () => {
-    // **이것이 없으면 방을 눌러도 목록에 머문다.** 사용자가 "대화" 탭을 따로 눌러야
-    // 하고, 방을 여는 것이 이 앱의 주 동작이다.
+describe('방 진입', () => {
+  it('방을 누르면 새 **창**으로 연다 — 탭이 아니다', async () => {
+    // 목록과 대화를 나란히 보는 것이 이 기능의 목적이다. 창 크기를 주지 않으면
+    // 브라우저가 탭으로 열고, 그러면 목록이 가려져 목적이 사라진다.
     const user = userEvent.setup()
-    const onOpenRoom = vi.fn()
+    const open = vi.spyOn(window, 'open').mockReturnValue({ focus: vi.fn() } as unknown as Window)
     signedIn([room({ id: 12 })])
-    render(<RoomListView onOpenRoom={onOpenRoom} />)
+    render(<RoomListView />)
 
     await user.click(within(await screen.findByTestId('room-list-item-12')).getByRole('button'))
 
-    expect(onOpenRoom).toHaveBeenCalledWith(12)
+    expect(open).toHaveBeenCalledTimes(1)
+    const [url, name, features] = open.mock.calls[0] ?? []
+    expect(url).toBe('/?room=12')
+    // 방마다 이름이 달라야 여러 방을 나란히 띄울 수 있다.
+    expect(name).toBe('career-jikimi-room-12')
+    expect(features).toContain('popup=yes')
+    expect(features).toMatch(/width=\d+/)
+    expect(features).toMatch(/height=\d+/)
+    // 이 창은 목록으로 남는다.
+    expect(useChatStore.getState().currentRoomId).toBeNull()
+
+    open.mockRestore()
   })
 
-  it('입장 처리가 실패해도 화면은 열린다', async () => {
-    // 히스토리 조회는 U5 소관이고 실패할 수 있다. 그때 화면이 안 열리면 사용자는
-    // 목록에 갇힌 채 아무 설명도 못 받는다 — 대화 화면이 자기 오류 상태를 그리는
-    // 편이 낫다. 구현에서 `void enterRoom()`과 `onOpenRoom()`이 나란히 있는 이유다.
+  it('팝업이 차단되면 같은 창에서 연다', async () => {
+    // `window.open()`이 `null`을 주는 유일한 경우다. 차단된 것을 모른 채 아무 일도
+    // 일어나지 않는 화면이 가장 나쁘다 — 그때는 셸이 목록 위에 대화를 덮는다.
     const user = userEvent.setup()
-    const onOpenRoom = vi.fn()
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    signedIn([room({ id: 12 })])
+    render(<RoomListView />)
+
+    await user.click(within(await screen.findByTestId('room-list-item-12')).getByRole('button'))
+
+    await waitFor(() => expect(useChatStore.getState().currentRoomId).toBe(12))
+
+    open.mockRestore()
+  })
+
+  it('팝업 차단 시 히스토리 조회가 실패해도 포인터는 옮겨간다', async () => {
+    // 히스토리 조회는 U5 소관이고 실패할 수 있다. 그때 포인터가 안 움직이면
+    // 대화가 열리지 않아 사용자는 목록에 갇힌 채 아무 설명도 못 받는다 — 대화
+    // 화면이 자기 오류 상태를 그리는 편이 낫다. 구현이 `void enterRoom()`으로
+    // 결과를 기다리지 않는 이유다.
+    const user = userEvent.setup()
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
     const enterRoom = vi.fn(() => Promise.reject(new Error('히스토리 조회 실패')))
     // 스토어의 액션을 바꿔치우므로 **반드시 되돌린다.** `beforeEach`는 데이터 키만
     // 초기화하고 액션은 손대지 않아, 남겨두면 뒤 테스트가 이 목을 쓴다.
@@ -362,25 +367,14 @@ describe('방 진입과 화면 전환', () => {
     signedIn([room({ id: 13 })])
     useChatStore.setState({ enterRoom })
     try {
-      render(<RoomListView onOpenRoom={onOpenRoom} />)
+      render(<RoomListView />)
 
       await user.click(within(await screen.findByTestId('room-list-item-13')).getByRole('button'))
 
       expect(enterRoom).toHaveBeenCalledWith(13)
-      expect(onOpenRoom).toHaveBeenCalledWith(13)
     } finally {
       useChatStore.setState({ enterRoom: realEnterRoom })
+      open.mockRestore()
     }
-  })
-
-  it('콜백을 주지 않아도 입장 자체는 동작한다', async () => {
-    // 옵셔널 프로퍼티다 — 없을 때 터지면 이 뷰를 다른 자리에 재사용할 수 없다.
-    const user = userEvent.setup()
-    signedIn([room({ id: 14 })])
-    render(<RoomListView />)
-
-    await user.click(within(await screen.findByTestId('room-list-item-14')).getByRole('button'))
-
-    await waitFor(() => expect(useChatStore.getState().currentRoomId).toBe(14))
   })
 })

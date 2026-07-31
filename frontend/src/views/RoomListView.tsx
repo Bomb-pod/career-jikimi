@@ -4,6 +4,7 @@ import * as api from '../lib/apiClient'
 import { ROOM_NAME_MAX_LENGTH } from '../lib/constants'
 import { avatarColor, avatarInitial } from '../lib/avatar'
 import { roomDisplayName } from '../lib/roomName'
+import { openRoomWindow } from '../lib/roomWindow'
 import { formatListTime } from '../lib/time'
 import { useChatStore } from '../store/chatStore'
 
@@ -17,23 +18,23 @@ import { useChatStore } from '../store/chatStore'
  * | 생성 | 친구 다중 선택 + 방 이름(선택) |
  * | 비어 있음 | "채팅방이 없습니다. 친구를 초대해 만들어보세요." |
  * | 배너 | `session_replaced` 시 상단 고정 (BR-5.5) |
- * | 현재 방 | 입장한 방의 **내** AI 검증 토글 (FR-6.1) |
  *
  * **배지를 0일 때 숨기는 이유** — "0"이 붙어 있으면 사용자가 그것을 읽고 판단해야
  * 한다. 없으면 볼 것이 없다는 뜻이 즉시 전달된다.
  *
- * **AI 토글이 여기 있는 이유** — 개인 설정이고 방 단위다(FR-6.1). 대화 화면은 U5
- * 소관이므로, 입장한 방의 설정을 이 화면의 "현재 방" 영역에서 바꾼다. `data-testid`가
- * `room-ai-toggle`(방 id 없음)인 것도 화면에 하나만 있다는 뜻이다.
- */
-/**
- * `onOpenRoom` — 방에 입장한 직후 호출한다. App 셸이 대화 화면으로 옮긴다.
+ * **AI 검증 토글은 이 화면에 없다.** 한때 "현재 방" 카드에 있었으나 대화 화면의
+ * 설정 팝업(`RoomSettingsDialog`)으로 옮겼다 — 방 설정은 그 방 안에서 바꾸는 것이
+ * 자연스럽고, 같은 개인 설정이 목록과 대화 두 곳에 있으면 사용자가 어느 쪽이 진짜인지
+ * 확인하려 든다. 이 화면은 방을 **고르는** 일만 한다.
  *
- * **입장과 화면 전환을 나눈 이유** — 입장은 스토어의 일(포인터 이동 + 히스토리
- * 조회, BR-3.5)이고 어느 화면을 그릴지는 셸의 일이다. `ToastHost`도 같은 모양의
- * 콜백을 받는다.
+ * **방을 누르면 새 창이 열린다** (`lib/roomWindow`). 이 창은 목록으로 남는다 —
+ * 목록과 대화를 나란히 보는 것이 새 창으로 여는 이유이기 때문이다.
+ *
+ * 팝업이 차단되면 `window.open()`이 `null`을 주고, 그때만 `enterRoom()`으로 떨어져
+ * 셸이 같은 창 안에 대화를 덮는다. 차단된 것을 모른 채 아무 일도 일어나지 않는
+ * 화면이 가장 나쁘다.
  */
-export default function RoomListView({ onOpenRoom }: { onOpenRoom?: (roomId: number) => void }) {
+export default function RoomListView() {
   const token = useChatStore((state) => state.auth.token)
   const myUserId = useChatStore((state) => state.auth.user?.id ?? null)
   const friends = useChatStore((state) => state.friends)
@@ -45,9 +46,8 @@ export default function RoomListView({ onOpenRoom }: { onOpenRoom?: (roomId: num
   const setFriends = useChatStore((state) => state.setFriends)
   const setRooms = useChatStore((state) => state.setRooms)
   const upsertRoom = useChatStore((state) => state.upsertRoom)
-  const setAiCheck = useChatStore((state) => state.setAiCheck)
   const enterRoom = useChatStore((state) => state.enterRoom)
-  const leaveRoom = useChatStore((state) => state.leaveRoom)
+  const clearUnread = useChatStore((state) => state.clearUnread)
 
   const [creating, setCreating] = useState(false)
   const [selected, setSelected] = useState<number[]>([])
@@ -117,20 +117,18 @@ export default function RoomListView({ onOpenRoom }: { onOpenRoom?: (roomId: num
     }
   }
 
-  async function handleAiCheck(roomId: number, enabled: boolean): Promise<void> {
-    setError(null)
-    // 낙관적으로 먼저 바꾼다 — 체크박스가 응답을 기다리며 멈춰 있으면 고장으로 보인다.
-    setAiCheck(roomId, enabled)
-    try {
-      const result = await api.setAiCheck(roomId, enabled)
-      if (!result.ok) {
-        setAiCheck(roomId, !enabled)
-        setError(result.error.message)
-      }
-    } catch (caught) {
-      setAiCheck(roomId, !enabled)
-      setError(caught instanceof Error ? caught.message : '설정을 바꿀 수 없습니다')
+  function handleOpenRoom(roomId: number): void {
+    const opened = openRoomWindow(roomId)
+    if (opened === null) {
+      // 팝업이 차단됐다. 같은 창 안에서라도 열어준다 — 아무 일도 일어나지 않는
+      // 화면보다 낫다. 기다리지 않는 이유는 히스토리가 늦게 와도 대화는 바로
+      // 열려야 하기 때문이다(BR-3.5의 포인터 우선 순서를 `enterRoom`이 지킨다).
+      void enterRoom(roomId)
+      return
     }
+    // 읽는 것은 새 창이고 서버의 `last_read_seq`도 그쪽이 전진시키지만, 이 창의
+    // 배지는 자기 상태라 아무도 지워주지 않는다.
+    clearUnread(roomId)
   }
 
   if (token === null) {
@@ -140,8 +138,6 @@ export default function RoomListView({ onOpenRoom }: { onOpenRoom?: (roomId: num
       </section>
     )
   }
-
-  const current = rooms.find((room) => room.id === currentRoomId) ?? null
 
   return (
     <section className="panel">
@@ -165,30 +161,54 @@ export default function RoomListView({ onOpenRoom }: { onOpenRoom?: (roomId: num
 
       {/* ---------------- 생성 ---------------- */}
       {creating ? (
-        <form className="form" onSubmit={handleCreate}>
-          <fieldset className="field">
+        <form className="room-create" onSubmit={handleCreate}>
+          <h2 className="room-create-title">새 채팅방</h2>
+
+          <fieldset className="picker-field">
             <legend>초대할 친구</legend>
+
+            {/* **고른 인원 수를 `aria-live`로 알린다.** 체크박스를 켜고 끄는 변화는
+                시각적으로는 즉시 보이지만 스크린리더에는 개별 체크 상태만 읽힌다 —
+                "지금 몇 명인가"는 방 만들기 버튼이 켜지는 조건이라 따로 알려야 한다. */}
+            <p className="picker-count" aria-live="polite" data-testid="room-create-count">
+              {selected.length === 0 ? '아직 고르지 않았습니다' : `${selected.length}명 선택`}
+            </p>
+
             {friends.length === 0 ? (
-              <p className="muted" data-testid="room-create-no-friends">
-                먼저 친구를 등록하세요. 친구로 등록한 사용자만 초대할 수 있습니다.
+              <p className="picker-empty" data-testid="room-create-no-friends">
+                먼저 친구를 등록하세요.
+                <br />
+                친구로 등록한 사용자만 초대할 수 있습니다.
               </p>
             ) : (
               <ul className="friend-picker">
-                {friends.map((friend) => (
-                  <li key={friend.id}>
-                    {/* 다중 선택이므로 체크박스다. div로 만들지 않는다 — 키보드와
-                        스크린리더가 그대로 동작해야 한다. */}
-                    <label>
-                      <input
-                        type="checkbox"
-                        data-testid={`room-create-friend-${friend.friend_user_id}`}
-                        checked={selected.includes(friend.friend_user_id)}
-                        onChange={() => toggleFriend(friend.friend_user_id)}
-                      />
-                      {friend.alias}
-                    </label>
-                  </li>
-                ))}
+                {friends.map((friend) => {
+                  const picked = selected.includes(friend.friend_user_id)
+                  return (
+                    <li key={friend.id}>
+                      {/* 다중 선택이므로 체크박스다. div로 만들지 않는다 — 키보드와
+                          스크린리더가 그대로 동작해야 한다. 골랐다는 사실은 색뿐
+                          아니라 체크 표시로도 드러난다(색 의존 금지). */}
+                      <label className={picked ? 'picked' : undefined}>
+                        <input
+                          type="checkbox"
+                          data-testid={`room-create-friend-${friend.friend_user_id}`}
+                          checked={picked}
+                          onChange={() => toggleFriend(friend.friend_user_id)}
+                        />
+                        <span
+                          className="avatar avatar-sm"
+                          style={{ background: avatarColor(friend.alias) }}
+                          aria-hidden="true"
+                        >
+                          {avatarInitial(friend.alias)}
+                        </span>
+                        {/* 별칭만 보인다 (FR-2.4) — `Friend` 타입에 상대의 이름이 없다. */}
+                        <span className="picker-name">{friend.alias}</span>
+                      </label>
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </fieldset>
@@ -202,6 +222,7 @@ export default function RoomListView({ onOpenRoom }: { onOpenRoom?: (roomId: num
               maxLength={ROOM_NAME_MAX_LENGTH}
               value={name}
               onChange={(event) => setName(event.target.value)}
+              placeholder="예) 개발 3팀"
               aria-describedby={friendsHintId}
             />
             <p className="field-hint" id={friendsHintId}>
@@ -209,17 +230,22 @@ export default function RoomListView({ onOpenRoom }: { onOpenRoom?: (roomId: num
             </p>
           </div>
 
-          <button
-            type="submit"
-            className="primary"
-            data-testid="room-create-submit"
-            disabled={busy || selected.length === 0}
-          >
-            방 만들기
-          </button>
-          <button type="button" className="secondary" onClick={() => setCreating(false)}>
-            취소
-          </button>
+          {/* 취소가 왼쪽, 실행이 오른쪽 — 폼의 관용구다. 위 `ConfirmDialog`가 취소를
+              DOM 앞에 두는 것과 같은 순서라 Tab 순서도 어긋나지 않는다. */}
+          <div className="room-create-actions">
+            <button type="button" className="secondary" onClick={() => setCreating(false)}>
+              취소
+            </button>
+            <button
+              type="submit"
+              className="primary"
+              data-testid="room-create-submit"
+              // **오류 메시지보다 나은 오류 예방** — 아무도 안 고르면 누를 수 없다.
+              disabled={busy || selected.length === 0}
+            >
+              방 만들기
+            </button>
+          </div>
         </form>
       ) : (
         // 작은 액션 줄에 둔다 — 메신저는 "새 채팅"을 전폭 버튼이 아니라 작게
@@ -257,12 +283,7 @@ export default function RoomListView({ onOpenRoom }: { onOpenRoom?: (roomId: num
                   type="button"
                   className="row"
                   aria-current={room.id === currentRoomId ? 'true' : undefined}
-                  onClick={() => {
-                    // 화면 전환을 기다리지 않는다 — 히스토리가 늦게 와도 대화 화면은
-                    // 바로 열려야 한다. 그 화면이 자기 로딩 상태를 그린다.
-                    void enterRoom(room.id)
-                    onOpenRoom?.(room.id)
-                  }}
+                  onClick={() => handleOpenRoom(room.id)}
                 >
                   <span
                     className="avatar"
@@ -308,32 +329,6 @@ export default function RoomListView({ onOpenRoom }: { onOpenRoom?: (roomId: num
             )
           })}
         </ul>
-      )}
-
-      {/* ---------------- 현재 방 ---------------- */}
-      {current !== null && (
-        <div className="card" data-testid="room-current" style={{ margin: '0.875rem' }}>
-          <p className="section-title" style={{ marginTop: 0 }}>
-            {roomDisplayName(current, myUserId)}
-          </p>
-          {/* 진짜 체크박스 + 보이는 라벨. div로 만들면 키보드로 조작할 수 없고
-              스크린리더가 상태를 읽지 못한다. */}
-          <label className="toggle-row">
-            <input
-              type="checkbox"
-              data-testid="room-ai-toggle"
-              checked={current.ai_check_enabled}
-              onChange={(event) => void handleAiCheck(current.id, event.target.checked)}
-            />
-            이 방에서 AI 검증 사용
-          </label>
-          <p className="field-hint">
-            내 메시지에만 적용됩니다. 다른 참여자의 설정과 무관합니다.
-          </p>
-          <button type="button" className="secondary" onClick={() => leaveRoom()}>
-            목록으로
-          </button>
-        </div>
       )}
     </section>
   )

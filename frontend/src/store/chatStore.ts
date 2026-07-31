@@ -30,6 +30,7 @@ import {
   TOKEN_STORAGE_KEY,
 } from '../lib/constants'
 import { roomDisplayName } from '../lib/roomName'
+import { isViewing } from '../lib/viewedRooms'
 import type { WsStatus } from '../lib/wsClient'
 
 interface AuthSlice {
@@ -103,6 +104,20 @@ export interface ChatState {
    * 여기로 옮겨 담고, 이후에는 여기만 갱신한다.
    */
   unread: Record<number, number>
+  /**
+   * **다른 창이 지금 보고 있는 방들** (`lib/viewedRooms`).
+   *
+   * 대화가 새 창으로 나가면서 필요해졌다. 이 창은 목록만 보고 있어도 그 방을 보는
+   * 창이 따로 있을 수 있고, 그때 배지를 올리면 사용자는 **보고 있는 방인데 안 읽은
+   * 개수가 올라가는** 것을 본다.
+   *
+   * **"열려 있다"가 아니라 "보고 있다"이다.** 대화 창이 뒤로 밀리면 그 창이 스스로
+   * 목록에서 빠진다 — 가려서 보이지도 않는 메시지를 읽은 것으로 치면 안 된다.
+   *
+   * `currentRoomId`와 나란한 개념이다 — 저쪽이 "이 창이 보는 방"이면 이쪽은
+   * "다른 창이 보는 방"이다.
+   */
+  roomsViewedElsewhere: number[]
   /** 지금 보고 있는 방. `null`이면 목록 화면이다. */
   currentRoomId: number | null
   /** **현재 방의** 메시지. 방을 옮기면 비운다 — 모든 방을 들고 있을 이유가 없다. */
@@ -171,6 +186,30 @@ export interface ChatState {
   setRooms: (rooms: RoomSummary[]) => void
   /** 방 하나를 추가하거나 갈아끼운다 — 생성 응답을 목록에 즉시 반영한다. */
   upsertRoom: (room: RoomSummary) => void
+  /**
+   * 그 방의 배지만 0으로 만든다. **방에 들어가지는 않는다.**
+   *
+   * 방을 새 창으로 열 때 목록 창이 쓴다 — 읽는 것은 새 창이고 서버의
+   * `last_read_seq`도 그쪽이 전진시키지만, 목록 창의 배지는 자기 상태라 아무도
+   * 지워주지 않는다. `enterRoom()`을 부르면 배지는 지워지되 이 창에도 대화가
+   * 열려버린다.
+   */
+  clearUnread: (roomId: number) => void
+  /**
+   * 다른 창이 보고 있는 방 목록을 갈아끼운다 — `lib/viewedRooms`의 구독이 부른다.
+   *
+   * **그 방들의 배지를 함께 0으로 만든다.** "보고 있는 방은 안 읽은 것이 없다"가
+   * 불변식이고, 두 값을 따로 두면 대화 창이 앞으로 나온 뒤에도 목록에 옛 숫자가
+   * 남는다.
+   */
+  setRoomsViewedElsewhere: (roomIds: number[]) => void
+  /**
+   * 지금 보고 있는 방의 메시지를 읽음으로 처리한다 — 대화 창이 포커스를 되찾을 때.
+   *
+   * 창이 뒤에 있는 동안 도착한 메시지는 읽음 처리를 미뤄 두었다가(아래
+   * `receiveMessage` 참조) 여기서 한 번에 밀어 올린다.
+   */
+  markCurrentRoomRead: () => void
   /** 그 방의 내 `ai_check_enabled`를 화면 상태에 반영한다 (FR-6.1). */
   setAiCheck: (roomId: number, enabled: boolean) => void
 
@@ -293,6 +332,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   rooms: [],
   unread: {},
+  // **로그아웃해도 비우지 않는다** (아래 `clearAuth` 참조). 이것은 사용자 데이터가
+  // 아니라 "지금 어떤 창이 무엇을 보고 있는가"라는 이 브라우저의 사실이다.
+  roomsViewedElsewhere: [],
   currentRoomId: null,
   messages: [],
   toasts: [],
@@ -385,6 +427,28 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return { rooms, unread: { ...state.unread, [room.id]: room.unread_count } }
     }),
 
+  clearUnread: (roomId) =>
+    set((state) => ({ unread: { ...state.unread, [roomId]: 0 } })),
+
+  setRoomsViewedElsewhere: (roomIds) =>
+    set((state) => ({
+      roomsViewedElsewhere: roomIds,
+      // 불변식: 보고 있는 방은 안 읽은 것이 없다. 대화 창이 앞으로 나온 순간
+      // 그동안 쌓인 배지도 함께 사라져야 한다 — 그 창이 읽음 처리까지 맡는다.
+      unread: roomIds.reduce(
+        (next, roomId) => (next[roomId] ? { ...next, [roomId]: 0 } : next),
+        state.unread,
+      ),
+    })),
+
+  markCurrentRoomRead: () => {
+    const state = get()
+    if (state.currentRoomId === null) return
+    const newest = state.messages.reduce((max, item) => (item.seq > max ? item.seq : max), 0)
+    set({ unread: { ...state.unread, [state.currentRoomId]: 0 } })
+    markReadQuietly(state.currentRoomId, newest)
+  },
+
   setAiCheck: (roomId, enabled) =>
     set((state) => ({
       rooms: state.rooms.map((room) => (room.id === roomId ? { ...room, ai_check_enabled: enabled } : room)),
@@ -394,15 +458,54 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const state = get()
 
     if (state.currentRoomId === message.room_id) {
-      // 보고 있는 방이다 — 목록에 넣고 읽음 위치를 전진시킨다 (BR-5.2).
-      // **토스트를 띄우지 않는다** (BR-5.9) — 이미 보고 있다.
-      set({
-        messages: mergeById([...state.messages, message]),
-        unread: { ...state.unread, [message.room_id]: 0 },
-      })
+      // 이 창이 띄운 방이다 — 목록에 넣는다. **토스트는 띄우지 않는다** (BR-5.9).
+      set({ messages: mergeById([...state.messages, message]) })
+
+      // **읽음 처리는 이 창을 실제로 보고 있을 때만** (BR-5.2).
+      //
+      // 창이 다른 창 뒤로 밀려 있으면 사용자는 이 메시지를 보지 못했다. 그런데도
+      // 읽음으로 밀어 올리면 두 가지가 어긋난다: 목록 창의 배지는 올라가 있는데
+      // 서버의 `last_read_seq`는 이미 끝까지 가 있어, 목록을 새로고침하는 순간
+      // 안 읽은 메시지가 조용히 사라진다.
+      //
+      // 미룬 몫은 창이 다시 앞으로 나올 때 `markCurrentRoomRead()`가 한 번에 민다.
+      if (!isViewing()) return
+
+      set((current) => ({ unread: { ...current.unread, [message.room_id]: 0 } }))
       markReadQuietly(message.room_id, message.seq)
       return
     }
+
+    // **내가 보낸 메시지는 세지 않는다.**
+    //
+    // 서버는 발신자에게도 브로드캐스트한다 (BR-5.8) — 다른 창·기기의 세션이
+    // 갱신되어야 하기 때문이고, 그 규칙 자체는 옳다. 하지만 그것은 **목록에 넣기
+    // 위한** 것이지 배지를 올리기 위한 것이 아니다. 안 읽은 개수는 "내가 아직 읽지
+    // 않은 남의 말"이고, 내가 방금 친 문장은 정의상 읽은 것이다.
+    //
+    // 대화를 새 창으로 열면서 드러났다. 그전에는 창이 하나뿐이라 발신자의 창이 곧
+    // 그 방을 보고 있는 창이었고(위 분기), 이 아래로 내려올 일이 없었다. 지금은
+    // 목록 창이 방 밖에 있어 자기 메시지가 여기로 온다.
+    //
+    // `user`가 아직 없으면(세션 복구 전) 남의 말로 친다 — 그 짧은 순간의 배지 하나가
+    // 내 말을 조용히 삼키는 것보다 낫다.
+    if (message.sender_id === state.auth.user?.id) return
+
+    // **다른 창이 그 방을 보고 있으면 세지 않는다** (`lib/openRooms`).
+    //
+    // 이 창은 목록만 보고 있어도 그 방을 여는 창이 따로 있다. 배지를 올리면
+    // 사용자는 **보고 있는 방인데 안 읽은 개수가 올라가는** 것을 본다.
+    //
+    // 읽음 처리는 그쪽 창이 한다 — 그 창의 `receiveMessage()`가 첫 분기로 들어가
+    // `markReadQuietly()`까지 부르므로 서버의 `last_read_seq`도 함께 전진한다.
+    // 여기서 다시 부르면 같은 요청이 두 번 나간다.
+    //
+    // 토스트도 함께 막힌다. 보고 있는 대화의 알림이 다른 창에 뜨면, 사용자는 이미
+    // 읽은 말을 알림으로 한 번 더 읽는다.
+    //
+    // **뒤로 밀린 대화 창은 이 목록에 없다** (`lib/viewedRooms`). 가려서 보이지도
+    // 않는 메시지를 읽은 것으로 치면 안 되므로, 그때는 아래로 내려가 배지가 오른다.
+    if (state.roomsViewedElsewhere.includes(message.room_id)) return
 
     // 보고 있지 않은 방이다 — 배지와 토스트 (BR-5.9).
     set({

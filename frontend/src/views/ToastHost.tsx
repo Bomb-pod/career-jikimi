@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 
 import { TOAST_TIMEOUT_MS } from '../lib/constants'
+import { openRoomWindow } from '../lib/roomWindow'
 import { useChatStore } from '../store/chatStore'
 
 /**
@@ -18,10 +19,11 @@ import { useChatStore } from '../store/chatStore'
  * 시간이 흐른다. 동시 표시 상한(3개)은 반대로 스토어의 몫이다 — 화면이 없어도
  * 큐가 무한히 자라면 안 된다.
  */
-export default function ToastHost({ onOpenRoom }: { onOpenRoom?: (roomId: number) => void }) {
+export default function ToastHost() {
   const toasts = useChatStore((state) => state.toasts)
   const dismissToast = useChatStore((state) => state.dismissToast)
   const enterRoom = useChatStore((state) => state.enterRoom)
+  const clearUnread = useChatStore((state) => state.clearUnread)
 
   useEffect(() => {
     if (toasts.length === 0) return
@@ -45,10 +47,16 @@ export default function ToastHost({ onOpenRoom }: { onOpenRoom?: (roomId: number
           className="toast"
           data-testid={`toast-${toast.roomId}`}
           onClick={() => {
-            // 클릭하면 그 방으로 이동하고 배지가 사라진다 (BR-5.9).
-            // `enterRoom()`이 그 방의 토스트도 함께 지운다.
-            void enterRoom(toast.roomId)
-            onOpenRoom?.(toast.roomId)
+            // 클릭하면 그 방이 **새 창으로** 열리고 배지가 사라진다 (BR-5.9).
+            // 목록에서 방을 누르는 것과 같은 동작이어야 한다 — 토스트만 같은 창에서
+            // 열리면 어디를 눌렀느냐에 따라 결과가 달라진다.
+            if (openRoomWindow(toast.roomId) === null) {
+              // 팝업 차단 시의 대체 경로. `enterRoom()`이 그 방의 토스트도 지운다.
+              void enterRoom(toast.roomId)
+            } else {
+              clearUnread(toast.roomId)
+            }
+            dismissToast(toast.id)
           }}
         >
           <span className="toast-room">{toast.roomName}</span>
