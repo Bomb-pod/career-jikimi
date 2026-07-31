@@ -6,15 +6,16 @@
 전 엔드포인트가 `current_user` 의존성을 요구한다 — 방은 참여자만 접근한다(BR-3.3).
 WebSocket 엔드포인트는 헤더를 쓸 수 없어 `ws.py`에 따로 있다 (FR-1.3, CON-4).
 
-**`POST /rooms/{id}/members`와 `DELETE /rooms/{id}/members/me`가 없는 것은 누락이
-아니다.** FR-10(Should)이 절단되었다 (`code-generation-plan.md` Step 7, 2026-07-30).
+**참여자 관리 두 엔드포인트는 2026-07-31에 복원되었다** (FR-10, Should). 2026-07-30에
+일정 때문에 절단했다가(`code-generation-plan.md` Step 7) 절단 사유였던 U5 압박이
+사라져 되살렸다.
 """
 
 from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, status
+from fastapi import APIRouter, Depends, Path, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.service import current_user
@@ -22,6 +23,7 @@ from app.core.db import get_session
 from app.models import User
 from app.rooms import service
 from app.rooms.schemas import (
+    AddMemberRequest,
     AiCheckRequest,
     AiCheckResponse,
     CreateRoomRequest,
@@ -121,6 +123,62 @@ async def mark_read(
     """
     last_read_seq = await service.mark_read(session, caller.id, room_id, payload.up_to_seq)
     return MarkReadResponse(last_read_seq=last_read_seq)
+
+
+@router.post(
+    "/rooms/{room_id}/members",
+    response_model=RoomDetailResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="기존 방에 친구 추가 (FR-10.1)",
+    responses={
+        400: {
+            "description": (
+                "`ALREADY_MEMBER` — 이미 참여 중 (BR-10.1) / "
+                "`NOT_A_FRIEND` — 호출자의 친구가 아님 (BR-3.2)"
+            )
+        },
+        **_FORBIDDEN_RESPONSE,
+    },
+)
+async def add_member(
+    payload: AddMemberRequest, session: SessionDep, caller: CurrentUser, room_id: RoomId
+) -> RoomDetailResponse:
+    """방에 친구 한 명을 추가한다 — FR-10.1.
+
+    **응답이 `GET /rooms/{id}`와 같은 모양이다.** `POST /rooms`가 이미 그 규약이며,
+    화면이 참여자 목록을 다시 부르지 않고 바로 갱신할 수 있다.
+
+    **초대하는 사람도 참여자여야 한다** (BR-3.3). 방장 개념이 없으므로 참여자면
+    누구나 초대할 수 있다 — `rooms.created_by`는 기록이지 권한이 아니다.
+    """
+    await service.add_member(session, caller.id, room_id, payload.friend_user_id)
+    detail = await service.get_room_detail(session, caller.id, room_id)
+    return RoomDetailResponse.model_validate(detail)
+
+
+@router.delete(
+    "/rooms/{room_id}/members/me",
+    status_code=status.HTTP_204_NO_CONTENT,
+    # **204에는 본문이 없다.** 두 인자를 다 적어야 한다 — `-> None` 반환 표기만으로는
+    # FastAPI가 응답 모델을 만들어 두고 "204는 본문을 가질 수 없다"며 등록 시점에
+    # 터진다. `response_class`는 그 위에서 JSON 직렬화 자체를 끈다.
+    response_model=None,
+    response_class=Response,
+    summary="방에서 나가기 (FR-10.2)",
+    responses=_FORBIDDEN_RESPONSE,
+)
+async def leave_room(session: SessionDep, caller: CurrentUser, room_id: RoomId) -> Response:
+    """방에서 나간다 — FR-10.2.
+
+    **경로가 `/members/me`다.** 남을 내보내는 기능은 없으며, 경로에 대상 id를 받지
+    않는 것이 그 사실을 구조로 못박는다 — 받아두면 "본인만"이라는 검사를 어딘가에서
+    빠뜨리는 날 남을 내보낼 수 있게 된다.
+
+    **204다.** 돌려줄 방 상태가 없다 — 호출자는 방금 그 방에서 빠졌고, 상세를 주면
+    참여자가 아닌 사람에게 방 내용을 주는 셈이 된다.
+    """
+    await service.leave_room(session, caller.id, room_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.patch(

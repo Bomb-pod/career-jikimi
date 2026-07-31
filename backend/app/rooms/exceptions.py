@@ -57,11 +57,12 @@ class RoomForbidden(Forbidden):
 class AlreadyMember(ValidationFailed):
     """이미 참여 중인 사용자를 다시 추가했다 — BR-10.1, 400.
 
-    **이 예외를 던지는 곳은 아직 없다.** 유일한 발생 지점인 `add_member()`가
-    FR-10(Should)과 함께 절단되었기 때문이다
-    (`code-generation-plan.md` Step 7, 2026-07-30). 규칙과 응답 코드는 이미
-    확정되어 있으므로 자리를 남겨둔다 — FR-10을 되살릴 때 `service.add_member()`와
-    라우터만 추가하면 되고 오류 규약을 다시 정하지 않는다.
+    `service.add_member()`가 유일한 발생 지점이다. 2026-07-30에 FR-10과 함께
+    절단되어 한동안 던지는 곳이 없었고, 그때도 이 클래스를 지우지 않고 남겨 둔 덕에
+    2026-07-31의 복원에서 오류 규약을 다시 정하지 않아도 됐다.
+
+    **어떤 대상이 문제인지 응답에 담지 않는다.** 담으면 임의의 id를 넣어보며 그 방의
+    참여자 명단을 탐색할 수 있다 — `NotAFriend`가 같은 이유로 같은 모양이다.
     """
 
     status_code = status.HTTP_400_BAD_REQUEST

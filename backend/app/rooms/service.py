@@ -30,7 +30,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.friends.service import list_friends, resolve_display_names
 from app.models import Message, Room, RoomMember
-from app.rooms.exceptions import EmptyRoom, NotAFriend, RoomForbidden
+from app.rooms.exceptions import AlreadyMember, EmptyRoom, NotAFriend, RoomForbidden
 
 logger = logging.getLogger(__name__)
 
@@ -394,6 +394,112 @@ async def set_ai_check(session: AsyncSession, user_id: int, room_id: int, enable
         .values(ai_check_enabled=enabled)
     )
     return enabled
+
+
+# --------------------------------------------------------------------------
+# FR-10 · 참여자 관리 (Should)
+# --------------------------------------------------------------------------
+# 이 절은 `code-generation-plan.md` Step 7이다. 2026-07-30에 절단되었다가
+# 2026-07-31에 복원되었다 — 절단 사유(U5에 시간을 돌려준다)가 U5 완료로 사라졌다.
+#
+# **새 규칙을 만들지 않는다.** 친구 확인은 `_require_all_friends()`, 참여자 INSERT는
+# `_insert_members()`를 그대로 쓴다. 두 함수가 BR-3.2와 BR-6.2의 단일 출처이며,
+# 여기서 같은 판단을 다시 쓰면 한쪽만 바뀌는 날 방 생성과 초대의 규칙이 갈라진다.
+async def add_member(
+    session: AsyncSession, caller_id: int, room_id: int, friend_user_id: int
+) -> None:
+    """기존 방에 친구 한 명을 추가한다 — FR-10.1.
+
+    Args:
+        session: 요청 단위 세션. 커밋은 `get_session()`이 한다.
+        caller_id: 초대하는 사람. **그 방의 참여자여야 한다.**
+        room_id: 대상 방.
+        friend_user_id: 초대 대상. `caller_id`의 친구여야 한다.
+
+    Raises:
+        RoomForbidden: 호출자가 참여자가 아니거나 방이 없다 (BR-3.3, 403).
+        AlreadyMember: 대상이 이미 참여 중이다 (BR-10.1, 400).
+        NotAFriend: 대상이 호출자의 친구가 아니다 (BR-3.2, 400).
+
+    **판정 순서가 403 → ALREADY_MEMBER → NOT_A_FRIEND다.**
+
+    403이 먼저인 것은 다른 검사가 방의 내용을 건드리기 때문이다 — 참여자가 아닌
+    사람에게 `ALREADY_MEMBER`를 주면 그 방에 누가 있는지 확인해주는 셈이 된다.
+
+    `ALREADY_MEMBER`가 `NOT_A_FRIEND`보다 먼저인 이유는 **정확한 사유를 주기
+    위해서다.** 이 시점의 호출자는 이미 참여자이므로 W3으로 참여자 명단 전체를 볼 수
+    있고, 따라서 "이미 있다"는 답은 새로운 정보를 흘리지 않는다. 반대로 친구 검사를
+    먼저 두면, 나중에 들어온 참여자(내 친구가 아닐 수 있다 — BR-3.2가 초대자 기준이라
+    참여자끼리는 친구가 아닐 수 있다)를 다시 추가할 때 `NOT_A_FRIEND`가 나가
+    사용자가 원인을 잘못 읽는다. FR-10.1의 둘째 수용 기준도 친구 여부를 조건으로
+    달지 않는다.
+
+    **`last_read_seq`는 0으로 시작한다** (`_insert_members()`, BR-6.2). 방에 이미
+    메시지 50개가 있으면 추가된 사람의 배지가 50이 된다. 그것이 사실이다 — 그 사람은
+    아직 아무것도 읽지 않았고 히스토리는 볼 수 있다. `rooms.last_seq`로 맞춰 배지를
+    0으로 만드는 선택도 있으나, 그러면 FR-10.1의 "추가된 참여자의 방 목록에 그 방이
+    나타난다"가 화면에서 눈에 띄지 않게 된다. `RoomMember`의 생애주기 주석이 이미
+    "나갔다 다시 초대되면 기본값으로 돌아간다"고 못박아 두었다.
+    """
+    if await get_membership(session, caller_id, room_id) is None:
+        logger.info("참여자가 아닌 방에 초대 시도 (caller_id=%s, room_id=%s)", caller_id, room_id)
+        raise RoomForbidden("이 방에 접근할 권한이 없습니다")
+
+    if await get_membership(session, friend_user_id, room_id) is not None:
+        raise AlreadyMember("이미 이 방에 참여 중인 사용자입니다")
+
+    await _require_all_friends(session, caller_id, [friend_user_id])
+    await _insert_members(session, room_id, [friend_user_id])
+
+    logger.info("방에 참여자를 추가했습니다 (room_id=%s, user_id=%s)", room_id, friend_user_id)
+
+
+async def leave_room(session: AsyncSession, caller_id: int, room_id: int) -> None:
+    """방에서 나간다 — FR-10.2.
+
+    Raises:
+        RoomForbidden: 참여자가 아니거나 방이 없다 (BR-3.3, 403).
+
+    **행을 지우는 것이 전부다** (BR-10.2). 브로드캐스트 대상은 `member_user_ids()`가
+    **매 전송마다** 조회하므로, 이 DELETE 하나로 "새 메시지를 받지 않는다"가 성립한다.
+    그 함수가 결과를 캐시했다면 여기서 캐시 무효화를 함께 해야 했고, 빠뜨리는 날
+    나간 사람에게 계속 전송되는 조용한 정보 유출이 됐을 것이다.
+
+    방 목록에서 사라지는 것도 같은 이유다 — `list_rooms()`가 `room_members`에서
+    출발한다.
+
+    **마지막 참여자가 나가도 방을 지우지 않는다.** `create_room()`이 경계하는 "유령
+    방"과 겉모습이 같지만 성격이 다르다:
+
+    - 그쪽은 **메시지가 없는** 방이 트랜잭션 분리로 생기는 결함이다
+    - 이쪽은 **메시지와 판정 로그가 이미 쌓인** 방이 정상 경로로 비는 것이다
+
+    지우려면 `messages`와 `judgment_logs`를 함께 지워야 하는데(FK가 RESTRICT다),
+    그것은 이 프로젝트가 모으려는 실험 데이터 자체다 — FR-7의 지표와 오프라인 재판정이
+    그 행들을 읽는다. 사용자 눈에서 사라지는 것으로 FR-10.2는 충족되고, 데이터는
+    남는다. 되살릴 수단이 없다는 점은 경고 로그로 남긴다.
+    """
+    if await get_membership(session, caller_id, room_id) is None:
+        raise RoomForbidden("이 방에 접근할 권한이 없습니다")
+
+    await session.execute(
+        sa.delete(RoomMember).where(
+            RoomMember.room_id == room_id,
+            # ← 자기 행만. 이 줄을 빼면 방 전체가 비워진다.
+            RoomMember.user_id == caller_id,
+        )
+    )
+
+    remaining = await session.scalar(
+        sa.select(sa.func.count()).select_from(RoomMember).where(RoomMember.room_id == room_id)
+    )
+    if not remaining:
+        logger.warning(
+            "마지막 참여자가 나가 방이 비었습니다 — 아무도 다시 들어올 수 없습니다 "
+            "(room_id=%s). 메시지와 판정 로그는 남습니다",
+            room_id,
+        )
+    logger.info("방에서 나갔습니다 (room_id=%s, user_id=%s)", room_id, caller_id)
 
 
 # --------------------------------------------------------------------------
