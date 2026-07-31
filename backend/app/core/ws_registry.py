@@ -2,110 +2,94 @@
 
 공개 표면 (`inception/application-design/components.md` § core/ws_registry):
 
-    register(user_id, ws)          — 등록. 기존 연결은 교체한다 (BR-5.4)
+    register(user_id, ws)          — 등록. **기존 연결과 나란히 둔다**
     unregister(user_id, ws=None)   — 해제. 없어도 조용히 통과한다
-    push_to_users(user_ids, load)  — 연결된 사용자에게만 밀어낸다 (BR-5.7)
+    push_to_users(user_ids, load)  — 연결된 사용자의 **모든** 소켓에 밀어낸다 (BR-5.7)
 
 **표면을 좁게 유지하는 것이 이 모듈의 설계다.** 이 딕셔너리가 확장의 병목이자
 유일한 교체 지점이다 — Redis pub/sub으로 바꾸면 멀티 워커가 가능해진다. 함수가
 셋뿐이면 그 교체가 이 파일 안에서 끝난다.
+
+## 사용자당 여러 연결 (2026-07-31 변경, 이전 BR-5.4를 대체)
+
+원래는 **사용자당 1개**였다. 두 번째 연결이 오면 첫 번째에 `session_replaced`를
+보내고 닫았다 — 한 사람이 여러 탭을 열면 앞 탭이 조용히 죽는 것을 막기 위한
+장치였고, 그때는 화면이 하나뿐이라 그 가정이 맞았다.
+
+지금은 방을 **새 창으로 연다.** 목록 창과 대화 창이 동시에 살아 있어야 하고,
+방 여러 개를 나란히 띄우는 것도 정상 사용이다. 연결을 하나로 묶으면 창을 열
+때마다 앞 창이 죽어 그 사용법 자체가 성립하지 않는다.
+
+그래서 값을 `set[WebSocket]`으로 바꿨다. 바뀐 것과 바뀌지 않은 것:
+
+| | 이전 | 지금 |
+|---|---|---|
+| 두 번째 연결 | 첫 번째를 닫음 | 나란히 유지 |
+| `session_replaced` | 보냄 | **보내지 않는다** |
+| 브로드캐스트 | 소켓 1개 | 그 사용자의 **전 소켓** |
+| 죽은 소켓 | 전송 중 감지해 제거 | 같음 |
+
+**중복 수신은 문제가 아니다.** 같은 메시지가 창 두 개에 각각 도착하며, 각 창은
+자기 목록에 대해 메시지 ID로 중복을 접는다(BR-5.8이 이미 발신자 본인에게도
+푸시하기로 정해 둔 것과 같은 이유다).
+
+**`session_replaced` 프레임은 더 이상 나가지 않는다.** 클라이언트(`wsClient.ts`)는
+그 프레임을 여전히 처리할 줄 알지만 받을 일이 없다 — 서버를 되돌리는 날 그쪽을
+함께 고치지 않아도 되도록 남겨 둔다.
 
 **이것이 CON-1(단일 프로세스)의 원인이다.** 워커를 늘리면 각 워커가 자기 레지스트리를
 갖고, 다른 워커에 붙은 사용자에게 보낼 수 없다. `docker-entrypoint.sh`가
 `--workers 1`로 고정하는 이유가 여기 있다 (FR-9.4).
 
 **잠금이 없는 이유** — 단일 프로세스 + asyncio 단일 스레드다. 아래 함수들은 `await`
-사이에서 딕셔너리를 읽고 쓰지만, 그 사이에 다른 코루틴이 끼어들어도 각 연산
-자체(`dict.get`·`dict.__setitem__`·`dict.pop`)는 원자적이다. 끼어듦이 실제로 의미를
-갖는 지점은 `unregister()`의 **소유권 확인** 하나이며, 그것을 아래에서 명시적으로
-다룬다.
+사이에서 자료구조를 읽고 쓰지만, 각 연산 자체(`set.add`·`set.discard`)는 원자적이다.
+`push_to_users()`가 **집합의 사본을 순회하는 것**이 유일한 주의 지점이며, 그것을
+아래에서 명시적으로 다룬다.
 
-대응: FR-5.1, BR-5.4, BR-5.7, BR-5.8, CON-1.
+대응: FR-5.1, BR-5.7, BR-5.8, CON-1.
 """
 
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import Any
 
-from fastapi import WebSocket, status
-
-#: 밀려난 연결의 `close()`를 기다려 주는 상한 (초).
-#:
-#: `close()`는 close 핸드셰이크가 끝날 때까지 기다린다. 정상 브라우저는 즉시
-#: 응답하지만(실측 0.0초), 멈춘 탭이나 끊긴 네트워크는 응답하지 않아 uvicorn의
-#: 기본 상한인 **10초**를 그대로 기다린다 — 그동안 새 탭의 `auth_ok`가 나가지
-#: 못한다. 레지스트리는 이 시점에 이미 새 소켓으로 교체됐고 `session_replaced`도
-#: 이미 전달된 뒤라 기다릴 이유가 없다. 1초는 정상 응답에는 충분히 넉넉하고
-#: 비협조적 상대에게는 새 연결을 붙잡아 두지 않는 값이다.
-EVICTED_CLOSE_TIMEOUT_SECONDS = 1.0
+from fastapi import WebSocket
 
 logger = logging.getLogger(__name__)
 
-#: `user_id -> 소켓`. **프로세스 메모리에만 있다.**
+#: `user_id -> 그 사용자의 소켓들`. **프로세스 메모리에만 있다.**
 #:
 #: 수명은 프로세스 수명이다 — 재시작하면 전부 사라지고 클라이언트가 재연결해
 #: 복구한다. 그 사이 메시지는 다음 입장 시 히스토리로 받으므로 유실이 아니다.
 #:
-#: **사용자당 1개다** (FR-5.1). 두 번째 연결이 오면 첫 번째를 교체한다.
-_connections: dict[int, WebSocket] = {}
+#: **빈 집합을 남기지 않는다.** 마지막 소켓이 빠지면 키까지 지운다 — 남겨두면
+#: `is_connected()`가 아무도 없는 사용자에게 참을 준다.
+_connections: dict[int, set[WebSocket]] = {}
 
-#: 밀려난 연결에 보내는 프레임의 `type`. 클라이언트는 이 프레임을 받으면
-#: 재연결하지 않는다 (BR-5.5).
+#: 밀려난 연결에 보내던 프레임. **이제 서버는 보내지 않는다** (위 § 참조).
+#: 클라이언트가 아직 이 타입을 처리하므로 규약의 기록으로 남긴다.
 SESSION_REPLACED_FRAME: dict[str, str] = {"type": "session_replaced"}
 
 
 async def register(user_id: int, ws: WebSocket) -> None:
-    """사용자의 연결을 등록한다. 기존 연결이 있으면 교체한다 (BR-5.4, FR-5.1).
+    """사용자의 연결을 등록한다 (FR-5.1).
 
     Args:
         user_id: `verify_token()`이 해석한 사용자 id. **인증 후에만 부른다.**
         ws: 이미 `accept()`된 소켓.
 
-    **`session_replaced` 프레임을 보낸 뒤에 닫는 순서가 이 함수의 핵심이다.**
-    그냥 닫으면 밀려난 탭이 네트워크 오류로 오인해 재연결을 시도하고, 두 탭이 서로를
-    밀어내는 순환이 생긴다. 프레임이 그 순환을 끊는 신호다.
-
-    **프레임 전송과 닫기가 실패해도 교체는 진행한다.** 기존 소켓이 이미 죽어 있는
-    경우가 그렇다 — 그때 예외를 올리면 새 연결이 등록되지 못하고, 사용자는 죽은
-    소켓 때문에 영영 붙지 못한다. 실패는 로그로만 남긴다(조용히 삼키지 않는다).
+    **기존 연결을 닫지 않는다.** 같은 사용자의 창이 여럿 살아 있는 것이 정상이며,
+    그것이 방을 새 창으로 여는 사용법의 전제다. 같은 소켓을 두 번 등록해도
+    집합이라 한 번만 들어간다.
     """
-    existing = _connections.get(user_id)
-
-    # 먼저 새 연결을 등록한다. 아래 `close()`가 밀려난 쪽 핸들러의 `finally`를
-    # 깨우는데, 그 핸들러가 `unregister()`를 부르기 전에 새 소켓이 자리에 있어야
-    # 소유권 확인(아래 `unregister` 참조)이 올바르게 동작한다.
-    _connections[user_id] = ws
-
-    if existing is None or existing is ws:
-        return
-
-    logger.info("기존 WebSocket 연결을 교체합니다 (user_id=%s)", user_id)
-    try:
-        await existing.send_json(SESSION_REPLACED_FRAME)
-    except Exception:
-        # 이미 죽은 소켓이다. 알릴 대상이 없을 뿐이므로 교체를 막지 않는다.
-        logger.info("밀려난 연결에 session_replaced를 보내지 못했습니다 (user_id=%s)", user_id)
-
-    try:
-        # 상한을 건다 — 위 상수의 근거 참조. 시간이 지나면 그냥 넘어간다:
-        # 소켓은 핸들러의 finally와 TCP 타임아웃이 결국 정리하고, 그 정리는
-        # 소유권 확인 때문에 새 연결을 건드리지 못한다 (`unregister` 참조).
-        await asyncio.wait_for(
-            existing.close(code=status.WS_1000_NORMAL_CLOSURE),
-            timeout=EVICTED_CLOSE_TIMEOUT_SECONDS,
-        )
-    except TimeoutError:
-        # 밀려난 상대가 close 핸드셰이크에 응답하지 않는다. 새 연결을 더 붙잡지 않는다.
-        logger.info(
-            "밀려난 연결이 %.1f초 안에 닫히지 않아 기다리지 않고 진행합니다 (user_id=%s)",
-            EVICTED_CLOSE_TIMEOUT_SECONDS,
-            user_id,
-        )
-    except Exception:
-        # 상대가 먼저 끊었거나 이미 닫혀 있다. 레지스트리에서는 이미 빠졌다.
-        logger.info("밀려난 연결을 닫지 못했습니다 (user_id=%s)", user_id)
+    sockets = _connections.setdefault(user_id, set())
+    sockets.add(ws)
+    logger.info(
+        "WebSocket 연결을 등록했습니다 (user_id=%s, 이 사용자의 연결 %d개)",
+        user_id,
+        len(sockets),
+    )
 
 
 async def unregister(user_id: int, ws: WebSocket | None = None) -> None:
@@ -113,45 +97,54 @@ async def unregister(user_id: int, ws: WebSocket | None = None) -> None:
 
     Args:
         user_id: 해제할 사용자.
-        ws: 해제를 요청하는 소켓. **주면 그 소켓이 현재 등록된 것일 때만 지운다.**
+        ws: 해제를 요청하는 소켓. **주면 그 소켓 하나만 뺀다.** 생략하면 그
+            사용자의 연결을 전부 뺀다(진단·정리용이며 핸들러는 쓰지 않는다).
 
-    `ws`가 왜 있는가 — `component-methods.md`의 서명은 `unregister(user_id)`이고
-    그 호출은 지금도 유효하다. 선택 인자를 더한 것은 **밀려난 연결의 정리가 새
-    연결을 지우는 사고**를 막기 위해서다:
-
-        탭 A 연결 → register(1, A)
-        탭 B 연결 → register(1, B)  → A에 session_replaced 후 닫음
-        A의 핸들러가 깨어나 finally → unregister(1)  ← 여기서 B가 지워진다
-
-    id만 보고 지우면 방금 붙은 B가 사라지고, B는 자기가 등록되어 있다고 믿은 채
-    아무 메시지도 받지 못한다. 소켓 동일성을 확인하면 A의 정리는 아무 일도 하지
-    않는다. WebSocket 핸들러는 **반드시 자기 소켓을 함께 넘긴다.**
+    **WebSocket 핸들러는 반드시 자기 소켓을 함께 넘긴다.** id만 보고 전부 지우면
+    한 창을 닫았을 때 다른 창의 연결까지 레지스트리에서 사라지고, 그 창은 자기가
+    등록되어 있다고 믿은 채 아무 메시지도 받지 못한다. 사용자당 소켓이 하나였을
+    때는 "밀려난 연결의 뒤늦은 정리"가 이 사고의 경로였고, 여러 개인 지금은 창을
+    닫는 평범한 동작이 그 경로다 — 이 인자가 그때보다 더 중요해졌다.
     """
-    current = _connections.get(user_id)
-    if current is None:
+    sockets = _connections.get(user_id)
+    if sockets is None:
         return
-    if ws is not None and current is not ws:
-        # 이미 다른 연결로 교체되었다 — 밀려난 쪽의 뒤늦은 정리다. 지우지 않는다.
-        logger.debug("교체된 연결의 정리 요청을 무시합니다 (user_id=%s)", user_id)
+
+    if ws is None:
+        del _connections[user_id]
+        logger.info("WebSocket 연결을 전부 해제했습니다 (user_id=%s)", user_id)
         return
-    del _connections[user_id]
-    logger.info("WebSocket 연결을 해제했습니다 (user_id=%s)", user_id)
+
+    sockets.discard(ws)
+    if not sockets:
+        # 빈 집합을 남기지 않는다 — `is_connected()`가 참을 주게 된다.
+        del _connections[user_id]
+    logger.info(
+        "WebSocket 연결을 해제했습니다 (user_id=%s, 남은 연결 %d개)",
+        user_id,
+        len(sockets),
+    )
 
 
 async def push_to_users(user_ids: list[int], payload: dict[str, Any]) -> None:
-    """연결된 사용자에게만 프레임을 밀어낸다 (BR-5.7).
+    """연결된 사용자의 **모든** 소켓에 프레임을 밀어낸다 (BR-5.7).
 
     Args:
-        user_ids: 대상 사용자 id 목록. **발신자를 포함한다** (BR-5.8) — 다른 탭·기기의
+        user_ids: 대상 사용자 id 목록. **발신자를 포함한다** (BR-5.8) — 다른 창·기기의
             세션도 갱신되어야 한다. 중복은 클라이언트가 메시지 ID로 제거한다.
         payload: 그대로 JSON 직렬화되는 프레임. 봉투 모양은 `services.md`가 정한다.
 
     **연결이 없는 사용자는 조용히 건너뛴다 — 오류가 아니다.** 오프라인일 뿐이며 그
     사용자는 다음 입장 시 히스토리로 받는다. 미전송 큐를 만들지 않는다.
 
-    **`try`가 루프 안에 있다.** 밖에 두면 소켓 하나의 실패가 나머지 참여자의 수신을
-    막는다 — 그것이 이 함수에서 가장 틀리기 쉬운 지점이다. 전송 중 죽은 소켓은
-    레지스트리에서 빼고 **나머지에게 계속 보낸다.**
+    **`try`가 안쪽 루프 안에 있다.** 밖에 두면 소켓 하나의 실패가 나머지 참여자의,
+    나아가 같은 사용자의 다른 창의 수신까지 막는다 — 그것이 이 함수에서 가장 틀리기
+    쉬운 지점이다. 전송 중 죽은 소켓은 레지스트리에서 빼고 **나머지에게 계속 보낸다.**
+
+    **집합의 사본(`list(...)`)을 순회한다.** 아래 `unregister()`가 순회 중인 그
+    집합에서 원소를 지우므로, 원본을 그대로 돌면 `RuntimeError: Set changed size
+    during iteration`이 난다 — 소켓이 죽은 순간에만 나타나는 실패라 평시 테스트로는
+    드러나지 않는다.
 
     예외를 넓게 잡는 이유 — 끊긴 소켓에서 나오는 예외 종류가 상황마다 다르다
     (`WebSocketDisconnect`, ASGI 상태 위반의 `RuntimeError`, 드라이버 수준의
@@ -160,24 +153,30 @@ async def push_to_users(user_ids: list[int], payload: dict[str, Any]) -> None:
     # 같은 사용자가 두 번 들어오면 프레임도 두 번 간다 — 중복 제거는 발신 쪽의 몫이다.
     # `dict.fromkeys`는 순서를 보존한다(참여자 순서대로 도착하게 한다).
     for user_id in dict.fromkeys(user_ids):
-        ws = _connections.get(user_id)
-        if ws is None:
+        sockets = _connections.get(user_id)
+        if not sockets:
             continue
-        try:
-            await ws.send_json(payload)
-        except Exception:
-            logger.info("전송 중 소켓이 죽어 연결을 해제합니다 (user_id=%s)", user_id)
-            await unregister(user_id, ws)
+        for ws in list(sockets):
+            try:
+                await ws.send_json(payload)
+            except Exception:
+                logger.info("전송 중 소켓이 죽어 연결을 해제합니다 (user_id=%s)", user_id)
+                await unregister(user_id, ws)
 
 
 def is_connected(user_id: int) -> bool:
-    """그 사용자의 연결이 등록되어 있는지. 진단과 테스트용 읽기 전용 조회다."""
-    return user_id in _connections
+    """그 사용자의 연결이 하나라도 등록되어 있는지. 진단과 테스트용 읽기 전용 조회다."""
+    return bool(_connections.get(user_id))
 
 
 def connection_count() -> int:
-    """등록된 연결 수. 진단과 테스트용."""
-    return len(_connections)
+    """등록된 **소켓** 총 개수. 사용자 수가 아니다. 진단과 테스트용."""
+    return sum(len(sockets) for sockets in _connections.values())
+
+
+def connection_count_for(user_id: int) -> int:
+    """그 사용자의 소켓 개수. 여러 창이 나란히 붙어 있는지 확인하는 데 쓴다."""
+    return len(_connections.get(user_id, ()))
 
 
 def clear() -> None:
@@ -193,6 +192,7 @@ __all__ = [
     "SESSION_REPLACED_FRAME",
     "clear",
     "connection_count",
+    "connection_count_for",
     "is_connected",
     "push_to_users",
     "register",

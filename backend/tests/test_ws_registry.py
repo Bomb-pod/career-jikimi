@@ -88,14 +88,17 @@ async def test_unregister_of_an_unknown_user_is_silent() -> None:
 
 
 # --------------------------------------------------------------------------
-# 사용자당 1개 (BR-5.4)
+# 사용자당 여러 연결 (2026-07-31, 이전 BR-5.4를 대체)
+#
+# 방을 새 창으로 열면 목록 창과 대화 창이 동시에 살아 있어야 한다. 이전 규칙은
+# 두 번째 연결이 첫 번째를 닫았고, 그러면 창을 열 때마다 앞 창이 죽어 그 사용법
+# 자체가 성립하지 않는다.
 # --------------------------------------------------------------------------
-async def test_second_connection_sends_session_replaced_before_closing() -> None:
-    """**BR-5.4의 핵심** — 밀려난 연결에 프레임을 보낸 **뒤** 닫는다.
+async def test_second_connection_does_not_close_the_first() -> None:
+    """**이 파일에서 가장 중요한 한 줄** — 두 번째 연결이 첫 번째를 닫지 않는다.
 
-    그냥 닫으면 밀려난 탭이 네트워크 오류로 오인해 재연결하고, 두 탭이 서로를
-    밀어내는 순환이 생긴다. `closed_after`가 전송 개수를 기억하므로 순서를
-    사후에 판정할 수 있다.
+    이전에는 여기서 `session_replaced`를 보내고 닫았다. 그 동작이 남아 있으면
+    사용자가 방을 새 창으로 여는 순간 목록 창이 죽는다.
     """
     first = FakeSocket()
     second = FakeSocket()
@@ -103,64 +106,103 @@ async def test_second_connection_sends_session_replaced_before_closing() -> None
     await ws_registry.register(1, _as_socket(first))
     await ws_registry.register(1, _as_socket(second))
 
-    assert first.sent == [{"type": "session_replaced"}]
-    assert first.closed
-    # 닫힌 시점에 이미 1개를 보낸 상태였다 = 프레임이 먼저다.
-    assert first.closed_after == 1
-    # 새 연결은 닫히지 않고 자리를 차지한다.
+    assert not first.closed
     assert not second.closed
-    assert ws_registry.connection_count() == 1
+    # **프레임을 보내지 않는다.** 밀려난 연결이라는 개념 자체가 없어졌다.
+    assert first.sent == []
+    assert ws_registry.connection_count() == 2
+    assert ws_registry.connection_count_for(1) == 2
 
 
-async def test_replaced_socket_cleanup_does_not_evict_the_new_connection() -> None:
-    """밀려난 연결의 뒤늦은 정리가 **새 연결을 지우지 않는다.**
+async def test_broadcast_reaches_every_window_of_the_same_user() -> None:
+    """한 사용자의 **모든** 소켓이 같은 프레임을 받는다.
 
-    실제 순서가 그렇다 — B가 붙어 A를 닫으면, A의 핸들러가 그제서야 깨어나
-    `finally`에서 `unregister()`를 부른다. id만 보고 지우면 방금 붙은 B가 사라지고
-    B는 자기가 등록된 줄 알면서 아무 메시지도 받지 못한다.
+    목록 창은 배지를, 대화 창은 말풍선을 그려야 한다 — 둘 중 하나만 받으면 어느
+    한쪽이 갱신되지 않는다. 중복은 각 창이 메시지 ID로 접는다(BR-5.8과 같은 이유).
     """
-    first = FakeSocket()
-    second = FakeSocket()
-    await ws_registry.register(1, _as_socket(first))
-    await ws_registry.register(1, _as_socket(second))
+    list_window = FakeSocket()
+    chat_window = FakeSocket()
+    await ws_registry.register(1, _as_socket(list_window))
+    await ws_registry.register(1, _as_socket(chat_window))
 
-    # 밀려난 A의 핸들러가 뒤늦게 정리한다.
-    await ws_registry.unregister(1, _as_socket(first))
+    await ws_registry.push_to_users([1], {"type": "message", "room_id": 7})
+
+    assert list_window.sent == [{"type": "message", "room_id": 7}]
+    assert chat_window.sent == [{"type": "message", "room_id": 7}]
+
+
+async def test_closing_one_window_keeps_the_others_connected() -> None:
+    """창 하나를 닫아도 나머지 창은 계속 받는다.
+
+    `unregister()`가 소켓을 보지 않고 user_id만 보면 여기서 전부 지워지고, 남은
+    창들은 자기가 등록된 줄 알면서 아무 메시지도 받지 못한다. 사용자당 소켓이
+    하나였을 때는 드문 경합이었지만 지금은 **창을 닫는 평범한 동작**이 이 경로다.
+    """
+    closing = FakeSocket()
+    staying = FakeSocket()
+    await ws_registry.register(1, _as_socket(closing))
+    await ws_registry.register(1, _as_socket(staying))
+
+    await ws_registry.unregister(1, _as_socket(closing))
 
     assert ws_registry.is_connected(1)
+    assert ws_registry.connection_count_for(1) == 1
     await ws_registry.push_to_users([1], {"type": "message"})
-    assert second.sent == [{"type": "message"}]
+    assert staying.sent == [{"type": "message"}]
+    assert closing.sent == []
 
 
-async def test_replacement_proceeds_even_if_the_old_socket_is_already_dead() -> None:
-    """기존 소켓이 이미 죽어 있어도 새 연결은 등록된다.
+async def test_last_window_closing_leaves_no_phantom_connection() -> None:
+    """마지막 소켓이 빠지면 그 사용자는 **연결 없음**이 된다.
 
-    여기서 예외가 올라가면 사용자는 죽은 소켓 때문에 영영 붙지 못한다.
+    빈 집합을 남겨두면 `is_connected()`가 아무도 없는 사용자에게 참을 주고,
+    브로드캐스트가 매번 빈 집합을 훑는다.
+    """
+    only = FakeSocket()
+    await ws_registry.register(1, _as_socket(only))
+
+    await ws_registry.unregister(1, _as_socket(only))
+
+    assert not ws_registry.is_connected(1)
+    assert ws_registry.connection_count() == 0
+    assert ws_registry.connection_count_for(1) == 0
+
+
+async def test_a_dead_socket_does_not_block_a_new_one() -> None:
+    """이미 죽은 소켓이 있어도 새 연결은 등록되고 정상 소켓은 받는다.
+
+    죽은 쪽은 전송 시점에 감지되어 빠진다.
     """
     dead = FakeSocket(dead=True)
     fresh = FakeSocket()
 
     await ws_registry.register(1, _as_socket(dead))
     await ws_registry.register(1, _as_socket(fresh))
+    assert ws_registry.connection_count_for(1) == 2
 
-    assert ws_registry.connection_count() == 1
     await ws_registry.push_to_users([1], {"type": "message"})
+
     assert fresh.sent == [{"type": "message"}]
+    # 죽은 소켓은 전송 실패로 드러나 레지스트리에서 빠진다.
+    assert ws_registry.connection_count_for(1) == 1
 
 
-async def test_registering_the_same_socket_twice_does_not_close_it() -> None:
-    """같은 소켓을 두 번 등록해도 자기 자신을 밀어내지 않는다.
+async def test_registering_the_same_socket_twice_counts_once() -> None:
+    """같은 소켓을 두 번 등록해도 하나다 — 집합이라 중복이 접힌다.
 
-    경계 사례다. 동일성 확인이 없으면 재등록이 곧 자기 연결을 끊는 일이 된다.
+    접히지 않으면 그 소켓에 프레임이 두 번 가고, 클라이언트가 ID로 접긴 하지만
+    전송 비용이 창 수가 아니라 재등록 횟수에 비례하게 된다.
     """
     socket = FakeSocket()
 
     await ws_registry.register(1, _as_socket(socket))
     await ws_registry.register(1, _as_socket(socket))
 
-    assert socket.sent == []
     assert not socket.closed
     assert ws_registry.connection_count() == 1
+
+    await ws_registry.push_to_users([1], {"type": "message"})
+    assert socket.sent == [{"type": "message"}]
 
 
 # --------------------------------------------------------------------------
@@ -259,18 +301,21 @@ class HangingCloseSocket(FakeSocket):
         await asyncio.sleep(3600)
 
 
-async def test_an_unresponsive_evicted_socket_does_not_delay_the_new_connection() -> None:
-    """밀려난 연결이 close에 응답하지 않아도 교체가 즉시 끝난다.
+async def test_an_unresponsive_socket_never_delays_a_new_connection() -> None:
+    """기존 연결이 close에 응답하지 않아도 새 연결이 즉시 붙는다.
 
     **build-and-test에서 라이브 스택으로 실측해 찾은 결함의 회귀 테스트다.**
-    수정 전에는 `await existing.close()`가 uvicorn의 close 핸드셰이크 상한인
-    10초를 그대로 기다렸고, 그동안 새 탭의 `auth_ok`가 나가지 못했다. 정상
-    브라우저는 즉시 응답해(실측 0.0초) 평소에는 드러나지 않지만, 멈춘 탭 하나가
-    새 탭 접속을 10초 막는다.
+    당시 `register()`는 기존 연결을 닫았고, `await existing.close()`가 uvicorn의
+    close 핸드셰이크 상한인 10초를 그대로 기다렸다 — 그동안 새 탭의 `auth_ok`가
+    나가지 못했다. 정상 브라우저는 즉시 응답해(실측 0.0초) 평소에는 드러나지
+    않지만, 멈춘 탭 하나가 새 탭 접속을 10초 막았다.
 
-    상한(1초)보다 넉넉하되 수정 전 동작(10초)보다는 훨씬 짧은 2초로 재는 이유 —
-    상한 값 자체를 박으면 값을 바꿀 때 테스트도 함께 고치게 되어 불변식이
-    사라진다. 여기서 지키는 불변식은 "비협조적 상대가 교체를 붙잡지 못한다"다.
+    **지금은 아예 닫지 않으므로 그 경로가 사라졌다.** 그래도 이 테스트를 남기는
+    이유는 불변식이 그대로이기 때문이다 — "기존 소켓의 상태가 새 연결을 붙잡지
+    못한다". 누군가 교체 동작을 되살리면 여기서 먼저 붉어진다.
+
+    2초로 재는 이유 — 수정 전 동작(10초)보다는 훨씬 짧고 정상 등록보다는 넉넉하다.
+    상한 값 자체를 박으면 값을 바꿀 때 테스트도 함께 고치게 되어 불변식이 사라진다.
     """
     stuck = HangingCloseSocket()
     await ws_registry.register(1, _as_socket(stuck))
@@ -280,8 +325,9 @@ async def test_an_unresponsive_evicted_socket_does_not_delay_the_new_connection(
     await asyncio.wait_for(ws_registry.register(1, _as_socket(fresh)), timeout=5.0)
     elapsed = asyncio.get_running_loop().time() - started
 
-    assert elapsed < 2.0, f"교체가 {elapsed:.1f}초 걸렸다 — 비협조적 소켓이 붙잡고 있다"
-    # 기다리지 않았어도 알림은 나갔고 새 소켓이 자리를 차지했다.
-    assert stuck.sent == [{"type": "session_replaced"}]
+    assert elapsed < 2.0, f"등록이 {elapsed:.1f}초 걸렸다 — 기존 소켓이 붙잡고 있다"
+    # **닫지도, 알리지도 않는다.** 멈춘 창도 그대로 연결된 채 남는다.
+    assert not stuck.closed
+    assert stuck.sent == []
     await ws_registry.push_to_users([1], {"type": "message"})
     assert fresh.sent == [{"type": "message"}]
