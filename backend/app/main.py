@@ -25,6 +25,7 @@ from app.core.config import settings
 from app.core.db import check_database, dispose_engine, wait_for_database
 from app.core.errors import register_error_handlers
 from app.friends.router import router as friends_router
+from app.judgment import backend as judgment_backend
 from app.judgment.router import router as judgment_router
 from app.messages.router import router as messages_router
 from app.rooms.router import router as rooms_router
@@ -57,6 +58,10 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     DB 없이 뜬 앱은 모든 요청에 실패하므로, 조용히 사는 것보다 죽는 편이 낫다.
     """
     await wait_for_database()
+    # 판정 백엔드를 미리 올린다. 인코더는 299MB를 읽느라 첫 호출이 수 초 걸려
+    # AI_TIMEOUT_SECONDS(4.0)를 넘기고, 그러면 첫 메시지가 failed가 된다.
+    # 워밍업 실패는 기동을 막지 않는다 — 판정만 느려질 뿐 앱은 살아야 한다.
+    await judgment_backend.warmup()
     logger.info("애플리케이션을 시작합니다 (uvicorn 워커 1개, CON-1)")
     try:
         yield

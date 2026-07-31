@@ -99,3 +99,19 @@ training/_nb_verify*.ipynb
 # 선행 `**/`가 어느 깊이에서든 잡는다.
 **/.aidlc-sensors/
 **/*.tsbuildinfo
+
+# ---------------------------------------------------------------------------
+# 배포용 인코더 가중치 — 커밋하지 않는다
+# ---------------------------------------------------------------------------
+# model.safetensors 가 약 300MB로 GitHub의 파일당 100MB 제한을 넘는다.
+# Dockerfile이 `COPY backend/models ./models`로 이미지에 굽고, 재생성은
+# training/AX_Encoder_평가_v3_1000행.ipynb 의 §9(배포용 최종 모델)로 한다.
+backend/models/
+*.safetensors
+context_checker.zip
+
+# 벤치마크·평가 산출물 — 재생성 가능하고 행 단위 CSV가 계속 쌓인다.
+# 발표에 쓸 리포트는 docs/ 아래에 따로 정리해 커밋한다.
+benchmark_out/
+bm_probe/
+oof_predictions*.csv

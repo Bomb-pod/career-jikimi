@@ -37,8 +37,15 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
-COPY backend/requirements.txt ./
+COPY backend/requirements.txt backend/requirements-encoder.txt ./
 RUN pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
+
+# 판정 인코더(JUDGMENT_BACKEND=encoder)용. **CPU 전용 인덱스를 쓴다** —
+# 기본 PyPI 빌드는 CUDA를 포함해 이미지가 2GB 넘게 커지는데, 이 컨테이너에는
+# GPU를 붙이지 않으므로 순전히 낭비다. transformers는 PyPI에 있어 따로 받는다.
+RUN pip wheel --no-cache-dir --wheel-dir /wheels \
+      --index-url https://download.pytorch.org/whl/cpu torch
+RUN pip wheel --no-cache-dir --wheel-dir /wheels "transformers>=4.48"
 
 # ===========================================================================
 # 3. 런타임
@@ -56,12 +63,16 @@ WORKDIR /app
 # 휠만 받아 설치한다. --no-index로 네트워크를 아예 쓰지 않으므로,
 # 런타임 이미지 빌드가 상류 인덱스 상태에 흔들리지 않는다.
 COPY --from=python-build /wheels /wheels
-COPY backend/requirements.txt ./
-RUN pip install --no-index --find-links=/wheels -r requirements.txt \
+COPY backend/requirements.txt backend/requirements-encoder.txt ./
+RUN pip install --no-index --find-links=/wheels \
+        -r requirements.txt -r requirements-encoder.txt \
     && rm -rf /wheels
 
 # 백엔드 소스
 COPY backend/app ./app
+# 파인튜닝 인코더 가중치(약 300MB). 바인드 마운트가 없는 구조라 이미지에 굽는다.
+# local_encoder.model_dir()의 기본 경로가 /app/models/context_checker 다.
+COPY backend/models ./models
 COPY backend/migrations ./migrations
 COPY backend/alembic.ini ./alembic.ini
 COPY backend/docker-entrypoint.sh ./docker-entrypoint.sh

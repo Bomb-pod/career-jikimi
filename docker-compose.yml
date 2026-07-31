@@ -34,9 +34,20 @@ services:
       retries: 20
       start_period: 20s
     restart: unless-stopped
-    # **호스트에 포트를 노출하지 않는다** — 이 데모의 유일한 네트워크 보안
-    # 조치다 (services.md § db 서비스). DB를 들여다보려면:
-    #   docker compose exec db mariadb -u root -p
+    # **127.0.0.1에만 바인딩한다.** 원래 이 서비스는 포트를 아예 열지 않았다
+    # (services.md § db 서비스) — 이 데모의 유일한 네트워크 보안 조치였다.
+    # DB를 GUI 클라이언트로 들여다보려고 열되, 다음 둘로 원래 의도를 지킨다:
+    #
+    #   1. `127.0.0.1:` 접두어 — 같은 PC에서만 붙는다. 이게 없으면 0.0.0.0에
+    #      바인딩되어 같은 공유기의 다른 기기에서도 보인다.
+    #   2. 기본 포트가 3306이 아니라 3307 — 호스트에 이미 MySQL/MariaDB가
+    #      깔려 있어도 충돌하지 않는다. 테스트 DB(33061)와도 겹치지 않는다.
+    #
+    # 닫으려면 아래 두 줄을 지우거나 주석 처리한다. 컨테이너 안에서 보는
+    # 방법은 포트와 무관하게 그대로 쓸 수 있다:
+    #   docker compose exec db mariadb -u app -p career_jikimi
+    ports:
+      - "127.0.0.1:${DB_HOST_PORT:-3307}:3306"
     #
     # 리소스 제한: 데모 규모라 강제하지 않는다. 필요해지면 여기에 둔다.
     #   deploy:

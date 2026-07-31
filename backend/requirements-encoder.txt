@@ -1,0 +1,12 @@
+# Encoder judgment backend (JUDGMENT_BACKEND=encoder).
+#
+# Keep this out of requirements.txt: it adds about 1.3GB to the image and is
+# only needed when the encoder runs inside the container. The openai and
+# ollama backends do not import torch (backend.py imports it lazily).
+#
+# torch must come from the CPU-only index. The default PyPI build bundles
+# CUDA and makes the image about 2GB larger; no GPU is attached here.
+# The Dockerfile wheels it with --index-url https://download.pytorch.org/whl/cpu
+
+transformers>=4.48
+torch

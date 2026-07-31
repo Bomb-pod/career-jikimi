@@ -33,11 +33,30 @@ from app.judgment.prompt import CANDIDATE_HEADING, CONTEXT_HEADING, ChatMessage
 
 logger = logging.getLogger(__name__)
 
-#: 모델 디렉터리. Dockerfile이 이 경로로 굽는다.
-MODEL_DIR: Final[Path] = Path(__file__).resolve().parents[2] / "models" / "context_checker"
+from app.core.config import settings
+
+#: 모델 디렉터리. `.env`의 ENCODER_MODEL_DIR이 이기고, 없으면 아래 기본 경로.
+#: Dockerfile이 `COPY backend/models ./models` 로 굽는다.
+_DEFAULT_DIR: Final[Path] = Path(__file__).resolve().parents[2] / "models" / "context_checker"
+
+
+def model_dir() -> Path:
+    return Path(settings.ENCODER_MODEL_DIR) if settings.ENCODER_MODEL_DIR else _DEFAULT_DIR
+
 
 #: 학습 때와 **같은 값이어야 한다.** 다르면 잘리는 위치가 달라져 점수가 바뀐다.
-MAX_LEN: Final[int] = 384
+#: threshold.json에 학습 때 쓴 값이 들어 있으므로 그것을 우선 읽는다.
+def max_len() -> int:
+    path = model_dir() / "threshold.json"
+    if path.exists():
+        try:
+            import json as _json
+            v = _json.loads(path.read_text(encoding="utf-8")).get("max_len")
+            if v:
+                return int(v)
+        except Exception:  # noqa: BLE001 - 읽기 실패는 기본값으로 넘어간다
+            pass
+    return 384
 
 _model: Any = None
 _tokenizer: Any = None
@@ -51,13 +70,15 @@ def _load() -> tuple[Any, Any]:
         import torch
         from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-        if not MODEL_DIR.exists():
-            raise FileNotFoundError(f"모델 디렉터리가 없습니다: {MODEL_DIR}")
+        d = model_dir()
+        if not d.exists():
+            raise FileNotFoundError(f"모델 디렉터리가 없습니다: {d}")
 
-        _tokenizer = AutoTokenizer.from_pretrained(str(MODEL_DIR))
-        _model = AutoModelForSequenceClassification.from_pretrained(str(MODEL_DIR))
+        _tokenizer = AutoTokenizer.from_pretrained(str(d))
+        _model = AutoModelForSequenceClassification.from_pretrained(str(d))
         _model.to("cuda" if torch.cuda.is_available() else "cpu").eval()
-        logger.info("판정 인코더를 올렸습니다: %s (%s)", MODEL_DIR, next(_model.parameters()).device)
+        logger.info("판정 인코더를 올렸습니다: %s (%s, max_len=%d)",
+                    d, next(_model.parameters()).device, max_len())
     return _model, _tokenizer
 
 
@@ -91,7 +112,7 @@ def _infer(context: str, candidate: str) -> tuple[float, int]:
     model, tokenizer = _load()
     enc = tokenizer(
         context, candidate,
-        truncation="only_first", max_length=MAX_LEN, return_tensors="pt",
+        truncation="only_first", max_length=max_len(), return_tensors="pt",
     ).to(model.device)
     with torch.no_grad():
         logits = model(**enc).logits
@@ -135,4 +156,4 @@ async def call_model(messages: list[ChatMessage]) -> ModelCall:
                      prompt_tokens=n_tokens, completion_tokens=0, attempts=1)
 
 
-__all__ = ["MAX_LEN", "MODEL_DIR", "call_model", "split_prompt"]
+__all__ = ["call_model", "max_len", "model_dir", "split_prompt"]

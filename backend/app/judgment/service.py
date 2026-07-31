@@ -25,7 +25,7 @@ import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.judgment.client import call_model
+from app.judgment.backend import call_model
 from app.judgment.constants import SCORE_DECIMAL_PLACES, SCORE_MAX, SCORE_MIN
 from app.judgment.exceptions import AlreadyResolved, ForceTokenForbidden, InvalidForceToken
 from app.judgment.prompt import build_messages
