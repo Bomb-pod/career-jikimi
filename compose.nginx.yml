@@ -1,0 +1,166 @@
+# career-jikimi — 프론트/백엔드 컨테이너 분리 구성 (nginx 리버스 프록시)
+#
+#     docker compose -f compose.nginx.yml up -d --build
+#     → http://localhost      (포트 80이라 주소에 포트를 안 쓴다)
+#
+# `-d`를 빼면 터미널이 로그에 붙잡히고, Ctrl+C가 컨테이너를 내린다.
+# 로그는 필요할 때만: docker compose -f compose.nginx.yml logs -f web
+#
+# **기본 구성(`docker-compose.yml`)을 대체하지 않는다.** 둘 다 그대로 두고
+# `-f`로 골라 띄운다. 시연 직전에 검증된 구성을 건드리지 않기 위해서다.
+#
+# ## 기본 구성과 무엇이 다른가
+#
+# | | docker-compose.yml | compose.nginx.yml |
+# |---|---|---|
+# | 서비스 | app · db | **web** · app · db |
+# | 정적 파일 | FastAPI가 서빙 (`static/`) | nginx가 서빙 |
+# | 접속 주소 | localhost:8000 (app 직접) | **localhost** (web이 프록시) |
+# | DB 볼륨 | mini_project_db_data | **같은 볼륨** (데이터 유지) |
+# | CORS | 불필요 | **여전히 불필요** (오리진 하나) |
+# | 프론트 수정 반영 | 이미지 재빌드 | `npm run build`만 (아래 바인드 마운트) |
+#
+# ## 프로젝트 이름을 두지 않는 이유
+#
+# **`name:`을 쓰지 않는다.** 그러면 compose가 디렉터리 이름(`mini_project`)을
+# 프로젝트 이름으로 쓰는데, 기본 구성도 마찬가지라 **둘이 같은 프로젝트가 된다.**
+# 그래서 DB 볼륨(`mini_project_db_data`)과 네트워크를 그대로 공유하고,
+# 계정·대화가 남는다. 시연 리허설 중에 데이터를 다시 만들지 않아도 된다.
+#
+# 겹쳐서 문제가 되지 않는 이유는 **애초에 동시에 띄울 수 없기 때문이다** —
+# 두 파일이 같은 프로젝트의 같은 서비스 이름(app·db)을 정의하므로, 한쪽을
+# 올리면 compose가 다른 쪽 컨테이너를 그 정의로 다시 만든다. 호스트 포트가
+# 달라도(80 vs 8000) 둘이 나란히 살지는 못한다.
+# 그러니 "같은 프로젝트의 두 가지 기동 방식"으로 두는 편이 자연스럽다.
+#
+# 전환은 그냥 대상 파일을 바꿔 올리면 된다. compose가 바뀐 서비스만
+# 다시 만든다:
+#
+#     docker compose -f compose.nginx.yml up -d --build   # 분리 구성으로
+#     docker compose up -d --remove-orphans               # 기본 구성으로
+#
+# `--remove-orphans`는 기본 구성으로 돌아갈 때 web 컨테이너를 치우기 위한 것이다.
+# 없으면 "orphan containers" 경고와 함께 nginx가 계속 떠 있는다.
+
+services:
+  # =====================================================================
+  # web — nginx. 정적 파일 서빙 + API/WS 프록시
+  # =====================================================================
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    environment:
+      TZ: ${TZ:-Asia/Seoul}
+    depends_on:
+      app:
+        # app이 healthy가 된 뒤에 뜬다. 먼저 뜨면 nginx가 기동 시 upstream
+        # 이름을 못 풀어 "host not found in upstream"으로 죽는다.
+        condition: service_healthy
+    ports:
+      # **호스트 80 → 컨테이너 80.** 브라우저 기본 포트라 주소에 포트를 안 쓴다:
+      #
+      #     http://localhost
+      #
+      # 컨테이너 쪽 80은 nginx가 listen하는 포트라 그대로 두고, 왼쪽만 바꾼다.
+      #
+      # 80이 이미 잡혀 있으면(윈도우에서는 IIS나 World Wide Web Publishing
+      # Service가 흔한 범인이다) .env에 다른 값을 넣는다:
+      #
+      #     WEB_HOST_PORT=8080
+      #
+      # 확인: netstat -ano | findstr :80    (윈도우)
+      #       sudo lsof -i :80              (맥·리눅스)
+      - "${WEB_HOST_PORT:-80}:80"
+    volumes:
+      # ------------------------------------------------------------------
+      # 개발 편의 — 프론트만 고칠 때 이미지 재빌드를 없앤다.
+      #
+      #     cd frontend && npm run build      # 이것만 하면
+      #     # 브라우저 새로고침 → 반영됨
+      #
+      # 이미지에 구운 /usr/share/nginx/html 위에 호스트의 frontend/dist를
+      # 덮어씌운다. **dist가 없으면 빈 디렉터리가 마운트되어 404가 뜬다** —
+      # 한 번은 `npm run build`를 돌려두어야 한다.
+      #
+      # 배포처럼 이미지에 구운 것만 쓰려면 이 두 줄을 주석 처리한다.
+      # (`docker compose -f compose.nginx.yml up` 전에 결정할 것)
+      # ------------------------------------------------------------------
+      - ./frontend/dist:/usr/share/nginx/html:ro
+      # 설정만 고치고 `docker compose restart web`으로 반영하고 싶을 때.
+      - ./nginx.conf:/etc/nginx/conf.d/career-jikimi.conf:ro
+    stop_grace_period: 10s
+    restart: unless-stopped
+
+  # =====================================================================
+  # app — FastAPI. 이제 API 전용이다
+  # =====================================================================
+  app:
+    build:
+      context: .
+      # **루트 Dockerfile을 그대로 쓴다.** 이 이미지에도 static/이 구워지지만
+      # nginx가 앞에 있어 그쪽으로는 요청이 가지 않는다. 백엔드 이미지의
+      # 정의를 한 곳으로 유지하는 값이, 수백 KB 중복보다 크다.
+      #
+      # `app/main.py`의 `_mount_spa()`는 static/이 없으면 조용히 건너뛰도록
+      # 되어 있으므로, 나중에 정적 파일을 빼도 코드 수정이 필요 없다.
+      dockerfile: Dockerfile
+    environment:
+      TZ: ${TZ:-Asia/Seoul}
+    env_file:
+      - path: .env
+        required: true
+    depends_on:
+      db:
+        condition: service_healthy
+    # **포트를 노출하지 않는다.** 외부 진입점은 web 하나뿐이다.
+    # 백엔드에 직접 붙어야 하면:
+    #   docker compose -f compose.nginx.yml exec app python -m app.judgment.try …
+    expose:
+      - "8000"
+    stop_grace_period: 15s
+    restart: unless-stopped
+    # replicas를 올리지 않는다 (FR-9.4, CON-1). ws_registry가 프로세스
+    # 메모리에 있어, 늘리면 다른 인스턴스에 붙은 사용자에게 메시지가 안 간다.
+    # nginx를 앞에 둔다고 해결되지 않는다 — 로드밸런싱이 오히려 문제를 만든다.
+
+  # =====================================================================
+  # db — MariaDB
+  #
+  # **기본 구성의 정의와 한 글자도 다르지 않아야 한다.** 프로젝트가 같으므로
+  # 두 파일이 같은 컨테이너를 가리키는데, 설정이 다르면 구성을 바꿔 띄울
+  # 때마다 compose가 db를 지웠다 다시 만든다. (볼륨에 있는 데이터는 살아남지만
+  # 기동이 매번 느려지고, 로그가 재생성으로 지저분해진다.)
+  #
+  # docker-compose.yml의 db를 고치면 여기도 같이 고칠 것.
+  # =====================================================================
+  db:
+    image: mariadb:11
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      TZ: ${TZ:-Asia/Seoul}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?".env에 MARIADB_ROOT_PASSWORD가 필요합니다"}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:?".env에 MARIADB_DATABASE가 필요합니다"}
+      MARIADB_USER: ${MARIADB_USER:?".env에 MARIADB_USER가 필요합니다"}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:?".env에 MARIADB_PASSWORD가 필요합니다"}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    ports:
+      # 기본 구성과 동일하게 3307. 다른 값을 쓰면 위 주석대로 db가 재생성된다.
+      - "127.0.0.1:${DB_HOST_PORT:-3307}:3306"
+    restart: unless-stopped
+
+volumes:
+  # **기본 구성과 같은 볼륨이다.** 프로젝트 이름이 같으므로(둘 다 name: 없음)
+  # 실제 이름도 `mini_project_db_data`로 같다. 계정과 대화가 그대로 남는다.
+  #
+  #   docker volume ls | grep db_data     # 확인
+  db_data:
