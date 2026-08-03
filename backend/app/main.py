@@ -39,7 +39,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-#: 빌드된 프론트엔드가 놓이는 자리. Dockerfile의 프론트 빌드 스테이지가
+#: 빌드된 프론트엔드가 놓이는 자리. `deploy/Dockerfile`의 프론트 빌드 스테이지가
 #: `frontend/dist`를 여기로 복사한다. **개발 중에는 없다** — 그때는 Vite dev
 #: 서버가 SPA를 서빙하고 이 앱은 API만 담당한다 (FR-9.5).
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"

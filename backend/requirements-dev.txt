@@ -4,7 +4,7 @@
 # with the locale codepage on Windows, and cp949 chokes on non-ASCII bytes
 # before resolution starts.
 #
-# Never installed into the runtime image - the Dockerfile uses
+# Never installed into the runtime image - deploy/Dockerfile uses
 # requirements.txt only. To run tests inside the container, install this
 # file explicitly.
 

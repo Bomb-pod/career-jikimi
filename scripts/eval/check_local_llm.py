@@ -9,8 +9,8 @@
 
 사용:
     cd backend
-    .venv/Scripts/python.exe ../check_local_llm.py --model qwen3.5:4b
-    .venv/Scripts/python.exe ../check_local_llm.py --model qwen3.5:4b --n 10   # 지연 표본 10회
+    .venv/Scripts/python.exe ../scripts/eval/check_local_llm.py --model qwen3.5:4b
+    .venv/Scripts/python.exe ../scripts/eval/check_local_llm.py --model qwen3.5:4b --n 10   # 지연 표본 10회
 """
 
 from __future__ import annotations

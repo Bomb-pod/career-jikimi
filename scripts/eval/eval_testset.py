@@ -6,6 +6,11 @@ Colab에서 학습 직후 바로 돌릴 수도 있고, 노트북에서는 아래
 
     !python eval_testset.py --csv test_dataset_100.csv --model context_checker
 
+저장소에서는 `scripts/eval/`에 있다. 루트에서 부를 때:
+
+    python scripts/eval/eval_testset.py --csv dataset/test_dataset_100.csv \
+        --model backend/models/context_checker
+
 `app.judgment.evaluate`와의 차이 — 그쪽은 백엔드 설정·프롬프트 조립·판정 로그를
 전부 거치는 운영 경로이고, 이쪽은 **모델만 떼어내 재는 계측용**이다. 대신
 단일 요청 지연과 절제 실험, 기저율 보정을 함께 낸다.

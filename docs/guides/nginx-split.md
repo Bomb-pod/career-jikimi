@@ -36,11 +36,11 @@ DB 볼륨까지 지운다).
 
 | 파일 | 역할 |
 |---|---|
-| `nginx.conf` | 정적 서빙 + API/WS 프록시 규칙 |
-| `Dockerfile.web` | 프론트 빌드 → nginx 이미지 |
+| `deploy/nginx.conf` | 정적 서빙 + API/WS 프록시 규칙 |
+| `deploy/Dockerfile.web` | 프론트 빌드 → nginx 이미지 |
 | `compose.nginx.yml` | web · app · db 3서비스 |
 
-기존 `Dockerfile`, `docker-compose.yml`, 백엔드 코드는 **한 줄도 고치지 않았다.**
+기존 `deploy/Dockerfile`, `docker-compose.yml`, 백엔드 코드는 **한 줄도 고치지 않았다.**
 
 ## 구조
 
@@ -69,10 +69,10 @@ if not STATIC_DIR.is_dir():
 정적 파일이 없으면 조용히 API 전용 서버가 된다. 원래 Vite dev 서버를 위해 넣은
 경로인데, 그대로 이 구성에도 맞는다.
 
-지금은 `app` 이미지에 `static/`이 여전히 구워진다 — 루트 `Dockerfile`을 그대로
+지금은 `app` 이미지에 `static/`이 여전히 구워진다 — `deploy/Dockerfile`을 그대로
 쓰기 때문이다. nginx가 앞에 있어 그쪽으로 요청이 가지 않으므로 무해하고,
 **백엔드 이미지 정의를 한 곳으로 유지하는 값이 수백 KB 중복보다 크다고 판단했다.**
-분리를 확정하게 되면 그때 루트 Dockerfile에서 프론트 스테이지를 빼면 된다.
+분리를 확정하게 되면 그때 `deploy/Dockerfile`에서 프론트 스테이지를 빼면 된다.
 
 ## 검증한 것
 
@@ -125,7 +125,7 @@ keepalive가 깨지기 때문이다.
 
 **5. 프록시 경로 목록이 두 곳에 있다**
 
-`nginx.conf`와 `frontend/vite.config.ts`의 `BACKEND_PATHS`. 새 최상위 라우터가
+`deploy/nginx.conf`와 `frontend/vite.config.ts`의 `BACKEND_PATHS`. 새 최상위 라우터가
 생기면 **두 곳을 같이 고쳐야 한다.** 빠뜨리면 JSON을 기대한 자리에
 `<!doctype html>`이 온다.
 
@@ -134,7 +134,7 @@ keepalive가 깨지기 때문이다.
 nginx는 설정을 읽는 시점에 upstream 이름을 해석한다. `app`보다 먼저 뜨면
 `host not found in upstream`으로 죽는다.
 
-**7. `Dockerfile.web`에서 `nginx -t`를 돌리면 안 된다**
+**7. `deploy/Dockerfile.web`에서 `nginx -t`를 돌리면 안 된다**
 
 같은 이유다. 처음에 빌드 시점 검사로 넣었다가 뺐다. 빌드 중에는 compose
 네트워크도 `app` 컨테이너도 없으므로 **설정이 멀쩡해도** 이렇게 죽는다.
@@ -152,7 +152,7 @@ nginx는 설정을 읽는 시점에 upstream 이름을 해석한다. `app`보다
 app을 먼저 띄워둔 뒤라 이름이 풀린다. 문법만 미리 보고 싶으면 호스트에서:
 
 ```bash
-docker run --rm -v "$PWD/nginx.conf:/etc/nginx/conf.d/x.conf:ro" \
+docker run --rm -v "$PWD/deploy/nginx.conf:/etc/nginx/conf.d/x.conf:ro" \
   nginx:1.27-alpine sh -c \
   'sed -i s/app:8000/127.0.0.1:8000/ /etc/nginx/conf.d/x.conf && nginx -t'
 ```
@@ -210,7 +210,7 @@ docker compose up -d --remove-orphans
 - TLS 종단 — certbot이나 앞단 LB
 - HANDOFF의 `starlette` 취약점 8건 — "로컬 전용이라 원격 도달 경로 없음"이라는
   전제가 깨지는 시점이다. nginx가 앞에 있으면 요청 필터링 지점이 생긴다
-- `/docs`·`/redoc` 접근 제어 — 지금은 열려 있다. `nginx.conf`의 해당 블록에
+- `/docs`·`/redoc` 접근 제어 — 지금은 열려 있다. `deploy/nginx.conf`의 해당 블록에
   `allow`/`deny`나 basic auth를 붙이면 된다
 
 반대로 **워커 확장은 nginx로 해결되지 않는다.** `ws_registry`가 프로세스 메모리에

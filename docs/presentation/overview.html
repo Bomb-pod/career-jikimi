@@ -379,7 +379,7 @@ docker compose up -d --remove-orphans      # --remove-orphans 로 web 컨테이�
 
   <rect class="r-be" x="812" y="620" width="216" height="54" rx="7"/>
   <text class="lb t-be" x="824" y="639">app 이미지</text>
-  <text class="xs t-mute" x="824" y="655">루트 Dockerfile을 그대로 재사용</text>
+  <text class="xs t-mute" x="824" y="655">deploy/Dockerfile을 그대로 재사용</text>
   <text class="xs t-mute" x="824" y="668">static/도 구워지지만 도달하지 않는다</text>
 
   <text class="xs t-faint" x="1044" y="643">백엔드 이미지 정의를</text>
@@ -652,7 +652,7 @@ docker compose up -d --remove-orphans      # --remove-orphans 로 web 컨테이�
 </div>
 
 <footer>
-  근거: README.md · HANDOFF.md · docker-compose.yml · compose.nginx.yml · nginx.conf · Dockerfile.web ·
+  근거: README.md · HANDOFF.md · docker-compose.yml · compose.nginx.yml · deploy/nginx.conf · deploy/Dockerfile.web ·
   backend/app/ · frontend/vite.config.ts · aidlc/ 산출물(ADR 8건).
   라우팅 결과는 nginx 1.24 + 스텁 백엔드로 실측. 컨테이너 3개의 실제 기동은 아직 미확인.
 </footer>

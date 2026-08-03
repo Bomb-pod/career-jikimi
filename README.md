@@ -73,9 +73,21 @@ backend/
 frontend/         React 클라이언트
 dataset/          학습 · 평가 데이터셋
 training/         모델 학습 및 평가 노트북
-docs/             기술 문서
+hf/               Hugging Face 모델 · 데이터셋 카드
+deploy/           Dockerfile · Dockerfile.web · nginx.conf
+scripts/
+  eval/           인코더 평가 · 백엔드 벤치마크 스크립트
+docs/
+  guides/         기술 문서
+  presentation/   발표자료 · WBS · 아키텍처 HTML
+  graphs/         결과 그래프
+  daily/          일일 기록
 aidlc/            AI-DLC 산출물
 ```
+
+빌드 진입점(`docker-compose.yml`, `compose.nginx.yml`)은 루트에 둔다 —
+빌드 컨텍스트가 저장소 루트이고, `.dockerignore`도 컨텍스트 기준으로
+해석되므로 루트를 벗어날 수 없다.
 
 ### 2.3 주요 설계 결정
 
@@ -270,7 +282,7 @@ false positive 억제를 우선하는 설계 원칙에 부합한다.
 
 ## 7. 성능 평가
 
-측정일 2026-07-31 · CPU 추론 · 임계값 0.7. 상세는 `docs/판정_성능_보고.md` 참조.
+측정일 2026-07-31 · CPU 추론 · 임계값 0.7. 상세는 `docs/guides/판정_성능_보고.md` 참조.
 
 ### 7.1 평가 결과
 
@@ -430,10 +442,13 @@ API로 전송되며, 이 경우 해당 사실을 사용자에게 고지한다.
 
 | 문서 | 내용 |
 |---|---|
-| `docs/판정_성능_보고.md` | 판정 모델 성능 평가 상세 |
-| `docs/백엔드_전환_적용.md` | 판정 백엔드 전환 절차 |
-| `docs/배포_체크리스트.md` | 인코더 모델 배포 절차 |
-| `docs/판정_입력_예시.md` | 판정 입력 형식 예시 |
+| `docs/guides/판정_성능_보고.md` | 판정 모델 성능 평가 상세 |
+| `docs/guides/백엔드_전환_적용.md` | 판정 백엔드 전환 절차 |
+| `docs/guides/배포_체크리스트.md` | 인코더 모델 배포 절차 |
+| `docs/guides/판정_입력_예시.md` | 판정 입력 형식 예시 |
+| `docs/guides/nginx-split.md` | 프론트/백엔드 nginx 분리 구성 |
+| `docs/guides/db_확인.md` | DB 상태 확인 절차 |
+| `docs/presentation/` | 발표자료·WBS·아키텍처 HTML |
 | `training/AX_Encoder_평가_v3_1000행_최종.ipynb` | 모델 학습 및 교차검증 |
 | `training/AX_Encoder_학습곡선.ipynb` | 학습 epoch 결정용 계측 |
 | `aidlc/spaces/default/intents/260729-misdirect-message-guard/` | AI-DLC 산출물 |

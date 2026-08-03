@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """Ollama가 왜 느린지 가른다 — CPU 폴백인가, 추론 토큰인가.
 
-    python diagnose_ollama.py --csv benchmark_out/main/ollama.csv
-    python diagnose_ollama.py --model qwen3.5:4b --live      # 직접 호출해서 재기
+저장소 루트에서 실행한다 (기본 `--csv` 경로가 루트 기준이다).
+
+    python scripts/eval/diagnose_ollama.py --csv benchmark_out/main/ollama.csv
+    python scripts/eval/diagnose_ollama.py --model qwen3.5:4b --live   # 직접 호출해서 재기
 """
 from __future__ import annotations
 import argparse, json, sys, time

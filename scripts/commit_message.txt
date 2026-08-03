@@ -33,9 +33,9 @@ feat(judgment): 판정 백엔드 전환(openai/ollama/encoder) + 인코더 파�
   cross-room만 담은 v3에 없던 종류다.
 
 도구
-- benchmark_three.py: 세 백엔드를 같은 평가셋에 올린다. 학습셋 누출 검사,
+- scripts/eval/benchmark_three.py: 세 백엔드를 같은 평가셋에 올린다. 학습셋 누출 검사,
   양쪽 동일 익명화, AUC 병기, 절제 실험, 기저율 보정 precision, report.md 저장.
-- check_local_llm.py / analyze_encoder_result.py / diagnose_ollama.py
+- scripts/eval/: check_local_llm.py / analyze_encoder_result.py / diagnose_ollama.py
 - app/seed_demo.py: 데모 데이터. AI_CONTEXT_N=10 때문에 방마다 12턴 이상 채운다.
 
 컨테이너

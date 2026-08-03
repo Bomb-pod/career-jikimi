@@ -71,7 +71,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: deploy/Dockerfile
     environment:
       # db와 **같은 값이어야 한다.** 이쪽은 파이썬의 `datetime.now()`가 쓴다 —
       # 시드 스크립트의 `created_at`과 로그 시각이 여기서 나온다. 두 컨테이너가

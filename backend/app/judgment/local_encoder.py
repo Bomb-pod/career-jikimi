@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 from app.core.config import settings
 
 #: 모델 디렉터리. `.env`의 ENCODER_MODEL_DIR이 이기고, 없으면 아래 기본 경로.
-#: Dockerfile이 `COPY backend/models ./models` 로 굽는다.
+#: `deploy/Dockerfile`이 `COPY backend/models ./models` 로 굽는다.
 _DEFAULT_DIR: Final[Path] = Path(__file__).resolve().parents[2] / "models" / "context_checker"
 
 

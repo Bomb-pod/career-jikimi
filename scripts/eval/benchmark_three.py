@@ -7,8 +7,8 @@
 가져오기 위해서다. 문안을 복사해두면 벤치마크와 운영이 갈라진다.
 
     cd backend
-    .venv/Scripts/python.exe ../benchmark_three.py --csv ../eval.csv --dry-run
-    .venv/Scripts/python.exe ../benchmark_three.py --csv ../eval.csv \
+    .venv/Scripts/python.exe ../scripts/eval/benchmark_three.py --csv ../eval.csv --dry-run
+    .venv/Scripts/python.exe ../scripts/eval/benchmark_three.py --csv ../eval.csv \
         --backends encoder,ollama,openai --limit 100
 
 ## 공정성을 위해 하는 것

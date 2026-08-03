@@ -130,7 +130,7 @@ cd backend && .venv/Scripts/python.exe -m app.judgment.evaluate --limit 40   # �
 
 ### 컨테이너에 코드를 굽는다 — 바인드 마운트가 없다
 
-`docker-compose.yml`이 이미지에 코드를 넣는다. **고친 뒤에는 `docker compose up -d --build`** 를 해야 반영된다. 프론트는 Dockerfile 1스테이지에서 `npm run build`한 결과를 FastAPI가 `static/`으로 서빙한다 (FR-9.5).
+`docker-compose.yml`이 이미지에 코드를 넣는다. **고친 뒤에는 `docker compose up -d --build`** 를 해야 반영된다. 프론트는 `deploy/Dockerfile` 1스테이지에서 `npm run build`한 결과를 FastAPI가 `static/`으로 서빙한다 (FR-9.5).
 
 빠른 반복은 Vite dev 서버로 한다 — `.env`에 `CORS_ORIGINS=http://localhost:5173`을 넣고 `cd frontend && npm run dev`.
 

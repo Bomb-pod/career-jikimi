@@ -49,11 +49,11 @@ if errorlevel 1 (
 echo.
 
 echo [4/6] Staging ...
-git add .gitignore .env.example Dockerfile docker-compose.yml
+git add .gitignore .env.example deploy docker-compose.yml compose.nginx.yml
 git add backend/app/core/config.py backend/app/judgment backend/app/main.py
 git add backend/app/seed_demo.py backend/requirements-encoder.txt backend/tests/conftest.py
-git add benchmark_three.py check_local_llm.py analyze_encoder_result.py diagnose_ollama.py
-git add eval_smoke_16.csv training docs dataset
+git add scripts/eval
+git add training docs dataset
 
 git diff --cached --name-only > "%TEMP%\cj_staged.txt"
 findstr /i "safetensors" "%TEMP%\cj_staged.txt" >nul

@@ -6,7 +6,7 @@
 #
 # torch must come from the CPU-only index. The default PyPI build bundles
 # CUDA and makes the image about 2GB larger; no GPU is attached here.
-# The Dockerfile wheels it with --index-url https://download.pytorch.org/whl/cpu
+# deploy/Dockerfile wheels it with --index-url https://download.pytorch.org/whl/cpu
 
 transformers>=4.48
 torch

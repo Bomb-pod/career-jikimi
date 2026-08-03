@@ -4,7 +4,9 @@
 AUC가 1.000인데 정확도가 0.78이면 **모델이 아니라 threshold 문제다.**
 완벽히 분리됐다는 뜻이므로 정확도 1.000을 주는 지점이 반드시 존재한다.
 
-    python analyze_encoder_result.py --csv benchmark_out/encoder.csv
+저장소 루트에서 실행한다 (기본 `--csv` 경로가 루트 기준이다).
+
+    python scripts/eval/analyze_encoder_result.py --csv benchmark_out/encoder.csv
 """
 from __future__ import annotations
 

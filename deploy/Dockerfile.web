@@ -1,15 +1,18 @@
 # career-jikimi 프론트엔드 이미지 — nginx가 정적 파일을 서빙하고 API를 프록시한다.
 #
 # 이 파일은 `compose.nginx.yml`에서만 쓴다. 기본 구성(`docker-compose.yml`)은
-# 루트의 `Dockerfile` 하나로 프론트까지 함께 굽는다 (FR-9.5).
+# `deploy/Dockerfile` 하나로 프론트까지 함께 굽는다 (FR-9.5).
 #
 #     docker compose -f compose.nginx.yml up --build
 #
+# **빌드 컨텍스트는 저장소 루트다** (compose의 `context: .`). 이 파일이
+# `deploy/` 안에 있어도 COPY 경로는 전부 루트 기준으로 쓴다.
+#
 # 스테이지 2개:
-#   1. frontend-build — 루트 Dockerfile의 같은 이름 스테이지와 동일한 절차
+#   1. frontend-build — `deploy/Dockerfile`의 같은 이름 스테이지와 동일한 절차
 #   2. runtime        — nginx:alpine + 빌드 결과물 + 우리 설정
 #
-# **루트 Dockerfile의 프론트 빌드 스테이지와 내용이 같다.** 의도적인 중복이다 —
+# **`deploy/Dockerfile`의 프론트 빌드 스테이지와 내용이 같다.** 의도적인 중복이다 —
 # 두 구성을 독립적으로 띄울 수 있게 하려고 갈랐다. 프론트 빌드 절차를 고치면
 # 두 파일을 같이 고쳐야 한다.
 
@@ -38,7 +41,7 @@ FROM nginx:1.27-alpine AS runtime
 # 기본 블록이 같이 로드되어 어느 쪽이 응답하는지 헷갈린다.
 RUN rm -f /etc/nginx/conf.d/default.conf
 
-COPY nginx.conf /etc/nginx/conf.d/career-jikimi.conf
+COPY deploy/nginx.conf /etc/nginx/conf.d/career-jikimi.conf
 COPY --from=frontend-build /build/dist /usr/share/nginx/html
 
 # **여기서 `RUN nginx -t`를 돌리지 않는다.**
@@ -57,7 +60,7 @@ COPY --from=frontend-build /build/dist /usr/share/nginx/html
 # 설정이 잘못됐으면 `docker compose up`이 즉시 그 에러를 뱉는다.
 #
 # 고치는 중에 문법만 미리 보고 싶으면 호스트에서:
-#   docker run --rm -v "$PWD/nginx.conf:/etc/nginx/conf.d/x.conf:ro" \
+#   docker run --rm -v "$PWD/deploy/nginx.conf:/etc/nginx/conf.d/x.conf:ro" \
 #     nginx:1.27-alpine sh -c 'sed -i s/app:8000/127.0.0.1:8000/ \
 #     /etc/nginx/conf.d/x.conf && nginx -t'
 
