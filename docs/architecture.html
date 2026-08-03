@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>career-jikimi 아키텍처</title>
+<style>
+  :root{
+    --bg:#ffffff; --panel:#f7f8fa; --ink:#16191d; --muted:#6b7280;
+    --line:#d9dde2; --line-strong:#aeb5bd;
+    --fe:#3f6ea8; --fe-bg:#eef3fa;
+    --be:#2b7a6c; --be-bg:#e9f5f2;
+    --ai:#a2603c; --ai-bg:#fbf0e8;
+    --db:#6a5a97; --db-bg:#f0edf8;
+    --ext:#7b828c; --ext-bg:#f2f3f5;
+    --warn:#b0453a; --warn-bg:#fbeceb;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#14171a; --panel:#1c2024; --ink:#e8eaed; --muted:#9aa2ad;
+      --line:#333940; --line-strong:#4c545d;
+      --fe:#8fb4e0; --fe-bg:#1c2733;
+      --be:#79c5b5; --be-bg:#182a27;
+      --ai:#dda37c; --ai-bg:#2c2320;
+      --db:#a998d9; --db-bg:#232035;
+      --ext:#a4abb4; --ext-bg:#22262a;
+      --warn:#e08b81; --warn-bg:#2e1f1e;
+    }
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding:48px 28px 80px}
+  header{border-bottom:1px solid var(--line); padding-bottom:24px; margin-bottom:40px}
+  h1{font-size:27px; margin:0 0 8px; letter-spacing:-.02em}
+  .sub{color:var(--muted); font-size:15px; margin:0}
+  .meta{color:var(--muted); font-size:13px; margin-top:14px}
+  h2{font-size:19px; margin:52px 0 6px; letter-spacing:-.01em}
+  h2 .n{color:var(--muted); font-weight:400; margin-right:9px}
+  .lead{color:var(--muted); margin:0 0 20px; font-size:14.5px; max-width:78ch}
+  code,.path{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace; font-size:.88em}
+  .path{color:var(--muted)}
+
+  /* ---- generic box ---- */
+  .box{border:1px solid var(--line); border-radius:9px; background:var(--panel); padding:13px 15px}
+  .box .t{font-weight:650; font-size:14px; margin-bottom:3px; display:flex; align-items:center; gap:7px}
+  .box .d{font-size:12.5px; color:var(--muted); line-height:1.5}
+  .box ul{margin:7px 0 0; padding-left:17px; font-size:12.5px; color:var(--muted)}
+  .box li{margin:2px 0}
+  .fe{border-color:var(--fe); background:var(--fe-bg)}  .fe .t{color:var(--fe)}
+  .be{border-color:var(--be); background:var(--be-bg)}  .be .t{color:var(--be)}
+  .ai{border-color:var(--ai); background:var(--ai-bg)}  .ai .t{color:var(--ai)}
+  .dbx{border-color:var(--db); background:var(--db-bg)} .dbx .t{color:var(--db)}
+  .ext{border-color:var(--ext); background:var(--ext-bg); border-style:dashed} .ext .t{color:var(--ext)}
+
+  /* ---- container view ---- */
+  .runtime{display:grid; grid-template-columns:1fr auto 1.55fr auto 1fr; align-items:center; gap:0}
+  .arrow{display:flex; flex-direction:column; align-items:center; padding:0 11px; min-width:96px}
+  .arrow .lbl{font-size:11px; color:var(--muted); white-space:nowrap; margin-bottom:3px; text-align:center}
+  .arrow .ln{width:100%; height:0; border-top:1.5px solid var(--line-strong); position:relative}
+  .arrow .ln::after{content:""; position:absolute; right:-1px; top:-4.5px; border:4.5px solid transparent; border-left-color:var(--line-strong)}
+  .arrow.bi .ln::before{content:""; position:absolute; left:-1px; top:-4.5px; border:4.5px solid transparent; border-right-color:var(--line-strong)}
+  .arrow .lbl2{font-size:11px; color:var(--muted); margin-top:3px; text-align:center}
+  .compose{border:1.5px dashed var(--line-strong); border-radius:12px; padding:14px; position:relative; margin-top:9px}
+  .compose > .cap{position:absolute; top:-9px; left:14px; background:var(--bg); padding:0 7px; font-size:11.5px; color:var(--muted); font-family:ui-monospace,monospace}
+  .stack{display:flex; flex-direction:column; gap:10px}
+  .vlink{display:flex; flex-direction:column; align-items:center; gap:2px; margin:1px 0}
+  .vlink .lbl{font-size:11px; color:var(--muted)}
+  .vlink .ln{height:16px; width:0; border-left:1.5px solid var(--line-strong); position:relative}
+  .vlink .ln::after{content:""; position:absolute; bottom:-1px; left:-4.5px; border:4.5px solid transparent; border-top-color:var(--line-strong)}
+  .col{display:flex; flex-direction:column; gap:10px}
+
+  /* ---- flow ---- */
+  .flow{border:1px solid var(--line); border-radius:11px; overflow:hidden}
+  .step{display:grid; grid-template-columns:40px 1fr; border-top:1px solid var(--line)}
+  .step:first-child{border-top:none}
+  .step .no{background:var(--panel); color:var(--muted); font:600 12px/1 ui-monospace,monospace;
+    display:flex; align-items:center; justify-content:center; border-right:1px solid var(--line)}
+  .step .body{padding:12px 15px}
+  .step .h{font-weight:640; font-size:14px; margin-bottom:3px}
+  .step .x{font-size:12.5px; color:var(--muted)}
+  .step.gate{background:var(--ai-bg)}
+  .step.gate .h{color:var(--ai)}
+  .branch{display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:10px}
+  .bcard{border:1px solid var(--line); border-radius:8px; padding:9px 11px; background:var(--bg)}
+  .bcard .bt{font-weight:640; font-size:12.5px; margin-bottom:2px}
+  .bcard .bx{font-size:11.5px; color:var(--muted); line-height:1.45}
+  .ok .bt{color:var(--be)} .no2 .bt{color:var(--warn)} .fail .bt{color:var(--muted)}
+
+  /* ---- switch ---- */
+  .switch{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+
+  /* ---- tables ---- */
+  table{width:100%; border-collapse:collapse; font-size:13.5px; margin-top:6px}
+  th,td{text-align:left; padding:8px 11px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.04em}
+  td code{background:var(--panel); padding:1px 5px; border-radius:4px}
+  tbody tr:last-child td{border-bottom:none}
+
+  /* ---- er ---- */
+  .er{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+  .ent{border:1px solid var(--db); border-radius:9px; background:var(--db-bg); overflow:hidden}
+  .ent .en{font:650 13px/1 ui-monospace,monospace; color:var(--db); padding:9px 12px; border-bottom:1px solid var(--db)}
+  .ent ul{margin:0; padding:9px 12px 11px 26px; font-size:12px; color:var(--muted)}
+  .ent li{margin:2.5px 0}
+  .ent b{color:var(--ink); font-weight:600}
+
+  .note{border-left:3px solid var(--warn); background:var(--warn-bg); padding:11px 15px; border-radius:0 7px 7px 0; margin-top:16px; font-size:13.5px}
+  .note b{color:var(--warn)}
+  .legend{display:flex; flex-wrap:wrap; gap:16px; margin-top:14px; font-size:12.5px; color:var(--muted)}
+  .legend span{display:flex; align-items:center; gap:6px}
+  .sw{width:11px; height:11px; border-radius:3px; border:1px solid}
+  footer{margin-top:60px; padding-top:22px; border-top:1px solid var(--line); color:var(--muted); font-size:12.5px}
+  @media (max-width:860px){
+    .runtime{grid-template-columns:1fr; gap:8px}
+    .arrow{min-width:0; padding:4px 0; flex-direction:row; gap:8px}
+    .arrow .ln{width:0; height:20px; border-top:none; border-left:1.5px solid var(--line-strong)}
+    .arrow .ln::after{right:auto; left:-4.5px; top:auto; bottom:-1px; border-left-color:transparent; border-top-color:var(--line-strong)}
+    .branch,.switch,.er{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>career-jikimi — 아키텍처</h1>
+  <p class="sub">채팅방을 착각해 잘못 보낸 메시지를, <b>전송되기 전에</b> 문맥으로 걸러내는 채팅 데모</p>
+  <p class="meta">
+    FastAPI + React + MariaDB · 컨테이너 2개 · uvicorn 워커 1개 고정 ·
+    판정 백엔드 3종 교체 가능 · 작성 2026-08-03
+  </p>
+</header>
+
+<!-- ============================================================ -->
+<h2><span class="n">1</span>런타임 구성</h2>
+<p class="lead">
+  서비스는 <b>둘뿐이다</b> (ADR-002). 프론트엔드는 별도 컨테이너가 아니라 Dockerfile 빌드 스테이지에서
+  <code>npm run build</code>한 결과를 FastAPI가 <code>static/</code>으로 서빙한다 (FR-9.5).
+</p>
+
+<div class="runtime">
+  <div class="box fe">
+    <div class="t">브라우저</div>
+    <div class="d">React 18 + TS + Vite</div>
+    <ul>
+      <li>Zustand <span class="path">chatStore</span></li>
+      <li><span class="path">wsClient</span> — 사용자당 WS 1개</li>
+      <li>낙관적 렌더링 → ack로 ID 교체</li>
+      <li>JWT는 localStorage</li>
+    </ul>
+  </div>
+
+  <div class="arrow bi">
+    <div class="lbl">HTTP :8000</div>
+    <div class="ln"></div>
+    <div class="lbl2">WS /ws</div>
+  </div>
+
+  <div class="col">
+    <div class="box be">
+      <div class="t">app 컨테이너 · FastAPI</div>
+      <div class="d"><span class="path">python:3.12-slim</span> · uvicorn <b>워커 1개 고정</b></div>
+      <ul>
+        <li>SPA 폴백 서빙 <span class="path">static/</span></li>
+        <li>REST — auth · friends · rooms · messages · judgment</li>
+        <li>WebSocket — <span class="path">rooms/ws.py</span></li>
+        <li><span class="path">core/ws_registry</span> — <b>프로세스 메모리</b></li>
+        <li>lifespan — DB 대기 → 판정 백엔드 warmup</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="arrow">
+    <div class="lbl">판정 호출</div>
+    <div class="ln"></div>
+    <div class="lbl2">택 1</div>
+  </div>
+
+  <div class="col">
+    <div class="box ext">
+      <div class="t">OpenAI API</div>
+      <div class="d">외부 전송 · 키 필요</div>
+    </div>
+    <div class="box ext">
+      <div class="t">Ollama</div>
+      <div class="d">로컬 LLM · OpenAI 호환</div>
+    </div>
+    <div class="box ai">
+      <div class="t">인코더 (로컬 파일)</div>
+      <div class="d"><span class="path">models/context_checker/</span><br>ModernBERT 299MB · 외부 전송 없음</div>
+    </div>
+  </div>
+</div>
+
+<div class="vlink"><div class="lbl">SQLAlchemy async · asyncmy</div><div class="ln"></div></div>
+
+<div class="box dbx">
+  <div class="t">db 컨테이너 · MariaDB 11</div>
+  <div class="d">
+    <code>utf8mb4</code> / <code>utf8mb4_unicode_ci</code> 명시 · <code>TZ=Asia/Seoul</code> ·
+    명명 볼륨 <code>db_data</code> · 호스트에는 <code>127.0.0.1:3307</code>로만 노출 ·
+    마이그레이션 Alembic
+  </div>
+</div>
+
+<div class="legend">
+  <span><i class="sw" style="border-color:var(--fe);background:var(--fe-bg)"></i>프론트엔드</span>
+  <span><i class="sw" style="border-color:var(--be);background:var(--be-bg)"></i>백엔드</span>
+  <span><i class="sw" style="border-color:var(--ai);background:var(--ai-bg)"></i>판정</span>
+  <span><i class="sw" style="border-color:var(--db);background:var(--db-bg)"></i>데이터</span>
+  <span><i class="sw" style="border-color:var(--ext);background:var(--ext-bg);border-style:dashed"></i>외부 서비스</span>
+</div>
+
+<div class="note">
+  <b>워커를 늘리면 깨진다.</b> WebSocket 연결 레지스트리가 프로세스 메모리에 있어
+  <code>--workers 2</code> 이상이면 다른 워커에 붙은 사용자에게 메시지가 가지 않는다 (CON-1, FR-9.4).
+  확장하려면 <span class="path">core/ws_registry</span>를 Redis pub/sub으로 먼저 바꿔야 한다.
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="n">2</span>백엔드 모듈</h2>
+<p class="lead">
+  기능 단위로 <code>router / service / schemas / exceptions</code>를 묶는다.
+  <code>main.py</code>만 각 <code>router</code>를 import하고, 단위끼리는 <code>service</code> 계약으로만 만난다.
+</p>
+
+<table>
+  <thead><tr><th style="width:22%">모듈</th><th style="width:30%">핵심 파일</th><th>역할</th></tr></thead>
+  <tbody>
+    <tr><td><code>app/core</code></td><td><span class="path">config · db · errors · ws_registry</span></td>
+        <td>설정 로드, 엔진·세션, 공통 오류 변환, WS 연결 레지스트리(메모리)</td></tr>
+    <tr><td><code>app/auth</code></td><td><span class="path">router · service · security</span></td>
+        <td>회원가입·로그인·<code>GET /auth/me</code>. JWT 발급/검증</td></tr>
+    <tr><td><code>app/friends</code></td><td><span class="path">router · service</span></td>
+        <td>아이디 정확 일치 검색 → 단방향 즉시 등록(별칭 필수)</td></tr>
+    <tr><td><code>app/rooms</code></td><td><span class="path">router · service · ws</span></td>
+        <td>방 생성·목록·설정, WebSocket 엔드포인트와 방 멀티플렉싱</td></tr>
+    <tr><td><code>app/messages</code></td><td><span class="path">service · history · report</span></td>
+        <td><b>전송 오케스트레이션</b>, seq 채번, 브로드캐스트, 커서 페이지네이션</td></tr>
+    <tr><td><code>app/judgment</code></td><td><span class="path">service · backend · client · local_encoder</span></td>
+        <td><b>판정 코어(U2)</b>. 문맥 조립 → 익명화 → 모델 호출 → 점수 판정 → 로그</td></tr>
+    <tr><td><code>app/models</code></td><td><span class="path">user · friendship · room · room_member · message · judgment_log</span></td>
+        <td>SQLAlchemy ORM 매핑</td></tr>
+  </tbody>
+</table>
+
+<p class="lead" style="margin-top:22px">
+  <code>judgment</code> 안쪽은 다시 이렇게 갈린다.
+</p>
+
+<div class="switch">
+  <div class="box ai">
+    <div class="t">판정 경로</div>
+    <ul>
+      <li><span class="path">service.judge()</span> — 진입점, 로그 기록</li>
+      <li><span class="path">prompt.py</span> — 문맥 조립</li>
+      <li><span class="path">anonymize.py</span> — 외부 전송 전 익명화</li>
+      <li><span class="path">backend.py</span> — 백엔드 선택</li>
+      <li><span class="path">types.py</span> — 결과 타입</li>
+    </ul>
+  </div>
+  <div class="box ai">
+    <div class="t">모델 어댑터</div>
+    <ul>
+      <li><span class="path">client.py</span> — OpenAI · Ollama 공용<br>(타임아웃·재시도·토큰 예산)</li>
+      <li><span class="path">local_encoder.py</span> — ModernBERT 추론</li>
+    </ul>
+  </div>
+  <div class="box ai">
+    <div class="t">평가 · 운영 CLI</div>
+    <ul>
+      <li><span class="path">report.py</span> — 라이브 지표(recall 산출 불가)</li>
+      <li><span class="path">evaluate.py</span> — 라벨셋 오프라인 평가(recall 산출)</li>
+      <li><span class="path">try.py</span> — 단건 판정, 앱 없이 실행</li>
+      <li><span class="path">metrics.py</span> — 집계 로직</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="n">3</span>메시지 전송 · 판정 흐름</h2>
+<p class="lead">
+  이 프로젝트의 심장이다. 원칙은 <b>저장 먼저, 브로드캐스트 나중</b> —
+  순서가 반대면 DB 쓰기가 실패했을 때 화면엔 보이는데 새로고침하면 사라진다.
+</p>
+
+<div class="flow">
+  <div class="step">
+    <div class="no">1</div>
+    <div class="body">
+      <div class="h">클라이언트 — 낙관적 렌더링</div>
+      <div class="x">Enter → 임시 ID로 말풍선을 먼저 그린다. 동시에 전송 버튼을 비활성화하고 <b>"확인 중…"</b>을 띄운다.
+        판정 대기가 1~3초라 표시가 없으면 앱이 멈춘 줄 안다.</div>
+    </div>
+  </div>
+
+  <div class="step gate">
+    <div class="no">2</div>
+    <div class="body">
+      <div class="h">서버 — 검증할 것인가</div>
+      <div class="x">
+        <code>room_members.ai_check_enabled</code>는 <b>참여자 개인별</b> 설정이다. 방장이 켠다고 전원에게 적용되지 않는다 —
+        "내가 실수하는 걸 막는" 기능이므로 남이 내 전송 지연을 결정하면 안 된다.
+      </div>
+      <div class="branch">
+        <div class="bcard fail"><div class="bt">토글 꺼짐</div><div class="bx">판정 없이 전송<br><code>disabled</code></div></div>
+        <div class="bcard fail"><div class="bt">문맥 &lt; N</div><div class="bx">콜드 스타트, 건너뜀<br><code>skipped_no_context</code></div></div>
+        <div class="bcard ok"><div class="bt">켜짐 + 문맥 충분</div><div class="bx">아래 3번으로</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step gate">
+    <div class="no">3</div>
+    <div class="body">
+      <div class="h">judgment.judge() — 문맥 조립 → 익명화 → 모델 호출</div>
+      <div class="x">
+        최근 <b>N개(10~20)</b> 메시지 + 지금 보내려는 문장. <b>참여자 정보는 쓰지 않는다</b> — 순수하게 대화 문맥만 본다.
+        실제로 넣은 범위를 <code>context_from_seq</code>/<code>context_to_seq</code>로 남겨 재현 가능하게 한다.
+        타임아웃 4초, <b>재시도 1회만</b> (2회면 사용자가 9초를 기다린다).
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="no">4</div>
+    <div class="body">
+      <div class="h">결과 분기</div>
+      <div class="branch">
+        <div class="bcard ok">
+          <div class="bt">Appropriate</div>
+          <div class="bx">seq 채번(<code>SELECT … FOR UPDATE</code>) → INSERT → 방 참여자 브로드캐스트 → ack<br><code>verification_status = ok</code></div>
+        </div>
+        <div class="bcard no2">
+          <div class="bt">Inappropriate</div>
+          <div class="bx"><b>409 Blocked, 저장하지 않는다.</b> 팝업 "이 방에 맞지 않는 것 같습니다"<br>→ 강행 시 force token으로 <code>flagged_sent</code><br>→ 취소 시 메시지는 안 남고 로그만 남는다</div>
+        </div>
+        <div class="bcard fail">
+          <div class="bt">Failed</div>
+          <div class="bx">조용히 보내지 않는다. 첫 실패에 한 번만 물어보고, 수락하면 <code>degraded</code>로 전환<br>5번째 메시지마다 프로브로 회복 감지</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="no">5</div>
+    <div class="body">
+      <div class="h">judgment_logs 기록</div>
+      <div class="x">
+        <code>verdict</code> · <code>confidence</code> · <code>threshold</code> · <code>latency_ms</code> ·
+        <code>prompt_tokens</code> / <code>completion_tokens</code> · <b><code>user_action</code>(sent / cancelled)</b>.
+        마지막 항목이 <b>사실상의 정답 라벨</b>이라 실사용 로그가 그대로 평가 데이터가 된다.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="note">
+  <b>정렬은 <code>created_at</code>이 아니라 <code>(room_id, seq)</code>.</b>
+  채번은 한 트랜잭션 안에서 <code>SELECT last_seq … FOR UPDATE</code> → <code>+1</code> → INSERT.
+  InnoDB 행 잠금이라 <b>방 단위로만 직렬화</b>되고 다른 방의 전송은 막지 않는다.
+  방 입장 순서도 <b>구독 먼저, 히스토리 나중</b> — 반대로 하면 그 사이 도착한 메시지가 유실된다.
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="n">4</span>판정 백엔드 교체</h2>
+<p class="lead">
+  <code>.env</code>의 <code>JUDGMENT_BACKEND</code> 한 줄로 갈아끼운다. 코드 변경이 없다 —
+  셋 다 같은 <code>ModelCall</code>을 돌려주므로 판정 로직·로그·강행 전송·지표가 그대로다.
+</p>
+
+<div class="switch">
+  <div class="box ext">
+    <div class="t">openai</div>
+    <div class="d">기본값. OpenAI API 호출.</div>
+    <ul><li>키 필요</li><li>최근 N개 메시지가 외부로 나감 → 사용자에게 고지</li><li>토큰 비용 추적</li></ul>
+  </div>
+  <div class="box ext">
+    <div class="t">ollama</div>
+    <div class="d">로컬 LLM (Qwen 등).</div>
+    <ul><li>키 불필요</li><li>OpenAI 호환 엔드포인트라 <span class="path">client.py</span> <b>같은 코드 경로</b></li><li><code>base_url</code>·모델명만 다름</li></ul>
+  </div>
+  <div class="box ai">
+    <div class="t">encoder <span style="font-weight:400;font-size:11px">← 현재</span></div>
+    <div class="d">파인튜닝 인코더. 외부 전송 없음.</div>
+    <ul><li>A.X-Encoder-base(ModernBERT) 파인튜닝</li><li><code>torch</code> 지연 import — 다른 백엔드에선 없어도 앱이 뜬다</li><li>299MB 로딩이 느려 lifespan에서 <b>warmup</b></li></ul>
+  </div>
+</div>
+
+<div class="note">
+  <b>임계값은 백엔드가 정하지 않는다.</b> <code>judge()</code>는 <code>settings.AI_VERDICT_THRESHOLD</code> 하나만 본다 —
+  그래야 <code>judgment_logs.threshold</code>가 설정값과 같다는 불변식(BR-6.5)이 지켜져 나중에 판정을 재현할 수 있다.
+  모델 폴더의 <code>threshold.json</code>은 <b>경고용</b>으로만 읽는다. 두 값이 0.02 넘게 어긋나면
+  <code>warmup()</code>이 로그로 경고한다 — 인코더로 바꾸면서 임계값을 안 고치는 것이 가장 흔한 실수이기 때문이다.
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="n">5</span>데이터 모델</h2>
+<p class="lead">
+  판정 로그를 <b>처음부터 별도 테이블로</b> 두었다. 성능 측정이 목적인데 메시지 테이블만 있으면 실험 데이터가 쌓이지 않고,
+  사용자가 취소한 건은 메시지로 남지도 않는다.
+</p>
+
+<div class="er">
+  <div class="ent"><div class="en">users</div><ul>
+    <li><b>id</b> · login_id · password_hash</li><li>display_name</li></ul></div>
+  <div class="ent"><div class="en">friendships</div><ul>
+    <li><b>owner_id</b> → users</li><li><b>friend_id</b> → users</li>
+    <li>alias <span style="font-size:11px">(필수, 수정 가능)</span></li>
+    <li style="font-size:11px">단방향 · 승인 없음</li></ul></div>
+  <div class="ent"><div class="en">rooms</div><ul>
+    <li><b>id</b> · title</li>
+    <li><b>last_seq</b> <span style="font-size:11px">← 채번 대상</span></li></ul></div>
+  <div class="ent"><div class="en">room_members</div><ul>
+    <li><b>room_id</b> · <b>user_id</b> <span style="font-size:11px">(복합 PK)</span></li>
+    <li><b>ai_check_enabled</b> <span style="font-size:11px">개인별, 신규 기본 켜짐</span></li></ul></div>
+  <div class="ent"><div class="en">messages</div><ul>
+    <li><b>room_id</b> · <b>seq</b> <span style="font-size:11px">← 정렬 키</span></li>
+    <li>sender_id · body · created_at</li>
+    <li><b>verification_status</b> <span style="font-size:11px">6종</span></li></ul></div>
+  <div class="ent"><div class="en">judgment_logs</div><ul>
+    <li>message_id <span style="font-size:11px">nullable — 취소 건은 없음</span></li>
+    <li>context_from_seq · context_to_seq</li>
+    <li>verdict · confidence · threshold</li>
+    <li>latency_ms · prompt/completion_tokens</li>
+    <li><b>user_action</b> <span style="font-size:11px">sent / cancelled</span></li></ul></div>
+</div>
+
+<p class="lead" style="margin-top:24px"><code>messages.verification_status</code> — 6개 값을 합치지 않는 이유가 각각 있다.</p>
+<table>
+  <thead><tr><th style="width:24%">값</th><th>의미</th></tr></thead>
+  <tbody>
+    <tr><td><code>ok</code></td><td>검증 통과 <span class="path">· 성능 집계 대상</span></td></tr>
+    <tr><td><code>flagged_sent</code></td><td>부적절 판정, 사용자가 전송 강행 <span class="path">· 성능 집계 대상</span></td></tr>
+    <tr><td><code>disabled</code></td><td>검증 토글이 꺼진 방</td></tr>
+    <tr><td><code>skipped_no_context</code></td><td>문맥 부족(콜드 스타트). 판단 자체가 불가능</td></tr>
+    <tr><td><code>failed</code></td><td>검증을 시도했으나 에러·타임아웃</td></tr>
+    <tr><td><code>degraded</code></td><td>사용자 동의하에 검증을 아예 건너뜀</td></tr>
+  </tbody>
+</table>
+<p class="lead" style="margin-top:10px">
+  <code>failed</code>와 <code>degraded</code>를 합치면 "API가 얼마나 자주 실패했나"를 셀 때
+  degraded 구간이 섞여 장애 빈도가 과대 집계된다. 성능 집계는 <b><code>ok</code> + <code>flagged_sent</code></b>만 쓴다.
+</p>
+
+<!-- ============================================================ -->
+<h2><span class="n">6</span>트랙 2 — 오프라인 모델 파이프라인</h2>
+<p class="lead">
+  웹앱(트랙 1)과 별개로 도는 축이다. 여기서 나온 모델이 <code>JUDGMENT_BACKEND=encoder</code>로 앱에 꽂힌다.
+</p>
+
+<div class="runtime" style="grid-template-columns:1fr auto 1fr auto 1fr">
+  <div class="box dbx">
+    <div class="t">dataset/</div>
+    <div class="d">라벨 데이터셋</div>
+    <ul>
+      <li><span class="path">training_dataset_v3_1000_simple.csv</span> — 학습 1000행</li>
+      <li><span class="path">test_dataset_v4_200.csv</span> — 평가 200행 (난이도 3단계)</li>
+      <li><span class="path">validate_context_dataset.py</span> — 누수 검증</li>
+      <li><span class="path">overlap_baseline.py</span> — 어휘 겹침 기준선</li>
+    </ul>
+  </div>
+  <div class="arrow"><div class="lbl">파인튜닝</div><div class="ln"></div></div>
+  <div class="box ai">
+    <div class="t">training/</div>
+    <div class="d">Colab 노트북</div>
+    <ul>
+      <li><span class="path">AX_Encoder_평가_v3_1000행_최종.ipynb</span></li>
+      <li>skt/A.X-Encoder-base · 5-fold CV</li>
+      <li>OOF로 threshold 보정</li>
+    </ul>
+  </div>
+  <div class="arrow"><div class="lbl">산출</div><div class="ln"></div></div>
+  <div class="box ai">
+    <div class="t">backend/models/context_checker/</div>
+    <div class="d">배포 모델</div>
+    <ul>
+      <li><span class="path">model.safetensors</span> 299MB</li>
+      <li><span class="path">threshold.json</span> — sweep 포함</li>
+      <li><span class="path">tokenizer.json</span> · <span class="path">config.json</span></li>
+    </ul>
+  </div>
+</div>
+
+<p class="lead" style="margin-top:22px">평가는 목적이 다른 두 경로로 나뉜다.</p>
+<table>
+  <thead><tr><th style="width:34%">명령</th><th style="width:33%">무엇을 재는가</th><th>recall</th></tr></thead>
+  <tbody>
+    <tr><td><code>python -m app.judgment.report</code></td><td>실사용 중 사용자가 어떻게 반응했는가</td><td>산출 불가 — 놓친 오발송의 모수를 모른다</td></tr>
+    <tr><td><code>python -m app.judgment.evaluate</code></td><td>모델이 정답 라벨을 맞히는가</td><td><b>산출된다</b> — 라벨이 모수를 준다</td></tr>
+    <tr><td><code>python benchmark_three.py</code></td><td>백엔드 3종 비교 + 절제 실험</td><td>평가셋 기준</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <b>평가에서 precision이 우선 지표다.</b> false positive가 치명적이다 —
+  멀쩡한 메시지에 팝업이 계속 뜨면 아무도 못 쓴다.
+  다만 50:50 평가셋의 precision은 실사용보다 낙관적이므로 기저율 보정을 같이 봐야 하고,
+  FP가 0이어도 FPR이 0인 것은 아니다(0/n의 95% 상한은 약 3/n).
+</div>
+
+<footer>
+  근거: <span class="path">README.md</span> · <span class="path">HANDOFF.md</span> ·
+  <span class="path">docker-compose.yml</span> · <span class="path">backend/app/</span> ·
+  <span class="path">aidlc/</span> 산출물(ADR 8건).
+  범위와 요구사항의 최종 권위는 README가 아니라 <span class="path">aidlc/</span> 아래 산출물이다.
+</footer>
+
+</div>
+</body>
+</html>
