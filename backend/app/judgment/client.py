@@ -149,6 +149,9 @@ def get_client() -> AsyncOpenAI:
     if _client is None:
         _client = AsyncOpenAI(
             api_key=settings.OPENAI_API_KEY.get_secret_value(),
+            # None이면 OpenAI, 값이 있으면 Ollama 같은 호환 엔드포인트다.
+            # **프로세스 공용 캐시라 백엔드를 바꿨으면 재시작해야 한다.**
+            base_url=settings.active_base_url,
             max_retries=0,
         )
     return _client
@@ -274,7 +277,7 @@ async def call_model(
 
         try:
             completion = await api.chat.completions.create(
-                model=settings.OPENAI_MODEL,
+                model=settings.active_model,
                 messages=messages,  # type: ignore[arg-type]  # SDK의 TypedDict와 호환된다
                 response_format=RESPONSE_FORMAT,  # type: ignore[arg-type]
                 temperature=TEMPERATURE,

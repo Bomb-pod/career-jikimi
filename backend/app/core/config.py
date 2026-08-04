@@ -94,6 +94,27 @@ class Settings(BaseSettings):
     # `tests/test_config.py`가 그 부등식을 지킨다.
     AI_TIMEOUT_SECONDS: float = Field(default=4.0, gt=0.0)
 
+    # --- 판정 백엔드 선택 (JUDGMENT_BACKEND) --------------------------------
+    # openai | ollama | encoder. `.env` 한 줄로 갈아끼운다.
+    # 오타는 `judgment.backend.active()`가 ValueError로 잡는다.
+    #
+    # openai와 ollama는 **같은 코드 경로**를 쓴다. Ollama가 OpenAI 호환
+    # 엔드포인트를 내주므로 base_url과 모델명만 다르고, 그래야
+    # `client.call_model()`의 타임아웃·재시도·예산 계산(BR-6.7)이 한 벌로 남는다.
+    JUDGMENT_BACKEND: str = "openai"
+
+    # ollama — 컨테이너에서 호스트를 부르므로 localhost가 아니다.
+    OLLAMA_BASE_URL: str = "http://host.docker.internal:11434/v1"
+    OLLAMA_MODEL: str = "qwen3.5:4b"
+
+    # encoder — 비우면 backend/models/context_checker 를 쓴다.
+    ENCODER_MODEL_DIR: str = ""
+    # **인코더는 LLM과 점수 스케일이 다르다.** 인코더로 바꾸면 AI_VERDICT_THRESHOLD도
+    # 같이 바꿔야 한다 — 0.7을 그대로 두면 판정이 엉뚱해진다. 학습 때 보정한 값이
+    # 모델 폴더의 threshold.json에 있고, 기동 시 `backend.warmup()`이 둘을 비교해
+    # 어긋나면 경고한다. **자동으로 덮어쓰지는 않는다** — judgment_logs.threshold가
+    # AI_VERDICT_THRESHOLD와 같다는 불변식을 지키기 위해서다 (BR-6.5).
+
     # --- CORS (main.py, FR-9.5) -------------------------------------------
     # 쉼표로 구분한 오리진 목록. **비어 있으면 CORS 미들웨어를 아예 붙이지 않는다.**
     #
@@ -102,6 +123,20 @@ class Settings(BaseSettings):
     # 원시 문자열로 받고 `cors_origins`가 쪼개면 `.env`에 사람이 읽을 수 있는 값을 쓸 수 있다.
     CORS_ORIGINS: str = ""
 
+
+    @property
+    def active_model(self) -> str:
+        """현재 백엔드가 쓸 모델명. `client.call_model()`이 이 값을 본다."""
+        if self.JUDGMENT_BACKEND.strip().lower() == "ollama":
+            return self.OLLAMA_MODEL
+        return self.OPENAI_MODEL
+
+    @property
+    def active_base_url(self) -> str | None:
+        """None이면 SDK 기본값(OpenAI)을 쓴다."""
+        if self.JUDGMENT_BACKEND.strip().lower() == "ollama":
+            return self.OLLAMA_BASE_URL
+        return None
     @field_validator("DATABASE_URL", "JWT_ALGORITHM", "OPENAI_MODEL")
     @classmethod
     def _reject_blank(cls, value: str) -> str:

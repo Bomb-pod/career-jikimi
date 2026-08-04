@@ -13922,3 +13922,226 @@
 **Findings count**: 2
 
 ---
+
+## Session Start
+**Timestamp**: 2026-07-31T07:08:02Z
+**Event**: SESSION_STARTED
+**Source**: startup
+
+---
+
+## Session End
+**Timestamp**: 2026-07-31T07:10:36Z
+**Event**: SESSION_ENDED
+**Reason**: other
+
+---
+
+## Session Start
+**Timestamp**: 2026-07-31T09:33:02Z
+**Event**: SESSION_STARTED
+**Source**: startup
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-31T09:33:14Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-31T09:39:01Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-31T09:41:46Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-31T09:45:34Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-31T12:13:51Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-31T12:21:24Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-31T12:36:22Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-07-31T13:04:58Z
+**Event**: HUMAN_TURN
+
+---
+
+## Session End
+**Timestamp**: 2026-07-31T13:08:58Z
+**Event**: SESSION_ENDED
+**Reason**: other
+
+---
+
+## Session Resume
+**Timestamp**: 2026-08-03T00:07:46Z
+**Event**: SESSION_RESUMED
+**Source**: resume
+
+---
+
+## Session Start
+**Timestamp**: 2026-08-03T00:07:46Z
+**Event**: SESSION_STARTED
+**Source**: startup
+
+---
+
+## Session End
+**Timestamp**: 2026-08-03T00:07:46Z
+**Event**: SESSION_ENDED
+**Reason**: other
+
+---
+
+## Session End
+**Timestamp**: 2026-08-03T00:07:55Z
+**Event**: SESSION_ENDED
+**Reason**: other
+
+---
+
+## Session Start
+**Timestamp**: 2026-08-03T00:08:00Z
+**Event**: SESSION_STARTED
+**Source**: startup
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T00:08:05Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T00:20:26Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T01:14:58Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T06:26:13Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T06:31:49Z
+**Event**: HUMAN_TURN
+
+---
+
+## Session End
+**Timestamp**: 2026-08-03T07:09:52Z
+**Event**: SESSION_ENDED
+**Reason**: other
+
+---
+
+## Session Start
+**Timestamp**: 2026-08-03T07:10:04Z
+**Event**: SESSION_STARTED
+**Source**: startup
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T07:19:12Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T07:25:42Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T07:37:33Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T07:49:29Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T08:06:06Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T09:14:51Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T09:18:54Z
+**Event**: HUMAN_TURN
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-03T09:24:22Z
+**Event**: HUMAN_TURN
+
+---
+
+## Session End
+**Timestamp**: 2026-08-03T09:36:17Z
+**Event**: SESSION_ENDED
+**Reason**: other
+
+---
+
+## Session Start
+**Timestamp**: 2026-08-04T02:31:26Z
+**Event**: SESSION_STARTED
+**Source**: startup
+
+---
+
+## Human Turn
+**Timestamp**: 2026-08-04T07:08:49Z
+**Event**: HUMAN_TURN
+
+---

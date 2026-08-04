@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>career-jikimi 시스템 구성도</title>
+<style>
+  :root{
+    --bg:#fff; --ink:#16191d; --muted:#6b7280; --faint:#9aa2ad;
+    --line:#c9cfd6; --panel:#f7f8fa;
+    --fe:#3f6ea8; --fe-bg:#eef3fa;
+    --be:#2b7a6c; --be-bg:#e9f5f2;
+    --ai:#a2603c; --ai-bg:#fbf0e8;
+    --db:#6a5a97; --db-bg:#f0edf8;
+    --ext:#858c96; --ext-bg:#f2f3f5;
+    --warn:#b0453a; --warn-bg:#fbeceb;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#14171a; --ink:#e8eaed; --muted:#9aa2ad; --faint:#79818b;
+      --line:#3d444c; --panel:#1c2024;
+      --fe:#8fb4e0; --fe-bg:#1c2733;
+      --be:#79c5b5; --be-bg:#182a27;
+      --ai:#dda37c; --ai-bg:#2c2320;
+      --db:#a998d9; --db-bg:#232035;
+      --ext:#a4abb4; --ext-bg:#22262a;
+      --warn:#e08b81; --warn-bg:#2e1f1e;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1300px;margin:0 auto;padding:40px 24px 64px}
+  h1{font-size:25px;margin:0 0 6px;letter-spacing:-.02em}
+  .sub{color:var(--muted);margin:0 0 4px;font-size:15px}
+  .meta{color:var(--faint);font-size:12.5px;margin:10px 0 26px}
+  svg{width:100%;height:auto;display:block}
+  svg text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  /* svg fills */
+  .r-fe{fill:var(--fe-bg);stroke:var(--fe)}
+  .r-be{fill:var(--be-bg);stroke:var(--be)}
+  .r-ai{fill:var(--ai-bg);stroke:var(--ai)}
+  .r-db{fill:var(--db-bg);stroke:var(--db)}
+  .r-ext{fill:var(--ext-bg);stroke:var(--ext);stroke-dasharray:5 3}
+  .r-warn{fill:var(--warn-bg);stroke:var(--warn)}
+  .r-panel{fill:var(--panel);stroke:var(--line)}
+  .r-none{fill:none;stroke:var(--line);stroke-dasharray:7 5}
+  rect{stroke-width:1.3}
+  .t-fe{fill:var(--fe)} .t-be{fill:var(--be)} .t-ai{fill:var(--ai)}
+  .t-db{fill:var(--db)} .t-ext{fill:var(--ext)} .t-warn{fill:var(--warn)}
+  .t-ink{fill:var(--ink)} .t-mute{fill:var(--muted)} .t-faint{fill:var(--faint)}
+  .hd{font-size:13.5px;font-weight:650}
+  .lb{font-size:12px;font-weight:600}
+  .sm{font-size:11px}
+  .xs{font-size:10.5px}
+  .ln{stroke:var(--line);stroke-width:1.6;fill:none}
+  .ln-d{stroke:var(--line);stroke-width:1.4;fill:none;stroke-dasharray:5 4}
+  .legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:22px;font-size:12.5px;color:var(--muted)}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .sw{width:11px;height:11px;border-radius:3px;border:1.3px solid}
+  .notes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:30px}
+  .note{border-left:3px solid var(--line);padding:10px 14px;font-size:13px;color:var(--muted)}
+  .note b{color:var(--ink);display:block;margin-bottom:3px;font-size:13.5px}
+  .note.w{border-left-color:var(--warn)} .note.w b{color:var(--warn)}
+  footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);color:var(--faint);font-size:12px}
+  @media (max-width:820px){.notes{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>career-jikimi — 시스템 구성도</h1>
+<p class="sub">채팅방을 착각해 잘못 보낸 메시지를, 전송되기 전에 문맥으로 걸러낸다</p>
+<p class="meta">컨테이너 2개 · uvicorn 워커 1개 고정 · 판정 백엔드 3종 교체 · 2026-08-03</p>
+
+<svg viewBox="0 0 1240 850" role="img" aria-label="career-jikimi 전체 시스템 구성도">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--line)"/>
+    </marker>
+    <marker id="ar2" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M10,0 L0,5 L10,10 z" fill="var(--line)"/>
+    </marker>
+  </defs>
+
+  <!-- ============ 브라우저 ============ -->
+  <rect class="r-fe" x="30" y="112" width="222" height="236" rx="10"/>
+  <text class="hd t-fe" x="46" y="136">브라우저</text>
+  <text class="sm t-mute" x="46" y="153">React 18 + TS + Vite</text>
+
+  <rect class="r-panel" x="46" y="166" width="190" height="36" rx="6"/>
+  <text class="lb t-ink" x="58" y="182">views/</text>
+  <text class="xs t-mute" x="58" y="195">Auth · RoomList · Chat · Dialogs</text>
+
+  <rect class="r-panel" x="46" y="210" width="190" height="36" rx="6"/>
+  <text class="lb t-ink" x="58" y="226">store/chatStore</text>
+  <text class="xs t-mute" x="58" y="239">Zustand — WS 핸들러가 직접 갱신</text>
+
+  <rect class="r-panel" x="46" y="254" width="190" height="36" rx="6"/>
+  <text class="lb t-ink" x="58" y="270">lib/</text>
+  <text class="xs t-mute" x="58" y="283">wsClient · apiClient · viewedRooms</text>
+
+  <text class="xs t-faint" x="46" y="312">낙관적 렌더링 → ack의 실제 ID로 교체</text>
+  <text class="xs t-faint" x="46" y="328">JWT는 localStorage · 부팅 시 /auth/me로 복구</text>
+
+  <!-- browser → app -->
+  <path class="ln" d="M252 208 H322" marker-end="url(#ar)"/>
+  <path class="ln" d="M322 246 H252" marker-end="url(#ar)"/>
+  <text class="xs t-mute" x="258" y="200">HTTP :8000</text>
+  <text class="xs t-mute" x="258" y="266">WS /ws · 사용자당 1개</text>
+
+  <!-- ============ compose 경계 ============ -->
+  <rect class="r-none" x="322" y="74" width="566" height="576" rx="14"/>
+  <rect x="336" y="66" width="118" height="16" fill="var(--bg)"/>
+  <text class="xs t-faint mono" x="342" y="79">docker compose</text>
+
+  <!-- ---- app 컨테이너 ---- -->
+  <rect class="r-be" x="342" y="98" width="526" height="392" rx="10"/>
+  <text class="hd t-be" x="358" y="122">app 컨테이너 · FastAPI</text>
+  <text class="xs t-mute" x="358" y="138">python:3.12-slim · uvicorn 워커 1개 고정 (CON-1)</text>
+
+  <rect class="r-panel" x="358" y="150" width="238" height="38" rx="6"/>
+  <text class="lb t-ink" x="370" y="167">SPA 폴백 서빙</text>
+  <text class="xs t-mute" x="370" y="180">static/ — 프론트 빌드 결과물 (FR-9.5)</text>
+
+  <rect class="r-panel" x="358" y="196" width="238" height="112" rx="6"/>
+  <text class="lb t-ink" x="370" y="213">REST 라우터</text>
+  <text class="xs t-mute" x="370" y="230">auth — 회원가입·로그인·JWT</text>
+  <text class="xs t-mute" x="370" y="246">friends — 정확 일치 단방향 등록</text>
+  <text class="xs t-mute" x="370" y="262">rooms — 방 생성·목록·설정</text>
+  <text class="xs t-mute" x="370" y="278">messages — 전송 오케스트레이션</text>
+  <text class="xs t-mute" x="370" y="294">judgment — 강행 전송·지표</text>
+
+  <rect class="r-panel" x="358" y="316" width="238" height="38" rx="6"/>
+  <text class="lb t-ink" x="370" y="333">WebSocket</text>
+  <text class="xs t-mute" x="370" y="346">rooms/ws.py — room_id로 멀티플렉싱</text>
+
+  <rect class="r-warn" x="358" y="362" width="238" height="42" rx="6"/>
+  <text class="lb t-warn" x="370" y="379">core/ws_registry</text>
+  <text class="xs t-mute" x="370" y="393">프로세스 메모리 → 워커를 못 늘린다</text>
+
+  <rect class="r-panel" x="358" y="412" width="238" height="34" rx="6"/>
+  <text class="xs t-mute" x="370" y="433">core/ — config · db · errors</text>
+
+  <!-- judgment -->
+  <rect class="r-ai" x="614" y="150" width="238" height="256" rx="8"/>
+  <text class="hd t-ai" x="626" y="171">judgment (U2)</text>
+  <text class="xs t-mute" x="626" y="186">앱 없이도 단독으로 도는 단위</text>
+
+  <rect class="r-panel" x="626" y="196" width="214" height="46" rx="6"/>
+  <text class="lb t-ink" x="637" y="213">service.judge()</text>
+  <text class="xs t-mute" x="637" y="227">Appropriate / Inappropriate / Failed</text>
+  <text class="xs t-mute" x="637" y="238">— Failed는 예외가 아니라 반환값</text>
+
+  <rect class="r-panel" x="626" y="250" width="214" height="44" rx="6"/>
+  <text class="lb t-ink" x="637" y="267">prompt · anonymize</text>
+  <text class="xs t-mute" x="637" y="280">최근 N개(10~20) 조립 → 익명화</text>
+  <text class="xs t-mute" x="637" y="291">참여자 정보는 쓰지 않는다</text>
+
+  <rect class="r-panel" x="626" y="302" width="214" height="42" rx="6"/>
+  <text class="lb t-ink" x="637" y="319">backend.py</text>
+  <text class="xs t-mute" x="637" y="333">타임아웃 4초 · 재시도 1회</text>
+
+  <rect class="r-panel" x="626" y="352" width="214" height="42" rx="6"/>
+  <text class="lb t-ink" x="637" y="369">metrics · evaluate · report</text>
+  <text class="xs t-mute" x="637" y="383">CLI로 오프라인 평가까지</text>
+
+  <path class="ln" d="M596 252 H612" marker-end="url(#ar)"/>
+  <text class="xs t-mute" x="576" y="244">judge()</text>
+
+  <!-- app → db -->
+  <path class="ln" d="M605 490 V520" marker-end="url(#ar)"/>
+  <text class="xs t-mute" x="615" y="510">SQLAlchemy async · asyncmy</text>
+
+  <!-- ---- db 컨테이너 ---- -->
+  <rect class="r-db" x="342" y="520" width="526" height="112" rx="10"/>
+  <text class="hd t-db" x="358" y="544">db 컨테이너 · MariaDB 11</text>
+  <text class="xs t-mute" x="358" y="560">utf8mb4 명시 · TZ=Asia/Seoul · 볼륨 db_data · 127.0.0.1:3307만 노출</text>
+
+  <rect class="r-panel" x="358" y="570" width="243" height="48" rx="6"/>
+  <text class="xs t-mute" x="369" y="587">users · friendships</text>
+  <text class="xs t-mute" x="369" y="602">rooms(last_seq) · room_members(ai_check_enabled)</text>
+
+  <rect class="r-panel" x="609" y="570" width="243" height="48" rx="6"/>
+  <text class="xs t-mute" x="620" y="587">messages(room_id, seq, verification_status)</text>
+  <text class="xs t-mute" x="620" y="602">judgment_logs — user_action이 사실상의 라벨</text>
+
+  <!-- ============ 판정 백엔드 3종 ============ -->
+  <path class="ln" d="M852 322 H902" marker-end="url(#ar)"/>
+  <path class="ln" d="M902 322 V186 M902 322 V270 M902 322 V400"/>
+  <path class="ln" d="M902 186 H930" marker-end="url(#ar)"/>
+  <path class="ln" d="M902 270 H930" marker-end="url(#ar)"/>
+  <path class="ln" d="M902 400 H930" marker-end="url(#ar)"/>
+  <text class="xs t-mute mono" x="856" y="314">JUDGMENT_BACKEND</text>
+
+  <rect class="r-ext" x="930" y="160" width="278" height="52" rx="8"/>
+  <text class="lb t-ext" x="944" y="180">openai <tspan class="xs">— 기본값</tspan></text>
+  <text class="xs t-mute" x="944" y="197">외부 전송 · 키 필요 · 토큰 비용 추적</text>
+
+  <rect class="r-ext" x="930" y="244" width="278" height="52" rx="8"/>
+  <text class="lb t-ext" x="944" y="264">ollama</text>
+  <text class="xs t-mute" x="944" y="281">로컬 LLM · OpenAI 호환이라 같은 코드 경로</text>
+
+  <rect class="r-ai" x="930" y="352" width="278" height="96" rx="8"/>
+  <text class="lb t-ai" x="944" y="372">encoder <tspan class="xs">← 현재</tspan></text>
+  <text class="xs t-mute" x="944" y="389">A.X-Encoder-base (ModernBERT) 파인튜닝</text>
+  <text class="xs t-mute" x="944" y="404">외부 전송 없음 · torch 지연 import</text>
+  <text class="xs t-mute" x="944" y="419">299MB → lifespan에서 warmup</text>
+  <text class="xs t-mute" x="944" y="437">임계값은 .env가 결정 (BR-6.5)</text>
+
+  <!-- ============ 트랙 2 오프라인 ============ -->
+  <rect class="r-none" x="30" y="686" width="1178" height="140" rx="12"/>
+  <rect x="46" y="678" width="284" height="16" fill="var(--bg)"/>
+  <text class="xs t-faint" x="52" y="691">트랙 2 — 오프라인 모델 파이프라인 (앱과 별개로 돈다)</text>
+
+  <rect class="r-db" x="52" y="712" width="238" height="88" rx="8"/>
+  <text class="lb t-db" x="65" y="732">dataset/</text>
+  <text class="xs t-mute" x="65" y="749">training_dataset_v3_1000_simple.csv</text>
+  <text class="xs t-mute" x="65" y="764">test_dataset_v4_200.csv (난이도 3단계)</text>
+  <text class="xs t-mute" x="65" y="779">validate_context_dataset.py — 누수 검증</text>
+  <text class="xs t-mute" x="65" y="794">overlap_baseline.py — 어휘 겹침 기준선</text>
+
+  <path class="ln" d="M290 756 H336" marker-end="url(#ar)"/>
+  <text class="xs t-faint" x="294" y="748">파인튜닝</text>
+
+  <rect class="r-ai" x="336" y="712" width="238" height="88" rx="8"/>
+  <text class="lb t-ai" x="349" y="732">training/</text>
+  <text class="xs t-mute" x="349" y="749">AX_Encoder_평가_v3_1000행_최종.ipynb</text>
+  <text class="xs t-mute" x="349" y="764">Colab · 5-fold 교차검증</text>
+  <text class="xs t-mute" x="349" y="779">OOF 예측으로 threshold 보정</text>
+  <text class="xs t-mute" x="349" y="794">별도 테스트셋 없음 — OOF가 그 역할</text>
+
+  <path class="ln" d="M574 756 H620" marker-end="url(#ar)"/>
+  <text class="xs t-faint" x="578" y="748">산출</text>
+
+  <rect class="r-ai" x="620" y="712" width="238" height="88" rx="8"/>
+  <text class="lb t-ai" x="633" y="732">backend/models/context_checker/</text>
+  <text class="xs t-mute" x="633" y="749">model.safetensors 299MB</text>
+  <text class="xs t-mute" x="633" y="764">threshold.json — sweep 95포인트 포함</text>
+  <text class="xs t-mute" x="633" y="779">tokenizer.json · config.json</text>
+  <text class="xs t-mute" x="633" y="794">현재 4 epoch 기준</text>
+
+  <path class="ln" d="M858 756 H904" marker-end="url(#ar)"/>
+
+  <rect class="r-panel" x="904" y="712" width="304" height="88" rx="8"/>
+  <text class="lb t-ink" x="917" y="732">평가</text>
+  <text class="xs t-mute" x="917" y="749">judgment.evaluate — 라벨셋, recall 산출</text>
+  <text class="xs t-mute" x="917" y="764">judgment.report — 라이브, recall 산출 불가</text>
+  <text class="xs t-mute" x="917" y="779">scripts/eval/benchmark_three.py — 3종 비교 + 절제 실험</text>
+  <text class="xs t-mute" x="917" y="794">precision 우선 (FP가 치명적)</text>
+
+  <!-- model → encoder backend -->
+  <path class="ln-d" d="M880 740 H900 V440 H928" marker-end="url(#ar)"/>
+  <text class="xs t-faint" x="806" y="733">모델 탑재</text>
+</svg>
+
+<div class="legend">
+  <span><i class="sw" style="border-color:var(--fe);background:var(--fe-bg)"></i>프론트엔드</span>
+  <span><i class="sw" style="border-color:var(--be);background:var(--be-bg)"></i>백엔드</span>
+  <span><i class="sw" style="border-color:var(--ai);background:var(--ai-bg)"></i>판정 · 모델</span>
+  <span><i class="sw" style="border-color:var(--db);background:var(--db-bg)"></i>데이터</span>
+  <span><i class="sw" style="border-color:var(--ext);background:var(--ext-bg);border-style:dashed"></i>외부 서비스</span>
+  <span><i class="sw" style="border-color:var(--warn);background:var(--warn-bg)"></i>구조적 제약</span>
+</div>
+
+<div class="notes">
+  <div class="note w">
+    <b>워커를 늘리면 깨진다</b>
+    WS 연결 레지스트리가 프로세스 메모리에 있어 <span class="mono">--workers 2</span> 이상이면 다른 워커에 붙은 사용자에게 메시지가 가지 않는다 (CON-1). 확장하려면 Redis pub/sub으로 먼저 바꿔야 한다.
+  </div>
+  <div class="note">
+    <b>저장 먼저, 브로드캐스트 나중</b>
+    순서가 반대면 DB 쓰기 실패 시 화면엔 보이는데 새로고침하면 사라진다. 정렬은 <span class="mono">created_at</span>이 아니라 <span class="mono">(room_id, seq)</span>이고, 채번은 <span class="mono">FOR UPDATE</span>로 방 단위 직렬화한다.
+  </div>
+  <div class="note">
+    <b>검증은 참여자 개인별</b>
+    <span class="mono">room_members.ai_check_enabled</span>. 방장이 켠다고 전원 적용되지 않는다 — 내 실수를 막는 기능이지 남이 내 전송 지연을 결정할 일이 아니다.
+  </div>
+</div>
+
+<footer>
+  근거: README.md · HANDOFF.md · docker-compose.yml · backend/app/ · aidlc/ 산출물(ADR 8건).
+  범위와 요구사항의 최종 권위는 README가 아니라 aidlc/ 아래 산출물이다.
+</footer>
+
+</div>
+</body>
+</html>

@@ -7,8 +7,8 @@
 가져오기 위해서다. 문안을 복사해두면 벤치마크와 운영이 갈라진다.
 
     cd backend
-    .venv/Scripts/python.exe ../benchmark_three.py --csv ../eval.csv --dry-run
-    .venv/Scripts/python.exe ../benchmark_three.py --csv ../eval.csv \
+    .venv/Scripts/python.exe ../scripts/eval/benchmark_three.py --csv ../eval.csv --dry-run
+    .venv/Scripts/python.exe ../scripts/eval/benchmark_three.py --csv ../eval.csv \
         --backends encoder,ollama,openai --limit 100
 
 ## 공정성을 위해 하는 것
@@ -38,12 +38,35 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+def _bootstrap_path() -> str | None:
+    """`app` 패키지가 있는 폴더를 sys.path에 넣는다.
+
+    Python은 cwd가 아니라 **스크립트가 있는 폴더**를 sys.path[0]에 넣는다.
+    그래서 `cd backend && python ../this.py` 로 실행하면 프로젝트 루트가 잡히고
+    `app`(= backend/app)을 못 찾는다. cwd와 그 상위, 스크립트 폴더를 훑어
+    `app/judgment/prompt.py`가 있는 곳을 찾아 넣는다.
+    """
+    import sys
+    from pathlib import Path
+    here = Path(__file__).resolve().parent
+    for base in [Path.cwd(), *Path.cwd().parents, here, *here.parents]:
+        for cand in (base, base / "backend"):
+            if (cand / "app" / "judgment" / "prompt.py").exists():
+                if str(cand) not in sys.path:
+                    sys.path.insert(0, str(cand))
+                return str(cand)
+    return None
+
+
+_APP_ROOT = _bootstrap_path()
+
 try:
     from app.judgment.constants import TEMPERATURE
     from app.judgment.prompt import RESPONSE_FORMAT, SCORE_KEY, build_messages
     from app.judgment.types import ContextMessage
 except ImportError as exc:
-    sys.exit(f"[중단] {exc}\n       backend/ 에서 실행할 것: cd backend && python ../benchmark_three.py ...")
+    sys.exit(f"[중단] {exc}\n       app 패키지를 못 찾았다 (탐색 결과: {_APP_ROOT}).\n"
+             "       backend/ 안에 app/judgment/prompt.py 가 있는지 확인할 것.")
 
 LABEL_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 SPEAKER_RE = re.compile(r"^([^:]{1,12}):\s*(.*)$")
@@ -117,6 +140,9 @@ def load_eval(path: str, limit: int) -> pd.DataFrame:
     })
     pid = pick("pair_id", "pair", "group")
     out["pair_id"] = df[pid].astype(str) if pid else [f"row{i}" for i in range(len(df))]
+    for extra in ("reason", "difficulty", "scenario", "source", "source_type"):
+        if extra in cols:
+            out[extra] = df[cols[extra]].astype(str)
 
     vals = set(out["label_raw"])
     pos = {"부적절", "1", "inappropriate", "misdirected", "True"}
@@ -160,7 +186,7 @@ def check_overlap(ev: pd.DataFrame, train_csv: str | None) -> pd.Series:
 
 
 # ---------------------------------------------------------------- 백엔드
-async def run_llm(ev, model, base_url, api_key, concurrency, timeout):
+async def run_llm(ev, model, base_url, api_key, concurrency, timeout, extra_body=None):
     from openai import AsyncOpenAI
 
     client = AsyncOpenAI(base_url=base_url, api_key=api_key, max_retries=0)
@@ -174,9 +200,14 @@ async def run_llm(ev, model, base_url, api_key, concurrency, timeout):
         async with sem:
             t0 = time.monotonic()
             try:
+                kw = {}
+                if extra_body:
+                    # Ollama의 think/options 같은 비표준 필드를 그대로 얹는다.
+                    # SDK가 모르는 키라도 본문에 실어 보낸다.
+                    kw["extra_body"] = extra_body
                 c = await client.chat.completions.create(
                     model=model, messages=messages, response_format=RESPONSE_FORMAT,
-                    temperature=TEMPERATURE, timeout=timeout)
+                    temperature=TEMPERATURE, timeout=timeout, **kw)
                 score = float(json.loads(c.choices[0].message.content or "")[SCORE_KEY])
                 u = getattr(c, "usage", None)
                 res[i] = {"score": min(max(score, 0.0), 1.0),
@@ -268,6 +299,26 @@ def evaluate(name, ev, rows, threshold):
     return m
 
 
+
+class _Tee:
+    """콘솔에 그대로 찍으면서 동시에 버퍼에 쌓는다 — 리포트 파일용."""
+
+    def __init__(self, stream, buf):
+        self._s, self._b = stream, buf
+
+    def write(self, text):
+        self._s.write(text)
+        # 진행 표시(\r로 덮어쓰는 줄)는 파일에 남기지 않는다
+        if not text.endswith("\r"):
+            self._b.append(text)
+
+    def flush(self):
+        self._s.flush()
+
+    def isatty(self):
+        return getattr(self._s, "isatty", lambda: False)()
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--csv", required=True, help="평가 데이터셋")
@@ -283,11 +334,28 @@ def main() -> int:
     ap.add_argument("--ollama-model", default="qwen3.5:4b")
     ap.add_argument("--ollama-url", default="http://localhost:11434/v1")
     ap.add_argument("--llm-threshold", type=float, default=0.7)
+    ap.add_argument("--llm-extra-body", default=None,
+                    help='요청 본문에 그대로 얹을 JSON. Ollama 예: '
+                         '\'{"think": false, "options": {"num_ctx": 2048}}\'')
     ap.add_argument("--concurrency", type=int, default=6)
     ap.add_argument("--timeout", type=float, default=30.0)
     ap.add_argument("--out", default="../benchmark_out")
     ap.add_argument("--dry-run", action="store_true", help="CSV만 검증하고 호출은 안 한다")
+    ap.add_argument("--ablation", action="store_true",
+                    help="history를 다른 행 것으로 바꿔 한 번 더 돌린다. LLM은 호출이 2배 든다")
+    ap.add_argument("--slice-col", default=None,
+                    help="이 컬럼 값별로 성능을 나눠 보고한다 (예: reason, difficulty)")
     args = ap.parse_args()
+    extra_body = json.loads(args.llm_extra_body) if args.llm_extra_body else None
+
+    import datetime, io
+    buf: list[str] = []
+    real_stdout = sys.stdout
+    sys.stdout = _Tee(real_stdout, buf)  # type: ignore[assignment]
+    started = datetime.datetime.now()
+    print(f"benchmark_three  {started:%Y-%m-%d %H:%M:%S}")
+    print(f"평가셋 {args.csv} | 백엔드 {args.backends} | limit {args.limit or '전량'}"
+          f" | ablation {args.ablation}")
 
     ev = load_eval(args.csv, args.limit)
     print(f"평가셋 {len(ev)}행 | 부적절 {int(ev.y.sum())} / 적절 {int((1-ev.y).sum())}")
@@ -304,6 +372,8 @@ def main() -> int:
     print(f"  후보  : {ev.response.iloc[0][:50]}")
     if args.dry_run:
         print("\n--dry-run — 여기까지.")
+        _write_report(Path(args.out), buf, None, args, started)
+        sys.stdout = real_stdout
         return 0
 
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
@@ -322,7 +392,7 @@ def main() -> int:
             elif be == "ollama":
                 thr = args.llm_threshold
                 rows = asyncio.run(run_llm(ev, args.ollama_model, args.ollama_url,
-                                           "ollama", args.concurrency, args.timeout))
+                                           "ollama", args.concurrency, args.timeout, extra_body))
             elif be == "openai":
                 import os
                 key = args.openai_key or os.environ.get("OPENAI_API_KEY")
@@ -344,18 +414,90 @@ def main() -> int:
             metrics.append(m)
             print(f"  AUC {m['AUC']:.3f} | precision {m['precision']:.3f} | "
                   f"recall {m['recall']:.3f} | p50 {m['p50_ms']}ms | 실패 {m['실패']}")
+            _ct = pd.DataFrame(rows)["completion_tokens"].fillna(0)
+            if len(_ct) and _ct.median() > 50:
+                print(f"  [!] 출력 토큰 중앙값 {_ct.median():.0f} — 필요한 건 점수 하나뿐인데")
+                print(f"      생각 과정을 뱉고 있다. --llm-extra-body '{{\"think\": false}}' 로 끌 것.")
+
+        # 슬라이스별 — 평가셋에 reason/difficulty 같은 컬럼이 있을 때
+        if args.slice_col and args.slice_col in ev.columns:
+            print(f"\n  [{args.slice_col}별]")
+            sc = pd.DataFrame(rows)["score"]
+            for v, idx in ev.groupby(args.slice_col).groups.items():
+                sub = ev.loc[idx]
+                ss = sc.loc[idx]
+                okm = ss.notna()
+                if okm.sum() == 0:
+                    continue
+                p = (ss[okm] >= thr).astype(int).values
+                yy = sub.y.values[okm.values]
+                print(f"    {str(v):10s} n={okm.sum():3d}  정답률 {float((p==yy).mean()):.3f}"
+                      f"  (실제 부적절 {int(yy.sum())})")
+
+        # 절제 실험 — history를 한 칸 밀어 다른 행 문맥과 짝지운다.
+        # 평가셋에 response-only 누출이 있으면 정확도만으로는 문맥 사용 여부를
+        # 알 수 없다. 여기서 점수가 안 떨어지는 방식은 문맥을 안 보는 것이다.
+        if args.ablation:
+            print(f"\n  [절제] history 교체 후 재실행")
+            ev_ab = ev.copy()
+            ev_ab["history"] = np.roll(ev["history"].values, 1)
+            try:
+                if be == "encoder":
+                    rows_ab = run_encoder(ev_ab, args.model_dir, args.encoder_max_len)
+                elif be == "ollama":
+                    rows_ab = asyncio.run(run_llm(ev_ab, args.ollama_model, args.ollama_url,
+                                                  "ollama", args.concurrency, args.timeout, extra_body))
+                else:
+                    import os as _os
+                    rows_ab = asyncio.run(run_llm(ev_ab, args.openai_model, None,
+                                                  args.openai_key or _os.environ.get("OPENAI_API_KEY"),
+                                                  args.concurrency, args.timeout))
+                m_ab = evaluate(be + ":swapped", ev, rows_ab, thr)
+                if m_ab and m:
+                    # **판정은 AUC로 한다.** 정확도 하락폭은 threshold가 나쁘면
+                    # 원래 정확도가 이미 깎여 있어 하락 여지가 줄고, 문맥 의존도를
+                    # 실제보다 작게 보이게 한다. AUC는 threshold와 무관하다.
+                    d_acc = m["정확도"] - m_ab["정확도"]
+                    d_auc = m["AUC"] - m_ab["AUC"]
+                    m["swapped_정확도"] = m_ab["정확도"]
+                    m["swapped_AUC"] = m_ab["AUC"]
+                    m["하락폭_정확도"] = round(float(d_acc), 4)
+                    m["하락폭_AUC"] = round(float(d_auc), 4)
+                    verdict = ("문맥 사용" if d_auc >= 0.25 else
+                               "부분 사용" if d_auc >= 0.10 else "문맥 미사용")
+                    print(f"    정확도 {m['정확도']:.3f} → {m_ab['정확도']:.3f} ({d_acc:+.3f})")
+                    print(f"    AUC   {m['AUC']:.3f} → {m_ab['AUC']:.3f} ({d_auc:+.3f}) → [{verdict}]")
+            except Exception as exc:  # noqa: BLE001
+                print(f"    절제 실패: {type(exc).__name__}: {exc}")
 
     if not metrics:
-        print("\n결과 없음."); return 1
+        print("\n결과 없음.")
+        _write_report(out, buf, None, args, started)
+        sys.stdout = real_stdout
+        return 1
 
     md = pd.DataFrame(metrics)
     print("\n" + "=" * 78)
     print(md[["backend", "n", "AUC", "정확도", "precision", "recall", "팝업률",
               "p50_ms", "p95_ms", "4초초과", "실패"]].to_string(index=False))
+    if "하락폭_AUC" in md.columns:
+        print("\n절제 실험 — history를 바꿔도 유지되면 문맥을 안 보는 것이다 (판정은 AUC 기준)")
+        print(md[["backend", "AUC", "swapped_AUC", "하락폭_AUC",
+                  "정확도", "swapped_정확도", "하락폭_정확도"]].to_string(index=False))
     print("\n실사용 기저율 보정 precision")
     print(md[["backend", "precision", "prec@10%", "prec@5%", "prec@1%"]].to_string(index=False))
     print("\n토큰 (누적 입력)")
     print(md[["backend", "prompt_tokens", "총소요_s"]].to_string(index=False))
+
+    for _, r in md.iterrows():
+        if r.get("FP", 1) == 0:
+            n_neg = int(r["TN"]) + int(r["FP"])
+            ub = 3.0 / max(n_neg, 1)
+            print(f"\n[주의] {r['backend']}: 적절 {n_neg}건 중 FP가 0이라 FPR을 0으로 계산했다.")
+            print(f"       0/{n_neg} 의 95% 상한은 약 {ub:.3f} (rule of three) —")
+            print(f"       그 값으로 보면 prec@1% 는 "
+                  f"{r['recall']*0.01/(r['recall']*0.01+ub*0.99):.3f} 까지 떨어진다.")
+            print("       위 표의 prec@1% = 1.000 을 그대로 믿으면 안 된다.")
 
     md.to_csv(out / "comparison.csv", index=False, encoding="utf-8-sig")
     print(f"\n저장: {out}/  (백엔드별 행 단위 결과 + comparison.csv)")
@@ -363,8 +505,63 @@ def main() -> int:
     print("  · AUC가 threshold와 무관한 비교다. 정확도는 threshold 운이 섞인다.")
     print("  · precision이 우선 지표다 (README). 다만 평가셋이 균형이면 실사용보다 낙관적이다.")
     print("  · 4초초과 건수가 NFR-1 판단 근거다.")
+
+    _write_report(out, buf, md, args, started)
+    sys.stdout = real_stdout
     return 0
 
+
+
+def _write_report(out, buf, md, args, started):
+    """콘솔 전문(report.txt)과 요약(report.md)을 남긴다."""
+    import datetime
+    out.mkdir(parents=True, exist_ok=True)
+
+    (out / "report.txt").write_text("".join(buf), encoding="utf-8")
+
+    lines = [
+        f"# 판정 성능 비교",
+        "",
+        f"- 실행: {started:%Y-%m-%d %H:%M}  (소요 {(datetime.datetime.now()-started).seconds}초)",
+        f"- 평가셋: `{args.csv}`",
+        f"- 백엔드: {args.backends}",
+        f"- 절제 실험: {'실행' if args.ablation else '안 함'}",
+        "",
+    ]
+    if md is not None and len(md):
+        def tbl(cols, title):
+            cs = [c for c in cols if c in md.columns]
+            if not cs:
+                return []
+            o = [f"## {title}", "", "| " + " | ".join(cs) + " |",
+                 "|" + "---|" * len(cs)]
+            for _, r in md.iterrows():
+                o.append("| " + " | ".join(str(r[c]) for c in cs) + " |")
+            return o + [""]
+
+        lines += tbl(["backend", "n", "AUC", "정확도", "precision", "recall",
+                      "팝업률", "실패"], "판정 성능")
+        lines += tbl(["backend", "p50_ms", "p95_ms", "4초초과", "총소요_s"],
+                     "지연 (NFR-1: 정상 5초 / 타임아웃 4초)")
+        lines += tbl(["backend", "AUC", "swapped_AUC", "하락폭_AUC",
+                      "정확도", "swapped_정확도", "하락폭_정확도"],
+                     "절제 실험 — history를 바꿔도 유지되면 문맥을 안 보는 것")
+        lines += tbl(["backend", "precision", "prec@10%", "prec@5%", "prec@1%"],
+                     "실사용 기저율 보정 precision")
+        lines += tbl(["backend", "TP", "FP", "FN", "TN", "threshold"], "혼동행렬")
+
+        lines += [
+            "## 읽을 때 주의",
+            "",
+            "- **AUC가 threshold와 무관한 비교다.** 정확도는 threshold를 잘 골랐냐는 운이 섞인다.",
+            "- 평가셋이 50:50이면 precision이 실사용보다 낙관적이다. 기저율 보정표를 같이 볼 것.",
+            "- **FP가 0이어도 FPR이 0인 것은 아니다.** 0/n의 95% 상한은 약 3/n이고,",
+            "  그 값으로 보면 낮은 기저율에서의 precision이 크게 떨어진다.",
+            "- 지연은 배치 처리량이다. 실서비스는 한 건씩 오므로 단일 요청 지연을 따로 재야 한다.",
+            "",
+        ]
+    (out / "report.md").write_text("\n".join(lines), encoding="utf-8")
+    print(f"\n리포트: {out}/report.md  (요약)  ·  {out}/report.txt  (콘솔 전문)")
 
 if __name__ == "__main__":
     sys.exit(main())

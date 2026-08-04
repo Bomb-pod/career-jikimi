@@ -6,7 +6,12 @@
 *.sh text eol=lf
 
 # Dockerfile과 compose 파일도 리눅스 도구가 읽는다.
-Dockerfile text eol=lf
+#
+# `Dockerfile*`로 쓴 이유 — 슬래시 없는 패턴은 어느 디렉터리에서든 파일명에
+# 매치되므로 `deploy/Dockerfile`과 `deploy/Dockerfile.web`을 함께 덮는다.
+# `Dockerfile`로만 적으면 확장자가 붙은 `Dockerfile.web`이 빠지고,
+# core.autocrlf=true인 Windows에서 작업트리에 CRLF로 깔린다.
+Dockerfile* text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
 .env.example text eol=lf

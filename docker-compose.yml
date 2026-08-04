@@ -17,6 +17,20 @@ services:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     environment:
+      # **`messages.created_at`의 시간대가 여기서 정해진다.** 그 컬럼의 기본값이
+      # `CURRENT_TIMESTAMP(6)`이고 MariaDB의 `time_zone`이 `SYSTEM`이라, 값은 이
+      # 컨테이너의 시계를 그대로 따른다. 기본값(UTC)으로 두면 KST 오전 10시에 보낸
+      # 메시지가 `01:00`으로 저장된다.
+      #
+      # 그것이 화면에서 9시간 어긋나 보이는 이유는 API가 시간대 표기 없는
+      # (naive) ISO 문자열을 내려주고, 브라우저의 `new Date()`가 그런 문자열을
+      # **로컬 시각으로** 해석하기 때문이다(`frontend/src/lib/time.ts`). 즉 서버가
+      # UTC로 적고 화면은 KST로 읽는다. 양쪽을 KST로 맞춰 어긋남을 없앤다.
+      #
+      # 근본 해결은 timezone-aware UTC로 저장하고 화면에서 변환하는 것이지만,
+      # 그러려면 스키마와 프론트 양쪽을 고쳐야 한다. 단일 지역에서 도는 데모라
+      # 컨테이너 시계를 맞추는 것으로 충분하다.
+      TZ: ${TZ:-Asia/Seoul}
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?".env에 MARIADB_ROOT_PASSWORD가 필요합니다"}
       MARIADB_DATABASE: ${MARIADB_DATABASE:?".env에 MARIADB_DATABASE가 필요합니다"}
       MARIADB_USER: ${MARIADB_USER:?".env에 MARIADB_USER가 필요합니다"}
@@ -34,9 +48,20 @@ services:
       retries: 20
       start_period: 20s
     restart: unless-stopped
-    # **호스트에 포트를 노출하지 않는다** — 이 데모의 유일한 네트워크 보안
-    # 조치다 (services.md § db 서비스). DB를 들여다보려면:
-    #   docker compose exec db mariadb -u root -p
+    # **127.0.0.1에만 바인딩한다.** 원래 이 서비스는 포트를 아예 열지 않았다
+    # (services.md § db 서비스) — 이 데모의 유일한 네트워크 보안 조치였다.
+    # DB를 GUI 클라이언트로 들여다보려고 열되, 다음 둘로 원래 의도를 지킨다:
+    #
+    #   1. `127.0.0.1:` 접두어 — 같은 PC에서만 붙는다. 이게 없으면 0.0.0.0에
+    #      바인딩되어 같은 공유기의 다른 기기에서도 보인다.
+    #   2. 기본 포트가 3306이 아니라 3307 — 호스트에 이미 MySQL/MariaDB가
+    #      깔려 있어도 충돌하지 않는다. 테스트 DB(33061)와도 겹치지 않는다.
+    #
+    # 닫으려면 아래 두 줄을 지우거나 주석 처리한다. 컨테이너 안에서 보는
+    # 방법은 포트와 무관하게 그대로 쓸 수 있다:
+    #   docker compose exec db mariadb -u app -p career_jikimi
+    ports:
+      - "127.0.0.1:${DB_HOST_PORT:-3307}:3306"
     #
     # 리소스 제한: 데모 규모라 강제하지 않는다. 필요해지면 여기에 둔다.
     #   deploy:
@@ -46,7 +71,12 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: deploy/Dockerfile
+    environment:
+      # db와 **같은 값이어야 한다.** 이쪽은 파이썬의 `datetime.now()`가 쓴다 —
+      # 시드 스크립트의 `created_at`과 로그 시각이 여기서 나온다. 두 컨테이너가
+      # 다른 시간대면 심은 대화와 시연 중 보낸 메시지의 시각이 서로 어긋난다.
+      TZ: ${TZ:-Asia/Seoul}
     env_file:
       # 비밀은 이미지에 굽지 않고 런타임에 주입한다 (FR-1.4, NFR-6).
       # 없으면 기동을 멈춘다 — 빈 비밀로 도는 것보다 낫다.

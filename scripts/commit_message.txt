@@ -1,0 +1,50 @@
+feat(judgment): 판정 백엔드 전환(openai/ollama/encoder) + 인코더 파인튜닝
+
+.env의 JUDGMENT_BACKEND 한 줄로 세 백엔드를 고른다. 셋 다 같은 ModelCall을
+돌려주므로 judge()의 9단계, judgment_logs, 강행 전송, report/evaluate가 그대로
+동작한다. openai와 ollama는 base_url만 다른 같은 코드 경로를 쓴다 — client의
+타임아웃/재시도/예산 계산(BR-6.7)을 두 벌로 만들지 않기 위해서다.
+
+판정 경로
+- judgment/backend.py: 백엔드 라우터. torch를 지연 import해 LLM 백엔드에서는
+  컨테이너에 torch가 없어도 앱이 뜬다. import 실패도 ModelCall(ok=False)로
+  잡아 예외가 judge() 밖으로 새지 않는다 (BR-6.7).
+- judgment/local_encoder.py: 인코더 어댑터. 조립된 프롬프트를 prompt.py의 절
+  제목 상수로 되풀어 (문맥, 후보)를 얻는다. 후보의 화자 라벨은 떼어낸다 —
+  학습 데이터의 response에는 라벨이 없어 붙인 채로 넣으면 분포가 어긋난다.
+  torch 추론은 to_thread로 감싸 이벤트 루프를 막지 않는다.
+- 임계값 출처는 AI_VERDICT_THRESHOLD 하나로 유지한다. threshold.json은 기동 시
+  경고에만 쓰고 덮어쓰지 않는다 — judgment_logs.threshold가 설정값과 같다는
+  불변식(BR-6.5)을 지켜야 판정을 재현할 수 있다.
+- main.py lifespan에서 warmup(). 인코더 첫 호출이 모델 로딩(300MB)을 포함해
+  AI_TIMEOUT_SECONDS를 넘기면 첫 메시지가 failed가 된다.
+- try CLI도 라우터를 타게 해 컨테이너 없이 인코더 판정을 확인할 수 있다.
+
+모델
+- 학습: v3 1000행. 화자 호칭을 A/B/C로 익명화해 운영 프롬프트(FR-6.2)와 형식을
+  맞췄고, 부수적으로 같은 fold 검증 성능이 0.855 -> 0.890으로 올랐다. 호칭
+  66종이 암기 손잡이였다.
+- 평가: test_dataset_100에서 AUC 1.000 / precision 1.000 / recall 1.000.
+  절제 실험 AUC 1.000 -> 0.638로 문맥 사용 확인. p50 512ms(CPU), 4초 초과 0건.
+  점수 간격 0.687로 threshold 0.2~0.8 어디든 정확도 1.000이라 기본값 0.7을 쓴다.
+- hard 셋은 AUC 0.728 / recall 0.020. 부적절 50건 중 46건이 지시 위반(N4/N3/N2)
+  으로 프롬프트가 명시적으로 배제한 범주다. 오탐은 0 — 모르는 종류를 만나면
+  조용히 넘어간다. N1(4건)도 못 잡는데, 그것은 같은 방 안의 사실 모순이라
+  cross-room만 담은 v3에 없던 종류다.
+
+도구
+- scripts/eval/benchmark_three.py: 세 백엔드를 같은 평가셋에 올린다. 학습셋 누출 검사,
+  양쪽 동일 익명화, AUC 병기, 절제 실험, 기저율 보정 precision, report.md 저장.
+- scripts/eval/: check_local_llm.py / analyze_encoder_result.py / diagnose_ollama.py
+- app/seed_demo.py: 데모 데이터. AI_CONTEXT_N=10 때문에 방마다 12턴 이상 채운다.
+
+컨테이너
+- requirements-encoder.txt 분리. torch는 CPU 전용 인덱스에서 받는다 — 기본
+  PyPI 빌드는 CUDA를 포함해 이미지가 2GB 넘게 커지는데 GPU를 붙이지 않는다.
+- COPY backend/models ./models. 가중치는 .gitignore로 커밋에서 뺀다.
+- db 포트를 127.0.0.1:3307에 바인딩. 0.0.0.0이면 같은 공유기의 다른 기기에서도
+  보인다.
+
+테스트 355 passed / skip 0. conftest가 JUDGMENT_BACKEND=openai로 고정한다 —
+judge()의 단위 테스트는 백엔드가 아니라 임계값 판정과 실패 처리를 검증하며,
+.env가 encoder면 그 테스트들이 인코더 경로로 흘러 성립하지 않는다.

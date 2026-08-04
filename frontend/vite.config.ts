@@ -39,7 +39,7 @@ export default defineConfig({
     },
   },
   build: {
-    // Dockerfile의 프론트 빌드 스테이지가 이 디렉터리를 런타임 이미지의
+    // deploy/Dockerfile의 프론트 빌드 스테이지가 이 디렉터리를 런타임 이미지의
     // backend/static/ 으로 복사한다 (FR-9.5).
     outDir: 'dist',
     sourcemap: true,

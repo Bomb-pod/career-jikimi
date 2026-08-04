@@ -28,7 +28,8 @@ import sys
 from typing import Final
 
 from app.core.config import settings
-from app.judgment.client import KIND_TIMEOUT, ModelCall, call_model
+from app.judgment.backend import call_model
+from app.judgment.client import KIND_TIMEOUT, ModelCall
 from app.judgment.constants import SCORE_MAX, SCORE_MIN, use_utf8_console
 from app.judgment.prompt import build_messages
 from app.judgment.types import ContextMessage
@@ -104,7 +105,7 @@ def format_failure(call: ModelCall) -> str:
     else:
         lines.append(
             "API 장애가 아니라 설정 문제일 수 있습니다 — OPENAI_API_KEY와 "
-            f"OPENAI_MODEL({settings.OPENAI_MODEL})을 확인하세요"
+            f"모델({settings.active_model})을 확인하세요"
         )
     return "\n".join(lines)
 

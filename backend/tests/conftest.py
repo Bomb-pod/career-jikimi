@@ -38,6 +38,11 @@ BACKEND_DIR = Path(__file__).resolve().parent.parent
 os.environ.setdefault("DATABASE_URL", "mysql+asyncmy://127.0.0.1:3306/unused?charset=utf8mb4")
 os.environ.setdefault("JWT_SECRET", "placeholder-for-unit-tests")
 os.environ.setdefault("OPENAI_API_KEY", "placeholder-for-unit-tests")
+# **판정 백엔드를 openai로 고정한다.** `judge()`의 단위 테스트는 백엔드가 아니라
+# 임계값 판정과 실패 처리를 검증한다. `.env`에 JUDGMENT_BACKEND=encoder가 있으면
+# 그 테스트들이 인코더 경로로 흘러 300MB 모델을 로드하고, SDK를 가짜로 바꾼
+# 실패 테스트가 성립하지 않는다. setdefault라 CI에서 환경변수로 덮어쓸 수 있다.
+os.environ.setdefault("JUDGMENT_BACKEND", "openai")
 
 
 def _load_repo_dotenv() -> None:

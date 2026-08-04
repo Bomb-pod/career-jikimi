@@ -9,8 +9,8 @@
 
 사용:
     cd backend
-    .venv/Scripts/python.exe ../check_local_llm.py --model qwen3.5:4b
-    .venv/Scripts/python.exe ../check_local_llm.py --model qwen3.5:4b --n 10   # 지연 표본 10회
+    .venv/Scripts/python.exe ../scripts/eval/check_local_llm.py --model qwen3.5:4b
+    .venv/Scripts/python.exe ../scripts/eval/check_local_llm.py --model qwen3.5:4b --n 10   # 지연 표본 10회
 """
 
 from __future__ import annotations
@@ -23,6 +23,28 @@ import time
 
 DEFAULT_BASE = "http://localhost:11434/v1"
 
+def _bootstrap_path() -> str | None:
+    """`app` 패키지가 있는 폴더를 sys.path에 넣는다.
+
+    Python은 cwd가 아니라 **스크립트가 있는 폴더**를 sys.path[0]에 넣는다.
+    그래서 `cd backend && python ../this.py` 로 실행하면 프로젝트 루트가 잡히고
+    `app`(= backend/app)을 못 찾는다. cwd와 그 상위, 스크립트 폴더를 훑어
+    `app/judgment/prompt.py`가 있는 곳을 찾아 넣는다.
+    """
+    import sys
+    from pathlib import Path
+    here = Path(__file__).resolve().parent
+    for base in [Path.cwd(), *Path.cwd().parents, here, *here.parents]:
+        for cand in (base, base / "backend"):
+            if (cand / "app" / "judgment" / "prompt.py").exists():
+                if str(cand) not in sys.path:
+                    sys.path.insert(0, str(cand))
+                return str(cand)
+    return None
+
+
+_APP_ROOT = _bootstrap_path()
+
 # 프로젝트의 단일 출처를 그대로 쓴다. 여기서 문안을 복사해두면 두 벌이 되어
 # 검사 결과와 운영이 어긋난다.
 try:
@@ -31,7 +53,8 @@ try:
     from app.judgment.types import ContextMessage
 except ImportError as exc:
     print(f"[중단] 프로젝트 모듈을 못 찾았다: {exc}")
-    print("       backend/ 디렉터리에서 실행할 것:  cd backend && python ../check_local_llm.py")
+    print(f"       app 패키지를 못 찾았다 (탐색 결과: {_APP_ROOT}).")
+    print("       backend/ 안에 app/judgment/prompt.py 가 있는지 확인할 것.")
     raise SystemExit(1)
 
 # 오발송 상황 — 업무방 문맥 10개 + 잡담 후보
